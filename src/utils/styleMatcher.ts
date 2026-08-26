@@ -1,46 +1,133 @@
-import { BreweryStop, BrewTravelRoute, BeerHighlight } from '../types';
+import { BreweryStop, BrewTravelRoute, BeerHighlight, DayItinerary, StayRecommendation } from '../types';
+
+/**
+ * Normalizes user / API style inputs to standard canonical style keys.
+ */
+export function normalizeBeerStyle(styleName: string): string {
+  if (!styleName) return '';
+  const s = styleName.toLowerCase().trim();
+  if (s.includes('neipa') || s.includes('hazy') || s.includes('new england')) return 'neipa';
+  if (s.includes('west coast') || s.includes('ipa') || s.includes('dipa') || s.includes('double ipa') || s.includes('triple ipa') || s.includes('india pale')) return 'ipa';
+  if (s.includes('pilsner') || s.includes('pils') || s.includes('czech') || s.includes('bohemian')) return 'pilsner';
+  if (s.includes('lager') || s.includes('helles') || s.includes('kolsch') || s.includes('kölsch') || s.includes('marzen') || s.includes('märzen') || s.includes('oktoberfest') || s.includes('vienna') || s.includes('dunkel') || s.includes('bock')) return 'lager';
+  if (s.includes('stout')) return 'stout';
+  if (s.includes('porter')) return 'porter';
+  if (s.includes('scotch') || s.includes('wee heavy') || s.includes('scottish')) return 'scotch ale';
+  if (s.includes('gose')) return 'gose';
+  if (s.includes('sour') || s.includes('wild ale') || s.includes('lambic') || s.includes('gueuze') || s.includes('berliner') || s.includes('flanders') || s.includes('oud bruin')) return 'sour';
+  if (s.includes('saison') || s.includes('farmhouse') || s.includes('grisette') || s.includes('biere de garde') || s.includes('bière de garde')) return 'saison';
+  if (s.includes('belgian') || s.includes('tripel') || s.includes('quadrupel') || s.includes('quad') || s.includes('dubbel') || s.includes('trappist') || s.includes('abbey')) return 'belgian';
+  if (s.includes('amber') || s.includes('red ale') || s.includes('copper ale')) return 'amber ale';
+  if (s.includes('wheat') || s.includes('hefeweizen') || s.includes('witbier') || s.includes('white ale') || s.includes('weizen')) return 'wheat';
+  if (s.includes('barleywine') || s.includes('barley wine') || s.includes('wheatwine') || s.includes('old ale')) return 'barleywine';
+  return s;
+}
 
 /**
  * Checks if a specific beer highlight matches a requested beer style.
- * Uses strict style discrimination so that non-matching styles (e.g. Stout vs Porter,
- * NEIPA vs West Coast IPA, Pilsner vs Dunkel) are accurately distinguished.
+ * Uses strict style discrimination with explicit negative guards so that non-matching styles
+ * (e.g. Pilsner/Lager vs IPA/NEIPA, Stout vs Porter, NEIPA vs West Coast IPA)
+ * are NEVER falsely grouped or matched together.
  */
 export function checkBeerMatchesStyle(
   beer: BeerHighlight,
   preferredStyle: string
 ): boolean {
   if (!beer || !preferredStyle) return false;
-  const p = preferredStyle.toLowerCase().trim();
-  const s = (beer.style || '').toLowerCase();
-  const n = (beer.name || '').toLowerCase();
-  const d = (beer.description || '').toLowerCase();
-  const combined = `${s} ${n} ${d}`;
+  const target = normalizeBeerStyle(preferredStyle);
+  const s = (beer.style || '').toLowerCase().trim();
+  const n = (beer.name || '').toLowerCase().trim();
+  const d = (beer.description || '').toLowerCase().trim();
 
-  switch (p) {
-    case 'neipa':
-      // Hazy / New England IPAs only
-      return (
-        s.includes('hazy') ||
-        s.includes('new england') ||
+  switch (target) {
+    case 'neipa': {
+      // Strict Negative Guards: If it's a Pilsner, Lager, Stout, Porter, Gose, Sour, Saison, Belgian, Wheat, etc. it is NOT NEIPA
+      if (
+        s.includes('pilsner') ||
+        s.includes('pils') ||
+        s.includes('lager') ||
+        s.includes('helles') ||
+        s.includes('kolsch') ||
+        s.includes('kölsch') ||
+        s.includes('dunkel') ||
+        s.includes('stout') ||
+        s.includes('porter') ||
+        s.includes('gose') ||
+        s.includes('sour') ||
+        s.includes('saison') ||
+        s.includes('tripel') ||
+        s.includes('quad') ||
+        s.includes('barleywine') ||
+        s.includes('wheat') ||
+        s.includes('hefeweizen') ||
+        s.includes('witbier')
+      ) {
+        return false;
+      }
+
+      // Must be explicitly a Hazy / New England / Juicy / Cloudy IPA or DIPA
+      const isExplicitNeipa =
         s.includes('neipa') ||
-        s.includes('juicy') ||
-        s.includes('cloudy') ||
+        s.includes('hazy ipa') ||
+        s.includes('hazy dipa') ||
+        s.includes('hazy double ipa') ||
+        s.includes('hazy triple ipa') ||
+        s.includes('new england ipa') ||
+        s.includes('new england dipa') ||
+        s.includes('new england double') ||
+        s.includes('new england pale') ||
+        s.includes('hazy pale') ||
+        s.includes('juicy ipa') ||
+        s.includes('juicy double') ||
+        s.includes('cloudy ipa') ||
         s.includes('east coast ipa') ||
-        n.includes('heady topper') ||
-        n.includes('focal banger') ||
-        n.includes('julius') ||
-        n.includes('green') ||
-        n.includes('haze') ||
-        n.includes('sip of sunshine') ||
-        n.includes('dead flowers') ||
-        n.includes('built to spill') ||
-        n.includes('king sue') ||
-        n.includes('pseudo sue') ||
-        (s.includes('ipa') && (d.includes('hazy') || d.includes('juicy') || d.includes('unfiltered') || d.includes('tropical')))
-      );
+        s.includes('unfiltered ipa');
 
-    case 'ipa':
-      // Any IPA / Double IPA / Imperial IPA
+      const isKnownNeipaFlagship =
+        n === 'heady topper' ||
+        n === 'focal banger' ||
+        n === 'julius' ||
+        n === 'king sue' ||
+        n === 'pseudo sue' ||
+        n === 'sip of sunshine' ||
+        n === 'second fiddle' ||
+        n === 'mastermind' ||
+        n === 'built to spill' ||
+        n === 'conehead';
+
+      const isDescribedAsHazyIpa =
+        (s.includes('ipa') || s.includes('dipa') || s.includes('double ipa')) &&
+        (d.includes('hazy') || d.includes('unfiltered') || d.includes('pillowy') || d.includes('juicy and cloudy'));
+
+      return isExplicitNeipa || isKnownNeipaFlagship || isDescribedAsHazyIpa;
+    }
+
+    case 'ipa': {
+      // Strict Negative Guards: Pilsner, Lager, Helles, Kolsch, Stout, Porter, Gose, Sour, Saison, Belgian, Wheat are NOT IPAs
+      if (
+        s.includes('pilsner') ||
+        s.includes('pils') ||
+        s.includes('lager') ||
+        s.includes('helles') ||
+        s.includes('kolsch') ||
+        s.includes('kölsch') ||
+        s.includes('dunkel') ||
+        s.includes('stout') ||
+        s.includes('porter') ||
+        s.includes('gose') ||
+        s.includes('sour') ||
+        s.includes('saison') ||
+        s.includes('tripel') ||
+        s.includes('quad') ||
+        s.includes('barleywine') ||
+        s.includes('wheat') ||
+        s.includes('hefeweizen') ||
+        s.includes('witbier')
+      ) {
+        return false;
+      }
+
+      // Any IPA / Double IPA / Imperial IPA / West Coast IPA / Pale Ale
       return (
         s.includes('ipa') ||
         s.includes('india pale ale') ||
@@ -50,6 +137,7 @@ export function checkBeerMatchesStyle(
         s.includes('west coast ipa') ||
         s.includes('session ipa') ||
         s.includes('imperial ipa') ||
+        s.includes('pale ale') ||
         n.includes('heady topper') ||
         n.includes('focal banger') ||
         n.includes('pliny') ||
@@ -58,11 +146,65 @@ export function checkBeerMatchesStyle(
         n.includes('two hearted') ||
         n.includes('abner') ||
         n.includes('crusher') ||
-        n.includes('sip of sunshine')
+        n.includes('edward')
       );
+    }
 
-    case 'lager':
-      // Any Craft Lager style
+    case 'pilsner': {
+      // Strict Negative Guards: IPAs, Stouts, Porters, Sours, Goses, Saisons, Barleywines are NOT Pilsners
+      if (
+        s.includes('ipa') ||
+        s.includes('dipa') ||
+        s.includes('stout') ||
+        s.includes('porter') ||
+        s.includes('sour') ||
+        s.includes('gose') ||
+        s.includes('saison') ||
+        s.includes('barleywine') ||
+        s.includes('tripel') ||
+        s.includes('quad')
+      ) {
+        return false;
+      }
+
+      // Strict Pilsner styles
+      return (
+        s.includes('pilsner') ||
+        s.includes('pils') ||
+        s.includes('czech') ||
+        s.includes('bohemian') ||
+        s.includes('german pils') ||
+        s.includes('italian pils') ||
+        s.includes('keller pils') ||
+        n.includes('pilsner') ||
+        n.includes('pils') ||
+        n.includes('tipopils') ||
+        n.includes('scrag mountain') ||
+        n.includes('prima pils') ||
+        n.includes('pivo pils') ||
+        n.includes('mary')
+      );
+    }
+
+    case 'lager': {
+      // Strict Negative Guards: IPAs, Stouts, Porters, Sours, Goses, Saisons, Barleywines are NOT Lagers
+      if (
+        s.includes('ipa') ||
+        s.includes('neipa') ||
+        s.includes('dipa') ||
+        s.includes('stout') ||
+        s.includes('porter') ||
+        s.includes('sour') ||
+        s.includes('gose') ||
+        s.includes('saison') ||
+        s.includes('barleywine') ||
+        s.includes('tripel') ||
+        s.includes('quadrupel')
+      ) {
+        return false;
+      }
+
+      // Craft Lagers, Helles, Pilsner, Märzen, Vienna, Dunkel, Bock, Kölsch, etc.
       return (
         s.includes('lager') ||
         s.includes('helles') ||
@@ -76,55 +218,76 @@ export function checkBeerMatchesStyle(
         s.includes('vienna') ||
         s.includes('dunkel') ||
         s.includes('bock') ||
+        s.includes('doppelbock') ||
         s.includes('kellerbier') ||
         s.includes('zwickel') ||
+        s.includes('schwarzbier') ||
         s.includes('rauchbier') ||
+        n.includes('lager') ||
+        n.includes('helles') ||
         n.includes('marie') ||
         n.includes('tipopils') ||
         n.includes('von trapp')
       );
+    }
 
-    case 'pilsner':
-      // Pilsners strictly (not dark lagers, marzen, bock, etc.)
-      return (
+    case 'stout': {
+      // Strict Negative Guards: Pilsners, Lagers, IPAs, Sours, Goses, Saisons, Wheat
+      if (
         s.includes('pilsner') ||
         s.includes('pils') ||
-        s.includes('czech') ||
-        s.includes('german pils') ||
-        s.includes('italian pils') ||
-        s.includes('bohemian') ||
-        s.includes('keller pils') ||
-        n.includes('mary') ||
-        n.includes('tipopils') ||
-        n.includes('scrag mountain') ||
-        n.includes('pivo pils') ||
-        n.includes('prima pils')
-      );
+        s.includes('lager') ||
+        s.includes('helles') ||
+        s.includes('ipa') ||
+        s.includes('dipa') ||
+        s.includes('sour') ||
+        s.includes('gose') ||
+        s.includes('saison') ||
+        s.includes('wheat') ||
+        s.includes('witbier')
+      ) {
+        return false;
+      }
+      // Pure porter without stout in style name is not a stout (user requested stout filter)
+      if (s.includes('porter') && !s.includes('stout')) {
+        return false;
+      }
 
-    case 'stout':
-      // Stouts only (NOT pure porters unless specified as stout/porter)
       return (
         s.includes('stout') ||
-        s.includes('imperial stout') ||
-        s.includes('pastry stout') ||
-        s.includes('oatmeal stout') ||
-        s.includes('milk stout') ||
-        s.includes('coffee stout') ||
-        s.includes('russian imperial') ||
-        s.includes('dry stout') ||
-        s.includes('irish stout') ||
+        n.includes('stout') ||
         n.includes('luscious') ||
         n.includes('genealogy of morals') ||
         n.includes('damon') ||
         n.includes('fayston maple') ||
         n.includes('speedway stout') ||
         n.includes('darkness') ||
-        n.includes('bourbon county') ||
-        n.includes('youth large')
+        n.includes('bourbon county')
       );
+    }
 
-    case 'porter':
-      // Porters only (Baltic, Smoked, Robust, Imperial Porter)
+    case 'porter': {
+      // Strict Negative Guards: Pilsners, Lagers, IPAs, Sours, Goses, Saisons, Wheat
+      if (
+        s.includes('pilsner') ||
+        s.includes('pils') ||
+        s.includes('lager') ||
+        s.includes('helles') ||
+        s.includes('ipa') ||
+        s.includes('dipa') ||
+        s.includes('sour') ||
+        s.includes('gose') ||
+        s.includes('saison') ||
+        s.includes('wheat') ||
+        s.includes('witbier')
+      ) {
+        return false;
+      }
+      // Pure stout without porter in style name is not a porter
+      if (s.includes('stout') && !s.includes('porter')) {
+        return false;
+      }
+
       return (
         s.includes('porter') ||
         s.includes('baltic') ||
@@ -132,35 +295,51 @@ export function checkBeerMatchesStyle(
         s.includes('robust porter') ||
         s.includes('imperial porter') ||
         s.includes('coffee porter') ||
+        n.includes('porter') ||
         n.includes('everett') ||
         n.includes('twilight of the idols') ||
         n.includes('george') ||
         n.includes('shadow of a doubt') ||
         n.includes('black butte') ||
         n.includes('edmund fitzgerald') ||
-        n.includes('anchor porter')
+        n.includes('anchor porter') ||
+        n.includes('barista')
       );
+    }
 
-    case 'scotch ale':
+    case 'scotch ale': {
       return (
         s.includes('scotch') ||
         s.includes('wee heavy') ||
-        s.includes('scottish ale') ||
-        s.includes('scottish export') ||
+        s.includes('scottish') ||
         n.includes('dirty bastard') ||
         n.includes('backwoods bastard') ||
-        n.includes('skull splitter')
+        n.includes('skull splitter') ||
+        n.includes('old chub')
       );
+    }
 
-    case 'gose':
+    case 'gose': {
       return (
         s.includes('gose') ||
-        s.includes('salted') ||
-        s.includes('coriander') ||
-        s.includes('leipziger')
+        n.includes('gose') ||
+        (s.includes('sour') && (s.includes('salted') || s.includes('coriander') || d.includes('saline') || d.includes('coriander')))
       );
+    }
 
-    case 'sour':
+    case 'sour': {
+      // Strict Negative Guards: Standard clean IPAs, Lagers, Pilsners, Stouts, Porters
+      if (
+        (s.includes('ipa') && !s.includes('sour')) ||
+        s.includes('pilsner') ||
+        s.includes('lager') ||
+        s.includes('helles') ||
+        s.includes('stout') ||
+        s.includes('porter')
+      ) {
+        return false;
+      }
+
       return (
         s.includes('sour') ||
         s.includes('wild ale') ||
@@ -168,60 +347,72 @@ export function checkBeerMatchesStyle(
         s.includes('gueuze') ||
         s.includes('flanders') ||
         s.includes('oud bruin') ||
+        s.includes('berliner') ||
         s.includes('mixed fermentation') ||
         s.includes('spontaneous') ||
-        s.includes('barrel-aged sour') ||
         s.includes('brett') ||
-        s.includes('farmhouse sour') ||
-        s.includes('berliner') ||
-        s.includes('tart') ||
+        n.includes('sour') ||
+        n.includes('wild ale') ||
         n.includes('flora') ||
         n.includes('consecration') ||
         n.includes('supplication') ||
         n.includes('jelly king')
       );
+    }
 
-    case 'belgian':
-      return (
-        s.includes('belgian') ||
-        s.includes('tripel') ||
-        s.includes('quadrupel') ||
-        s.includes('quad') ||
-        s.includes('dubbel') ||
-        s.includes('belgian blonde') ||
-        s.includes('belgian dark') ||
-        s.includes('belgian golden') ||
-        s.includes('abbey') ||
-        s.includes('trappist') ||
-        n.includes('curieux') ||
-        n.includes('allagash tripel')
-      );
+    case 'saison': {
+      if (s.includes('pilsner') || s.includes('lager') || s.includes('stout') || s.includes('porter') || s.includes('ipa')) {
+        return false;
+      }
 
-    case 'saison':
       return (
         s.includes('saison') ||
         s.includes('farmhouse') ||
         s.includes('grisette') ||
         s.includes('bière de garde') ||
         s.includes('biere de garde') ||
-        s.includes('rustic') ||
+        n.includes('saison') ||
         n.includes('arthur') ||
         n.includes('florence') ||
         n.includes('anna') ||
         n.includes('tank 7') ||
         n.includes('saison dupont')
       );
+    }
 
-    case 'amber ale':
+    case 'belgian': {
+      if (s.includes('pilsner') || s.includes('lager') || s.includes('stout') || s.includes('porter') || s.includes('ipa')) {
+        return false;
+      }
+
+      return (
+        s.includes('belgian') ||
+        s.includes('tripel') ||
+        s.includes('quadrupel') ||
+        s.includes('quad') ||
+        s.includes('dubbel') ||
+        s.includes('trappist') ||
+        s.includes('abbey') ||
+        s.includes('belgian blonde') ||
+        s.includes('belgian dark') ||
+        s.includes('belgian golden') ||
+        n.includes('curieux') ||
+        n.includes('allagash tripel')
+      );
+    }
+
+    case 'amber ale': {
       return (
         s.includes('amber ale') ||
         s.includes('red ale') ||
         s.includes('american amber') ||
         s.includes('irish red') ||
-        s.includes('copper ale')
+        s.includes('copper ale') ||
+        n.includes('mad river maple')
       );
+    }
 
-    case 'wheat':
+    case 'wheat': {
       return (
         s.includes('wheat') ||
         s.includes('hefeweizen') ||
@@ -234,8 +425,9 @@ export function checkBeerMatchesStyle(
         n.includes('oberon') ||
         n.includes('weihenstephaner')
       );
+    }
 
-    case 'barleywine':
+    case 'barleywine': {
       return (
         s.includes('barleywine') ||
         s.includes('barley wine') ||
@@ -244,9 +436,10 @@ export function checkBeerMatchesStyle(
         n.includes('bigfoot') ||
         n.includes('thomas hardy')
       );
+    }
 
     default:
-      return s.includes(p) || n.includes(p);
+      return s.includes(target) || n.includes(target);
   }
 }
 

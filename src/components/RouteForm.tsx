@@ -441,7 +441,7 @@ export const RouteForm: React.FC<RouteFormProps> = ({
                     Overnight Stay Options
                   </h2>
                   <p className="text-xs text-slate-500">
-                    For {tripLength === '2_days' ? '2-day' : 'weekend'} routes, we locate stays within 30 min of the last brewery.
+                    For {tripLength === '2_days' ? '2-day routes (1 overnight stay)' : '3-day weekend routes (2 overnight stays)'}, we locate stays within 30 min of the last brewery each day.
                   </p>
                 </div>
               </div>

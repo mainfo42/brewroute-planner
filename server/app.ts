@@ -51,7 +51,7 @@ apiRouter.post('/generate-route', async (req, res) => {
     ? 1 
     : params.tripLength === '2_days' 
       ? 2 
-      : 2; // weekend is 2-day or 3-day itinerary
+      : 3; // 3 days for weekend trip
 
   const priceRangeLabel = params.priceRange === 'under_100'
     ? 'less than $100 per night'
@@ -65,12 +65,14 @@ apiRouter.post('/generate-route', async (req, res) => {
   const wantsStay = isMultiDay && params.desireStay !== false && params.stayType && params.stayType !== 'none';
 
   const stayRequirement = wantsStay
-    ? `Since trip length is ${params.tripLength} and stay type is ${params.stayType}, you MUST include a "stay" recommendation object for each overnight stay between days.
+    ? `Since trip length is ${params.tripLength} (${dayCount} days) and stay type is ${params.stayType}, you MUST include an overnight "stay" recommendation object ONLY between active tour days.
+       - FOR 2-DAY TRIPS: Include 1 stay recommendation on Day 1 (for the night between Day 1 and Day 2). Day 2 (final day) must NOT have a stay object.
+       - FOR 3-DAY (WEEKEND) TRIPS: Include a stay recommendation on Day 1 (night between Day 1-2) and Day 2 (night between Day 2-3). Day 3 (final day) must NOT have a stay object.
        - Type must be strictly "${params.stayType}" (either "hotel" or "airbnb").
        - Best value stay matching the user's price bracket: "${priceRangeLabel}".
-       - STRICT DISTANCE CONSTRAINT 1: The stay must NOT be more than 30 minutes driving distance from the last brewery visited on Day 1 (driveTimeFromLastBreweryMin <= 30).
-       - STRICT DISTANCE CONSTRAINT 2: The stay must NOT be more than 30 minutes driving distance from the first brewery visited on Day 2 (driveTimeToNextBreweryMin <= 30).`
-    : 'No stay required (single day trip or user chose not to include a stay). Do NOT include stay object.';
+       - STRICT DISTANCE CONSTRAINT 1: The stay must NOT be more than 30 minutes driving distance from the last brewery visited that day (driveTimeFromLastBreweryMin <= 30).
+       - STRICT DISTANCE CONSTRAINT 2: The stay must NOT be more than 30 minutes driving distance from the first brewery visited on the next day (driveTimeToNextBreweryMin <= 30).`
+    : 'No stay required (single day trip or user chose not to include a stay). Set stay to null/undefined on all days.';
 
   const excludeInstruction = params.excludeBreweries && params.excludeBreweries.length > 0
     ? `CRITICAL EXCLUSION / ALTERNATIVE BREWERIES INSTRUCTION:
@@ -92,52 +94,36 @@ You MUST include:
 - Real food program (e.g., on-site food trucks, wood-fired pizza kitchen, artisan cheese & pretzels).
 - Real stay recommendations (real hotels or Airbnbs in that exact town/city).
 
-USER CRITERIA:
+USER CRITERIA & STRICT TRIP LENGTH CONSTRAINTS:
 - Starting Location (Home / Origin): "${params.startLocation}"
 - Destination Area to Visit: "${params.destinationArea}"
-- Preferred Beer Styles: ${params.beerStyles.length > 0 ? params.beerStyles.join(', ') : 'All craft styles (NEIPA, Lager, Stout, Sour, IPA, Scotch Ale, Gose, Belgian, etc.)'}
+- Preferred Beer Styles: ${params.beerStyles.length > 0 ? params.beerStyles.join(', ') : 'All craft styles'}
 - Total Trip Length: ${params.tripLength} (${dayCount} day(s))
-- Overnight Stay Requested: ${wantsStay ? `YES (${params.stayType}, Price: ${priceRangeLabel})` : 'NO'}
+- Overnight Stay Requested: ${wantsStay ? `YES (${params.stayType}, Price: ${priceRangeLabel})` : 'NO (No lodging needed)'}
 ${excludeInstruction}
 
 MANDATORY RULES & DRIVING CONSTRAINTS:
-1. COMPLETE ROUND-TRIP DRIVE TIMES:
+1. STRICT TRIP DAYS & BREWERY LIMITS:
+   - For 1-day trip (${params.tripLength}): Generate EXACTLY 1 day (days.length === 1). Provide 2 to 3 microbreweries (STRICT MAXIMUM 3). NO stay recommendation.
+   - For 2-day trip (${params.tripLength}): Generate EXACTLY 2 days (days.length === 2). Provide 2 to 3 microbreweries per day (STRICT MAXIMUM 6 total). If stay requested, 1 stay on Day 1.
+   - For 3-day (weekend) trip (${params.tripLength}): Generate EXACTLY 3 days (days.length === 3). Provide 2 to 3 microbreweries per day (STRICT MAXIMUM 9 total). If stay requested, 1 stay on Day 1 and 1 stay on Day 2.
+2. COMPLETE ROUND-TRIP DRIVE TIMES:
    - "departureTransit": Realistic drive time (in minutes) and distance (in miles) from Starting Location ("${params.startLocation}") to the first brewery of Day 1.
    - "returnHomeTransit": Realistic drive time (in minutes) and distance (in miles) from the last visited brewery (or stay) on the final day back to Starting Location ("${params.startLocation}").
    - "totalTravelTimeMin" for the entire trip MUST BE THE SUM OF ALL DRIVES:
      (Starting Location -> Brewery 1) + (all intermediate drives between breweries & stays) + (Final stop -> Return Home to Starting Location).
    - "totalDistanceMiles" MUST be the complete round trip mileage including departure and return home.
-2. MAX 3 BREWERIES PER DAY: Propose exactly 2 to 3 top-tier microbreweries per day (strictly maximum 3).
 3. 25-MINUTE PROXIMITY RULE: Each brewery visited on the same day MUST NOT be more than 25 minutes driving distance from each other (driveTimeFromPrevMin <= 25).
-4. LIVE ON-TAP BEER STYLE VALIDATION ACROSS MULTIPLE WEB DATA SOURCES:
+4. LIVE ON-TAP BEER STYLE VALIDATION:
    - When the user specifies preferred beer styles: [${params.beerStyles.join(', ')}]:
-     a) LIVE TAP LIST & WEBSITE LOOKUP: Search for the brewery's latest official website taplist, current can/bottle releases, and draft menu. Provide their real "websiteUrl" and "taplistUrl".
-     b) UNTAPPD ACTIVE MENU & RATINGS: Search the brewery's Untappd page and recent check-ins for active styles on tap (e.g. check their Untappd verified venue tap list). Provide their real "untappdUrl" (e.g. https://untappd.com/brewery/...).
-     c) RATEBEER CATALOG: Search the brewery's RateBeer directory for their top-rated beers across styles. Provide their real "rateBeerUrl" (e.g. https://www.ratebeer.com/brewers/...).
-     d) ACCURATE BEER HIGHLIGHTS MATCHING SELECTED STYLES:
-        * If the user searched for "Porter", you MUST check and include their real Porter (e.g. for Hill Farmstead Brewery: "Everett" American Porter 7.5% ABV or "Twilight of the Idols" Baltic Porter 7.2% ABV; for The Alchemist: "Luscious" British Imperial Stout/Porter; for Russian River: "Shadow of a Doubt" Imperial Porter; for Foam Brewers: "Youth Large" Porter/Stout; etc.).
-        * If the user searched for "Stout", include their real Stouts (e.g. "Genealogy of Morals", "Luscious", "Fayston Maple", "Black", etc.).
-        * If the user searched for "Saison / Farmhouse", include their Farmhouse Saisons (e.g. "Arthur", "Florence", "Anna", "Tank 7", "Saison Dupont", etc.).
-        * If the user searched for "Lager / Pilsner", include their Lagers (e.g. "Marie", "Mary", "Tipopils", "Slow Pour Pils", etc.).
-        * If the user searched for "Sour / Wild Ale", include their wild ales and sours (e.g. "Flora", "House of Fermentology", "Jelly King", "Consecration", etc.).
-        * In "beerHighlights", ALWAYS feature 2 to 4 beers that specifically include the beers matching the user's selected styles [${params.beerStyles.join(', ')}] that are in their active rotation or on tap.
-     e) POPULATE "styleVerificationSources": Set "websiteVerified": true, "untappdVerified": true, "rateBeerVerified": true, and "details" with a clear statement of which specific on-tap/bottled beers and styles were verified (e.g. "Verified on Hill Farmstead taplist & Untappd: Everett (Porter, 7.5% ABV) & Arthur (Farmhouse Saison, 6.0% ABV)").
-   - If in the destination area, a brewery does not produce any of the requested styles after checking website, Untappd, and RateBeer listings, still propose it if it's top-rated, but set "hasPreferredStyle": false, "styleNotice": "No preferred style was found on their official website taplist, Untappd, or RateBeer, but we suggest it strongly based on high ratings.", and explain in "styleVerificationSources.details".
-   - If NO valid route or combination can be formed within the 25-minute drive limit with the given styles, set "needsPreferenceModification": true, "hasRouteWarning": true, and "routeWarningMessage": "No combinations within the 25-minute drive limit matching all your selected beer styles were found. Please modify or expand your beer style preferences."
+     a) Look up and feature their real on-tap beers and catalog that match the requested styles.
+     b) If user selected "NEIPA", include their hazy / New England IPAs. If user selected "Pilsner", include crisp Pilsners. Do NOT confuse Pilsners with IPAs, or Stouts with Porters.
+     c) In "beerHighlights", ALWAYS feature 2 to 4 beers that specifically include the beers matching the user's selected styles.
 5. HIGHEST COMPOSITE AVERAGE REVIEW RATING:
-   - You MUST pick real, renowned craft microbreweries that have the HIGHEST COMPOSITE MATHEMATICAL AVERAGE score between:
-     a) Google Reviews (score / 5.0, e.g. 4.7)
-     b) TripAdvisor (score / 5.0, e.g. 4.6)
-     c) Untappd (score / 5.0, e.g. 4.25)
-     d) RateBeer (score / 5.0, e.g. 4.4)
-   - Calculate compositeAverage = (google.score + tripAdvisor.score + untappd.score + rateBeer.score) / 4.
-   - Prioritize top-tier breweries with compositeAverage >= 4.4 / 5.0. Provide realistic rating numbers and authentic review / check-in count labels.
-6. BEER HIGHLIGHTS: For each brewery, list 2 to 4 beers they are most renowned for (signature beers, award winners, flagship brews) that align with the user's preferred beer styles. Include Beer Name, Style, ABV, and tasting notes.
-7. FOOD HIGHLIGHTS: Describe the food options for each brewery (e.g. onsite wood-fired pizza kitchen, artisan burger program, food truck patio lineup, soft pretzels & charcuterie).
-8. ATMOSPHERE & TIMING: Describe the venue vibe, best time of day to visit, and suggested duration.
-9. STAY RECOMMENDATIONS: ${stayRequirement}
-10. RESPONSIBLE TASTING: Include 3-4 responsible beer tasting and safe transit tips (e.g., hydration, flight sizes, rideshare advice).
-11. COORDINATES: Provide realistic latitude/longitude for the start location and each stop.
+   - Mathematical composite average across Google, Untappd, RateBeer, and TripAdvisor (target compositeAverage >= 4.4 / 5.0).
+6. STAY RECOMMENDATIONS: ${stayRequirement}
+7. RESPONSIBLE TASTING: Include 3-4 responsible beer tasting and safe transit tips.
+8. COORDINATES: Provide realistic latitude/longitude for the start location and each stop.
 
 Return a strictly valid JSON object matching the JSON schema.`;
 
@@ -351,8 +337,26 @@ Return a strictly valid JSON object matching the JSON schema.`;
         parsed.createdAt = new Date().toISOString();
         if (!parsed.id) parsed.id = `route-${Date.now()}`;
 
-        // Ensure composite average ratings and valid map URLs for all breweries
-        parsed.days.forEach(day => {
+        // Strictly enforce day count:
+        // 1 day = 1 day (max 3 breweries, NO stay)
+        // 2 days = 2 days (max 6 breweries, 1 stay if wantsStay on Day 1)
+        // 3 days (weekend) = 3 days (max 9 breweries, 1 stay on Day 1 & 1 stay on Day 2 if wantsStay)
+        if (parsed.days && parsed.days.length > 0) {
+          parsed.days = parsed.days.slice(0, dayCount);
+        }
+
+        // Ensure days and brewery limits per day (strictly max 3)
+        parsed.days.forEach((day, dIdx) => {
+          day.dayNumber = dIdx + 1;
+          if (day.breweries && day.breweries.length > 3) {
+            day.breweries = day.breweries.slice(0, 3);
+          }
+
+          const isLastDay = dIdx === parsed.days.length - 1;
+          if (!wantsStay || dayCount === 1 || isLastDay) {
+            day.stay = undefined;
+          }
+
           day.breweries.forEach(b => {
             const googleScore = Number(b.ratings?.google?.score || 4.7);
             const untappdScore = Number(b.ratings?.untappd?.score || 4.2);
@@ -520,6 +524,9 @@ Return a strictly valid JSON object matching the JSON schema.`;
           lastDay.totalDriveDistanceMiles = (lastDay.totalDriveDistanceMiles || 10) + returnHomeDist;
         }
 
+        // Update total breweries count
+        parsed.totalBreweries = parsed.days.reduce((acc, d) => acc + d.breweries.length, 0);
+
         // Rigorously validate each brewery style and check proximity limits
         const fullyValidatedRoute = enrichAndValidateRoute(parsed, params.beerStyles || []);
         return res.json(fullyValidatedRoute);
@@ -640,9 +647,9 @@ function generateSmartFallbackRoute(
       return stopWithoutValidation;
     });
 
-    // Match a real hotel or Airbnb in that exact region
+    // Match a real hotel or Airbnb only between tour days (never on final day, never for 1 day)
     let stay: StayRecommendation | undefined = undefined;
-    if (wantsStay) {
+    if (wantsStay && !isLastDay && dayCount > 1) {
       const stayList = params.stayType === 'airbnb' ? matchedRegion.airbnbs : matchedRegion.hotels;
       const matchedStayRecord = stayList.find(s => s.priceCategory === params.priceRange) || stayList[0];
 
