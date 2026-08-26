@@ -132,6 +132,72 @@ export function loginUser(email: string, password: string): { success: boolean; 
 }
 
 /**
+ * Checks whether an email is registered in the system
+ */
+export function checkEmailRegistered(email: string): { registered: boolean; error?: string } {
+  const cleanEmail = email.trim().toLowerCase();
+  if (!cleanEmail || !cleanEmail.includes('@')) {
+    return { registered: false, error: 'Please enter a valid email address.' };
+  }
+
+  const existingUsers = getRegisteredUsers();
+  const foundUser = existingUsers.find((u) => u.email === cleanEmail);
+
+  if (!foundUser) {
+    return { registered: false, error: 'No account found with this email address.' };
+  }
+
+  return { registered: true };
+}
+
+/**
+ * Reset password for a registered user using their verified email
+ */
+export function resetUserPassword(
+  email: string,
+  newPassword: string
+): { success: boolean; error?: string; message?: string } {
+  const cleanEmail = email.trim().toLowerCase();
+  const cleanPassword = newPassword.trim();
+
+  if (!cleanEmail || !cleanEmail.includes('@')) {
+    return { success: false, error: 'Please enter a valid email address.' };
+  }
+
+  if (!cleanPassword || cleanPassword.length < 6) {
+    return { success: false, error: 'New password must be at least 6 characters long.' };
+  }
+
+  const existingUsers = getRegisteredUsers();
+  const userIndex = existingUsers.findIndex((u) => u.email === cleanEmail);
+
+  if (userIndex === -1) {
+    return { success: false, error: 'No account was found with this email address.' };
+  }
+
+  // Update password in the database
+  existingUsers[userIndex].passwordHash = cleanPassword;
+
+  try {
+    localStorage.setItem(USERS_DB_KEY, JSON.stringify(existingUsers));
+  } catch (e) {
+    console.error('Failed to update user password:', e);
+    return { success: false, error: 'Failed to update password. Please try again.' };
+  }
+
+  // Also update active session user if currently logged in with this email
+  const currentUser = getCurrentUser();
+  if (currentUser && currentUser.email === cleanEmail) {
+    // Session remains active
+  }
+
+  return {
+    success: true,
+    message: 'Your password has been successfully reset! You can now log in with your new password.',
+  };
+}
+
+/**
  * Log out currently active user
  */
 export function logoutUser(): void {

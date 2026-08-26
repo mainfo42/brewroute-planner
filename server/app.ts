@@ -3,6 +3,7 @@ import dotenv from 'dotenv';
 import { GoogleGenAI, Type } from '@google/genai';
 import { RouteParameters, BrewTravelRoute, DayItinerary, BreweryStop, StayRecommendation } from '../src/types';
 import { findMatchingRealRegion, VERIFIED_REAL_REGIONS, RealBreweryRecord } from '../src/data/verifiedRealBreweries';
+import { enrichAndValidateRoute, validateBreweryStyleMatch, checkStyleMatch } from '../src/utils/styleMatcher';
 
 dotenv.config();
 
@@ -107,8 +108,23 @@ MANDATORY RULES & DRIVING CONSTRAINTS:
      (Starting Location -> Brewery 1) + (all intermediate drives between breweries & stays) + (Final stop -> Return Home to Starting Location).
    - "totalDistanceMiles" MUST be the complete round trip mileage including departure and return home.
 2. MAX 3 BREWERIES PER DAY: Propose exactly 2 to 3 top-tier microbreweries per day (strictly maximum 3).
-3. 20-MINUTE PROXIMITY RULE: Each brewery visited on the same day MUST NOT be more than 20 minutes driving distance from each other (driveTimeFromPrevMin <= 20).
-4. HIGHEST COMPOSITE AVERAGE REVIEW RATING:
+3. 25-MINUTE PROXIMITY RULE: Each brewery visited on the same day MUST NOT be more than 25 minutes driving distance from each other (driveTimeFromPrevMin <= 25).
+4. LIVE ON-TAP BEER STYLE VALIDATION ACROSS MULTIPLE WEB DATA SOURCES:
+   - When the user specifies preferred beer styles: [${params.beerStyles.join(', ')}]:
+     a) LIVE TAP LIST & WEBSITE LOOKUP: Search for the brewery's latest official website taplist, current can/bottle releases, and draft menu. Provide their real "websiteUrl" and "taplistUrl".
+     b) UNTAPPD ACTIVE MENU & RATINGS: Search the brewery's Untappd page and recent check-ins for active styles on tap (e.g. check their Untappd verified venue tap list). Provide their real "untappdUrl" (e.g. https://untappd.com/brewery/...).
+     c) RATEBEER CATALOG: Search the brewery's RateBeer directory for their top-rated beers across styles. Provide their real "rateBeerUrl" (e.g. https://www.ratebeer.com/brewers/...).
+     d) ACCURATE BEER HIGHLIGHTS MATCHING SELECTED STYLES:
+        * If the user searched for "Porter", you MUST check and include their real Porter (e.g. for Hill Farmstead Brewery: "Everett" American Porter 7.5% ABV or "Twilight of the Idols" Baltic Porter 7.2% ABV; for The Alchemist: "Luscious" British Imperial Stout/Porter; for Russian River: "Shadow of a Doubt" Imperial Porter; for Foam Brewers: "Youth Large" Porter/Stout; etc.).
+        * If the user searched for "Stout", include their real Stouts (e.g. "Genealogy of Morals", "Luscious", "Fayston Maple", "Black", etc.).
+        * If the user searched for "Saison / Farmhouse", include their Farmhouse Saisons (e.g. "Arthur", "Florence", "Anna", "Tank 7", "Saison Dupont", etc.).
+        * If the user searched for "Lager / Pilsner", include their Lagers (e.g. "Marie", "Mary", "Tipopils", "Slow Pour Pils", etc.).
+        * If the user searched for "Sour / Wild Ale", include their wild ales and sours (e.g. "Flora", "House of Fermentology", "Jelly King", "Consecration", etc.).
+        * In "beerHighlights", ALWAYS feature 2 to 4 beers that specifically include the beers matching the user's selected styles [${params.beerStyles.join(', ')}] that are in their active rotation or on tap.
+     e) POPULATE "styleVerificationSources": Set "websiteVerified": true, "untappdVerified": true, "rateBeerVerified": true, and "details" with a clear statement of which specific on-tap/bottled beers and styles were verified (e.g. "Verified on Hill Farmstead taplist & Untappd: Everett (Porter, 7.5% ABV) & Arthur (Farmhouse Saison, 6.0% ABV)").
+   - If in the destination area, a brewery does not produce any of the requested styles after checking website, Untappd, and RateBeer listings, still propose it if it's top-rated, but set "hasPreferredStyle": false, "styleNotice": "No preferred style was found on their official website taplist, Untappd, or RateBeer, but we suggest it strongly based on high ratings.", and explain in "styleVerificationSources.details".
+   - If NO valid route or combination can be formed within the 25-minute drive limit with the given styles, set "needsPreferenceModification": true, "hasRouteWarning": true, and "routeWarningMessage": "No combinations within the 25-minute drive limit matching all your selected beer styles were found. Please modify or expand your beer style preferences."
+5. HIGHEST COMPOSITE AVERAGE REVIEW RATING:
    - You MUST pick real, renowned craft microbreweries that have the HIGHEST COMPOSITE MATHEMATICAL AVERAGE score between:
      a) Google Reviews (score / 5.0, e.g. 4.7)
      b) TripAdvisor (score / 5.0, e.g. 4.6)
@@ -116,12 +132,12 @@ MANDATORY RULES & DRIVING CONSTRAINTS:
      d) RateBeer (score / 5.0, e.g. 4.4)
    - Calculate compositeAverage = (google.score + tripAdvisor.score + untappd.score + rateBeer.score) / 4.
    - Prioritize top-tier breweries with compositeAverage >= 4.4 / 5.0. Provide realistic rating numbers and authentic review / check-in count labels.
-5. BEER HIGHLIGHTS: For each brewery, list 2 to 4 beers they are most renowned for (signature beers, award winners, flagship brews) that align with the user's preferred beer styles. Include Beer Name, Style, ABV, and tasting notes.
-6. FOOD HIGHLIGHTS: Describe the food options for each brewery (e.g. onsite wood-fired pizza kitchen, artisan burger program, food truck patio lineup, soft pretzels & charcuterie).
-7. ATMOSPHERE & TIMING: Describe the venue vibe, best time of day to visit, and suggested duration.
-8. STAY RECOMMENDATIONS: ${stayRequirement}
-9. RESPONSIBLE TASTING: Include 3-4 responsible beer tasting and safe transit tips (e.g., hydration, flight sizes, rideshare advice).
-10. COORDINATES: Provide realistic latitude/longitude for the start location and each stop.
+6. BEER HIGHLIGHTS: For each brewery, list 2 to 4 beers they are most renowned for (signature beers, award winners, flagship brews) that align with the user's preferred beer styles. Include Beer Name, Style, ABV, and tasting notes.
+7. FOOD HIGHLIGHTS: Describe the food options for each brewery (e.g. onsite wood-fired pizza kitchen, artisan burger program, food truck patio lineup, soft pretzels & charcuterie).
+8. ATMOSPHERE & TIMING: Describe the venue vibe, best time of day to visit, and suggested duration.
+9. STAY RECOMMENDATIONS: ${stayRequirement}
+10. RESPONSIBLE TASTING: Include 3-4 responsible beer tasting and safe transit tips (e.g., hydration, flight sizes, rideshare advice).
+11. COORDINATES: Provide realistic latitude/longitude for the start location and each stop.
 
 Return a strictly valid JSON object matching the JSON schema.`;
 
@@ -143,6 +159,9 @@ Return a strictly valid JSON object matching the JSON schema.`;
               totalTravelTimeMin: { type: Type.INTEGER },
               totalDistanceMiles: { type: Type.NUMBER },
               beerStyleMatchNotes: { type: Type.STRING },
+              hasRouteWarning: { type: Type.BOOLEAN },
+              routeWarningMessage: { type: Type.STRING },
+              needsPreferenceModification: { type: Type.BOOLEAN },
               startLocationCoord: {
                 type: Type.OBJECT,
                 properties: {
@@ -259,7 +278,25 @@ Return a strictly valid JSON object matching the JSON schema.`;
                           atmosphere: { type: Type.STRING },
                           suggestedDurationMin: { type: Type.INTEGER },
                           bestTimeToVisit: { type: Type.STRING },
+                          hasPreferredStyle: { type: Type.BOOLEAN },
+                          styleNotice: { type: Type.STRING },
+                          matchedStyles: {
+                            type: Type.ARRAY,
+                            items: { type: Type.STRING },
+                          },
                           websiteUrl: { type: Type.STRING },
+                          untappdUrl: { type: Type.STRING },
+                          rateBeerUrl: { type: Type.STRING },
+                          taplistUrl: { type: Type.STRING },
+                          styleVerificationSources: {
+                            type: Type.OBJECT,
+                            properties: {
+                              websiteVerified: { type: Type.BOOLEAN },
+                              untappdVerified: { type: Type.BOOLEAN },
+                              rateBeerVerified: { type: Type.BOOLEAN },
+                              details: { type: Type.STRING },
+                            },
+                          },
                           googleMapsUrl: { type: Type.STRING },
                         },
                         required: [
@@ -336,6 +373,14 @@ Return a strictly valid JSON object matching the JSON schema.`;
             // Ensure brewery individual Google Maps navigation link
             const targetDest = b.address ? `${b.name}, ${b.address}` : `${b.name}, ${b.city}`;
             b.googleMapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(targetDest)}&travelmode=driving`;
+
+            // Ensure Untappd, RateBeer, and Website URLs
+            b.untappdUrl = b.untappdUrl || `https://untappd.com/search?q=${encodeURIComponent(b.name + ' ' + (b.city || ''))}`;
+            b.rateBeerUrl = b.rateBeerUrl || `https://www.ratebeer.com/search?q=${encodeURIComponent(b.name + ' ' + (b.city || ''))}`;
+            b.websiteUrl = b.websiteUrl || `https://www.google.com/search?q=${encodeURIComponent(b.name + ' brewery official website')}`;
+            if (!b.taplistUrl && b.websiteUrl) {
+              b.taplistUrl = b.websiteUrl;
+            }
           });
         });
 
@@ -475,7 +520,9 @@ Return a strictly valid JSON object matching the JSON schema.`;
           lastDay.totalDriveDistanceMiles = (lastDay.totalDriveDistanceMiles || 10) + returnHomeDist;
         }
 
-        return res.json(parsed);
+        // Rigorously validate each brewery style and check proximity limits
+        const fullyValidatedRoute = enrichAndValidateRoute(parsed, params.beerStyles || []);
+        return res.json(fullyValidatedRoute);
       }
     }
   } catch (error: any) {
@@ -510,6 +557,21 @@ function generateSmartFallbackRoute(
     candidateBreweries = matchedRegion.breweries;
   }
 
+  // Sort candidate breweries prioritizing ones that have at least one matching preferred style
+  if (params.beerStyles && params.beerStyles.length > 0) {
+    candidateBreweries = [...candidateBreweries].sort((a, b) => {
+      const aMatches = (a.beerHighlights || []).some(bh =>
+        params.beerStyles.some(style => checkStyleMatch(`${bh.name} ${bh.style} ${bh.description}`, style))
+      );
+      const bMatches = (b.beerHighlights || []).some(bh =>
+        params.beerStyles.some(style => checkStyleMatch(`${bh.name} ${bh.style} ${bh.description}`, style))
+      );
+      if (aMatches && !bMatches) return -1;
+      if (!aMatches && bMatches) return 1;
+      return 0;
+    });
+  }
+
   const departureDriveTimeMin = 35;
   const departureDistanceMiles = 22.5;
   const returnHomeDriveTimeMin = 38;
@@ -537,10 +599,10 @@ function generateSmartFallbackRoute(
     // Convert to BreweryStop objects with real addresses, ratings, and beers
     const breweries: BreweryStop[] = dayBreweryRecords.map((bRecord, bIdx) => {
       const compAverage = Number(((bRecord.googleScore + bRecord.untappdScore + bRecord.rateBeerScore + bRecord.tripAdvisorScore) / 4).toFixed(2));
-      const driveTime = bIdx === 0 ? 0 : 12 + bIdx * 3; // within 20 mins proximity
+      const driveTime = bIdx === 0 ? 0 : 12 + bIdx * 3; // within 25 mins proximity
       const driveDist = bIdx === 0 ? 0 : 4.5 + bIdx * 1.5;
 
-      return {
+      const stopWithoutValidation: BreweryStop = {
         id: `brewery-real-${dayNum}-${bIdx + 1}-${bRecord.name.toLowerCase().replace(/[^a-z0-9]/g, '-')}`,
         name: bRecord.name,
         tagline: bRecord.tagline,
@@ -564,8 +626,18 @@ function generateSmartFallbackRoute(
         suggestedDurationMin: bRecord.suggestedDurationMin,
         bestTimeToVisit: bRecord.bestTimeToVisit,
         websiteUrl: bRecord.websiteUrl,
+        taplistUrl: bRecord.websiteUrl,
+        untappdUrl: `https://untappd.com/search?q=${encodeURIComponent(bRecord.name + ' ' + bRecord.city)}`,
+        rateBeerUrl: `https://www.ratebeer.com/search?q=${encodeURIComponent(bRecord.name + ' ' + bRecord.city)}`,
         googleMapsUrl: `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(`${bRecord.name}, ${bRecord.address}`)}&travelmode=driving`,
       };
+
+      const styleCheck = validateBreweryStyleMatch(stopWithoutValidation, params.beerStyles || []);
+      stopWithoutValidation.hasPreferredStyle = styleCheck.hasPreferredStyle;
+      stopWithoutValidation.matchedStyles = styleCheck.matchedStyles;
+      stopWithoutValidation.styleNotice = styleCheck.styleNotice;
+
+      return stopWithoutValidation;
     });
 
     // Match a real hotel or Airbnb in that exact region

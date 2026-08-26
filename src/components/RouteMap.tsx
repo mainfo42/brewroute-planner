@@ -330,7 +330,7 @@ export const RouteMap: React.FC<RouteMapProps> = ({
         </div>
         <div className="flex items-center gap-1.5">
           <span className="w-3 h-3 rounded-full bg-[#855300] inline-block" />
-          <span>Breweries (≤20 min)</span>
+          <span>Breweries (≤25 min)</span>
         </div>
         <div className="flex items-center gap-1.5">
           <span className="w-3.5 h-3.5 rounded-md bg-[#1F1B16] border border-[#855300] inline-flex items-center justify-center text-[8px]">🛏️</span>

@@ -40,15 +40,27 @@ export interface BreweryStop {
   state?: string;
   lat: number;
   lng: number;
-  driveTimeFromPrevMin: number; // Max 20 min rule between breweries
+  driveTimeFromPrevMin: number; // Max 25 min rule between breweries
   driveDistanceFromPrevMiles: number;
   ratings: ReviewRatings;
   beerHighlights: BeerHighlight[];
+  hasPreferredStyle?: boolean; // Validates if brewery features at least one selected style
+  styleNotice?: string; // Message if no preferred style was found for this brewery
+  matchedStyles?: string[]; // Styles that matched the user's preferences
   foodHighlights: string;
   atmosphere: string;
   suggestedDurationMin: number;
   bestTimeToVisit: string;
   websiteUrl?: string;
+  untappdUrl?: string;
+  rateBeerUrl?: string;
+  taplistUrl?: string;
+  styleVerificationSources?: {
+    websiteVerified?: boolean;
+    untappdVerified?: boolean;
+    rateBeerVerified?: boolean;
+    details?: string;
+  };
   googleMapsUrl?: string;
   imageUrl?: string;
   photoCaption?: string;
@@ -113,6 +125,9 @@ export interface BrewTravelRoute {
   beerStyleMatchNotes: string;
   responsibleTastingTips: string[];
   googleMapsMultiStopUrl: string; // Round trip: startLocation -> all stops -> startLocation (Return Home)
+  hasRouteWarning?: boolean;
+  routeWarningMessage?: string;
+  needsPreferenceModification?: boolean;
   createdAt: string;
 }
 

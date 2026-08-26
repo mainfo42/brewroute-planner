@@ -1,4 +1,5 @@
 import { BrewTravelRoute, RouteParameters } from '../types';
+import { enrichAndValidateRoute } from '../utils/styleMatcher';
 
 export const BEER_STYLE_OPTIONS = [
   { id: 'NEIPA', label: 'NEIPA / Hazy IPA', category: 'Hoppy', desc: 'Juicy, tropical, low bitterness, pillowy mouthfeel' },
@@ -55,7 +56,7 @@ export const POPULAR_DESTINATIONS = [
   },
 ];
 
-export const SAMPLE_CURATED_ROUTE: BrewTravelRoute = {
+const rawCuratedRoute: BrewTravelRoute = {
   id: 'curated-vermont-craft',
   title: 'Vermont Green Mountain Craft Odyssey',
   region: 'Waterbury, Stowe & Stowe Valley, VT',
@@ -420,3 +421,9 @@ export const SAMPLE_CURATED_ROUTE: BrewTravelRoute = {
     },
   ],
 };
+
+export const SAMPLE_CURATED_ROUTE: BrewTravelRoute = enrichAndValidateRoute(
+  rawCuratedRoute,
+  rawCuratedRoute.parameters.beerStyles
+);
+

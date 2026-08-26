@@ -38,7 +38,7 @@ export default function App() {
   const [isCuratedModalOpen, setIsCuratedModalOpen] = useState(false);
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-  const [authModalMode, setAuthModalMode] = useState<'login' | 'signup'>('login');
+  const [authModalMode, setAuthModalMode] = useState<'login' | 'signup' | 'forgot'>('login');
   const [isSavedItinerariesModalOpen, setIsSavedItinerariesModalOpen] = useState(false);
 
   // Reload saved itineraries when current user changes
@@ -217,7 +217,7 @@ export default function App() {
     setSuccessToast('You have been logged out.');
   };
 
-  const handleOpenAuth = (mode: 'login' | 'signup' = 'login') => {
+  const handleOpenAuth = (mode: 'login' | 'signup' | 'forgot' = 'login') => {
     setAuthModalMode(mode);
     setIsAuthModalOpen(true);
   };
@@ -448,7 +448,7 @@ export default function App() {
             <span>BrewRoute Planner • Drink Responsibly</span>
           </div>
           <div>
-            ≤ 3 microbreweries/day • Spaced ≤ 20 min drive • Certified Untappd & Google Reviews
+            ≤ 3 microbreweries/day • Spaced ≤ 25 min drive • Certified Untappd & Google Reviews
           </div>
         </div>
       </footer>

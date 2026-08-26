@@ -157,7 +157,7 @@ export const RouteForm: React.FC<RouteFormProps> = ({
           Plan Your Microbrewery Route
         </h1>
         <p className="text-slate-600 text-xs sm:text-sm max-w-md mx-auto leading-relaxed">
-          Craft multi-stop tasting tours with verified ratings, drive times under 20 mins, and round-trip Google Maps routes.
+          Craft multi-stop tasting tours with verified ratings, drive times under 25 mins, and round-trip Google Maps routes.
         </p>
       </div>
 
@@ -267,7 +267,7 @@ export const RouteForm: React.FC<RouteFormProps> = ({
                 }}
                 placeholder="e.g. Vermont, Asheville, San Diego..."
                 iconType="mapPin"
-                helperText="≤ 20 min drive between stops"
+                helperText="≤ 25 min drive between stops"
               />
             </div>
           </div>
@@ -601,7 +601,7 @@ export const RouteForm: React.FC<RouteFormProps> = ({
         <div className="p-4 sm:p-6 bg-slate-50 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2 text-xs text-slate-600">
             <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block shrink-0" />
-            <span className="text-[11px] sm:text-xs">Max 3 breweries/day • Spaced ≤ 20 min • Certified ratings</span>
+            <span className="text-[11px] sm:text-xs">Max 3 breweries/day • Spaced ≤ 25 min • Certified ratings</span>
           </div>
 
           <button

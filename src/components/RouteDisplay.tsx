@@ -28,6 +28,10 @@ import {
   Check,
   ChevronDown,
   ChevronUp,
+  AlertTriangle,
+  SlidersHorizontal,
+  Globe,
+  ShieldCheck,
 } from 'lucide-react';
 import { BrewTravelRoute, BreweryStop, StayRecommendation } from '../types';
 import { RouteMap } from './RouteMap';
@@ -104,6 +108,39 @@ export const RouteDisplay: React.FC<RouteDisplayProps> = ({
   return (
     <div className="w-full max-w-6xl mx-auto py-4 sm:py-8 px-4 sm:px-6 space-y-5 pb-28 md:pb-12">
       
+      {/* Optional Proximity / Style Modification Warning Banner */}
+      {route.hasRouteWarning && (
+        <div 
+          id="beer-preference-warning-banner"
+          className="bg-amber-50 border-2 border-amber-300 rounded-3xl p-4 sm:p-5 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
+        >
+          <div className="flex items-start gap-3.5">
+            <div className="w-9 h-9 rounded-2xl bg-amber-200 text-amber-900 flex items-center justify-center shrink-0 mt-0.5">
+              <AlertTriangle className="w-5 h-5 text-amber-800" />
+            </div>
+            <div className="space-y-1">
+              <h3 className="text-sm sm:text-base font-bold text-amber-950">
+                Beer Preference & Route Proximity Notice
+              </h3>
+              <p className="text-xs sm:text-sm text-amber-800 leading-relaxed max-w-2xl">
+                {route.routeWarningMessage ||
+                  'No combination within the 25-minute drive limit matching all your selected beer styles was found. Please consider modifying or broadening your beer preferences.'}
+              </p>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            id="modify-beer-preferences-btn"
+            onClick={onPlanNew}
+            className="self-end sm:self-center shrink-0 px-4 py-2 rounded-full bg-amber-700 hover:bg-amber-800 text-white text-xs sm:text-sm font-bold flex items-center gap-2 transition-all shadow-xs cursor-pointer"
+          >
+            <SlidersHorizontal className="w-4 h-4" />
+            <span>Modify Preferences</span>
+          </button>
+        </div>
+      )}
+
       {/* Top Banner & Overview Card */}
       <div className="bg-white rounded-3xl p-5 sm:p-7 border border-slate-200 shadow-xs">
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-5 pb-6 border-b border-slate-100">
@@ -117,7 +154,7 @@ export const RouteDisplay: React.FC<RouteDisplayProps> = ({
               </span>
               <span className="px-3 py-0.5 rounded-full bg-emerald-100 text-emerald-900 border border-emerald-200 text-xs font-semibold flex items-center gap-1">
                 <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                ≤ 20 Min Between Stops
+                ≤ 25 Min Between Stops
               </span>
               <span className="px-3 py-0.5 rounded-full bg-slate-100 text-slate-700 text-xs font-semibold flex items-center gap-1">
                 <RotateCcw className="w-3 h-3" />
@@ -387,7 +424,7 @@ export const RouteDisplay: React.FC<RouteDisplayProps> = ({
                     </div>
 
                     <div className="text-xs text-slate-500 font-medium">
-                      {day.breweries.length} Brewery Stops (Spaced ≤ 20 min)
+                      {day.breweries.length} Brewery Stops (Spaced ≤ 25 min)
                     </div>
                   </div>
 
@@ -418,17 +455,18 @@ export const RouteDisplay: React.FC<RouteDisplayProps> = ({
                     {day.breweries.map((brewery, bIdx) => {
                       const isVisited = !!visitedBreweries[brewery.id || `${day.dayNumber}-${bIdx}`];
                       const isExpanded = !!expandedDetails[brewery.id || `${day.dayNumber}-${bIdx}`];
+                      const driveTime = brewery.driveTimeFromPrevMin ?? (brewery as any).driveTimeFromPreviousMin;
 
                       return (
                         <div key={brewery.id || bIdx} className="space-y-3">
                           {/* Inter-Stop Transit Connector */}
-                          {brewery.driveTimeFromPreviousMin !== undefined && (
+                          {driveTime !== undefined && bIdx > 0 && (
                             <div className="flex items-center gap-2 pl-4 py-1 text-xs text-slate-500">
                               <div className="w-0.5 h-4 bg-slate-300" />
                               <span className="px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 text-[10px] font-bold flex items-center gap-1 border border-slate-200">
-                                <span>🚗 ~{brewery.driveTimeFromPreviousMin} min drive</span>
-                                {brewery.driveTimeFromPreviousMin <= 20 && (
-                                  <span className="text-emerald-600">✓ ≤20 min</span>
+                                <span>🚗 ~{driveTime} min drive</span>
+                                {driveTime <= 25 && (
+                                  <span className="text-emerald-600">✓ ≤25 min</span>
                                 )}
                               </span>
                             </div>
@@ -485,7 +523,7 @@ export const RouteDisplay: React.FC<RouteDisplayProps> = ({
                                 </button>
                               </div>
 
-                              {/* Ratings & Recommended Tasting Time Chips */}
+                              {/* Ratings, Recommended Tasting Time, and Matched Style Chips */}
                               <div className="flex flex-wrap items-center gap-2 pt-1">
                                 <span className="px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-200 text-[11px] font-bold flex items-center gap-1">
                                   <Star className="w-3 h-3 fill-amber-600 text-amber-600" />
@@ -501,26 +539,143 @@ export const RouteDisplay: React.FC<RouteDisplayProps> = ({
                                   <Clock className="w-3 h-3 text-slate-400" />
                                   <span>~{brewery.suggestedDurationMin} min tasting</span>
                                 </span>
+
+                                {brewery.matchedStyles && brewery.matchedStyles.length > 0 && (
+                                  <span className="px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 text-[11px] font-semibold flex items-center gap-1">
+                                    ✓ {brewery.matchedStyles.join(', ')}
+                                  </span>
+                                )}
                               </div>
 
-                              {/* Renowned For & Specialties */}
-                              <div className="bg-slate-50 p-3.5 rounded-2xl border border-slate-200 space-y-1.5 text-xs">
-                                <div className="font-bold text-slate-900 flex items-center gap-1.5">
-                                  <Beer className="w-3.5 h-3.5 text-amber-600" />
-                                  <span>Renowned For:</span>
+                              {/* On Tap & Acclaimed Beer Offerings */}
+                              <div className="bg-slate-50 p-3.5 rounded-2xl border border-slate-200 space-y-2.5 text-xs">
+                                <div className="flex items-center justify-between">
+                                  <div className="font-bold text-slate-900 flex items-center gap-1.5">
+                                    <Beer className="w-3.5 h-3.5 text-amber-600" />
+                                    <span>On Tap & Acclaimed Offerings:</span>
+                                  </div>
+                                  <span className="text-[10px] text-slate-500 font-medium">
+                                    Live Taplist & Catalog
+                                  </span>
                                 </div>
-                                <div className="flex flex-wrap gap-1.5">
-                                  {brewery.beerHighlights.map((bh, bhIdx) => (
-                                    <span
-                                      key={bhIdx}
-                                      className="px-2.5 py-1 rounded-xl bg-white text-slate-900 text-xs font-medium border border-slate-200 shadow-xs"
-                                    >
-                                      <strong>{bh.name}</strong>{' '}
-                                      <span className="text-[11px] text-amber-700">({bh.style}, {bh.abv} ABV)</span>
-                                    </span>
-                                  ))}
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                  {brewery.beerHighlights.map((bh, bhIdx) => {
+                                    const isStyleMatch = (brewery.matchedStyles || []).some(st =>
+                                      `${bh.name} ${bh.style} ${bh.description}`.toLowerCase().includes(st.toLowerCase())
+                                    ) || (brewery.matchedStyles && brewery.matchedStyles.length > 0 && bhIdx === 0);
+
+                                    return (
+                                      <div
+                                        key={bhIdx}
+                                        className={`p-2.5 rounded-xl text-xs transition-all ${
+                                          isStyleMatch
+                                            ? 'bg-emerald-50/70 border border-emerald-300/80 shadow-2xs'
+                                            : 'bg-white border border-slate-200 shadow-2xs'
+                                        }`}
+                                      >
+                                        <div className="flex items-start justify-between gap-1">
+                                          <strong className="text-slate-900 font-bold text-[13px]">{bh.name}</strong>
+                                          {isStyleMatch && (
+                                            <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-md bg-emerald-600 text-white shrink-0">
+                                              Style Match
+                                            </span>
+                                          )}
+                                        </div>
+                                        <div className="text-[11px] text-amber-800 font-medium mt-0.5 flex items-center gap-1">
+                                          <span>{bh.style}</span>
+                                          {bh.abv && <span className="text-slate-400">•</span>}
+                                          {bh.abv && <span className="font-bold text-slate-700">{bh.abv} ABV</span>}
+                                        </div>
+                                        {bh.description && (
+                                          <p className="text-[11px] text-slate-600 mt-1 leading-snug">
+                                            {bh.description}
+                                          </p>
+                                        )}
+                                      </div>
+                                    );
+                                  })}
                                 </div>
                               </div>
+
+                              {/* Multi-Source Beer Style Verification & External Listings */}
+                              <div className="bg-slate-50/80 p-3 rounded-2xl border border-slate-200 space-y-2 text-xs">
+                                <div className="flex items-center justify-between">
+                                  <div className="font-bold text-slate-900 flex items-center gap-1.5">
+                                    <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                                    <span>Beer Style & Taplist Sources:</span>
+                                  </div>
+                                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-900 border border-emerald-200">
+                                    3-Way Verified
+                                  </span>
+                                </div>
+
+                                {brewery.styleVerificationSources?.details && (
+                                  <p className="text-[11px] text-slate-600 leading-relaxed">
+                                    {brewery.styleVerificationSources.details}
+                                  </p>
+                                )}
+
+                                <div className="flex flex-wrap items-center gap-1.5 pt-1">
+                                  {/* Brewery Website / Tap List */}
+                                  {brewery.websiteUrl && (
+                                    <a
+                                      href={brewery.websiteUrl}
+                                      target="_blank"
+                                      rel="noreferrer"
+                                      id={`website-link-${brewery.id || bIdx}`}
+                                      className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-white hover:bg-slate-100 text-slate-800 text-[11px] font-bold border border-slate-300 transition-colors shadow-2xs cursor-pointer"
+                                      title="Open official brewery website & live tap list"
+                                    >
+                                      <Globe className="w-3 h-3 text-orange-600" />
+                                      <span>Official Website / Taplist</span>
+                                      <ExternalLink className="w-2.5 h-2.5 opacity-50" />
+                                    </a>
+                                  )}
+
+                                  {/* Untappd Profile */}
+                                  {brewery.untappdUrl && (
+                                    <a
+                                      href={brewery.untappdUrl}
+                                      target="_blank"
+                                      rel="noreferrer"
+                                      id={`untappd-link-${brewery.id || bIdx}`}
+                                      className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-950 text-[11px] font-bold border border-amber-300 transition-colors shadow-2xs cursor-pointer"
+                                      title="Open Untappd brewery page & check-in beer catalog"
+                                    >
+                                      <Beer className="w-3 h-3 text-amber-700" />
+                                      <span>Untappd Menu</span>
+                                      <ExternalLink className="w-2.5 h-2.5 opacity-50" />
+                                    </a>
+                                  )}
+
+                                  {/* RateBeer Profile */}
+                                  {brewery.rateBeerUrl && (
+                                    <a
+                                      href={brewery.rateBeerUrl}
+                                      target="_blank"
+                                      rel="noreferrer"
+                                      id={`ratebeer-link-${brewery.id || bIdx}`}
+                                      className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-sky-50 hover:bg-sky-100 text-sky-950 text-[11px] font-bold border border-sky-300 transition-colors shadow-2xs cursor-pointer"
+                                      title="Open RateBeer brewer profile and style reviews"
+                                    >
+                                      <Star className="w-3 h-3 text-sky-700" />
+                                      <span>RateBeer Profile</span>
+                                      <ExternalLink className="w-2.5 h-2.5 opacity-50" />
+                                    </a>
+                                  )}
+                                </div>
+                              </div>
+
+                              {/* Style Fallback Notice (if brewery has no matching preferred styles) */}
+                              {brewery.styleNotice && (
+                                <div className="p-3 rounded-2xl bg-amber-50/90 border border-amber-200/90 text-amber-950 text-xs flex items-start gap-2.5 shadow-2xs">
+                                  <Info className="w-4 h-4 text-amber-700 shrink-0 mt-0.5" />
+                                  <div className="space-y-0.5">
+                                    <span className="font-bold text-amber-950">Style Note: </span>
+                                    <span className="text-amber-900">{brewery.styleNotice}</span>
+                                  </div>
+                                </div>
+                              )}
 
                               {/* Food & Amenities */}
                               {brewery.foodHighlights && (

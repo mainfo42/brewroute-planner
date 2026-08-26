@@ -77,6 +77,7 @@ export const VERIFIED_REAL_REGIONS: RealRegionBreweries[] = [
         beerHighlights: [
           { name: 'Heady Topper', style: 'American Double IPA', abv: '8.0%', description: 'The legendary unfiltered Double IPA overflowing with tropical fruit, resinous pine, and crisp malt backbone.' },
           { name: 'Focal Banger', style: 'American IPA', abv: '7.0%', description: 'Brewed with Citra and Mosaic hops, delivering vibrant mango, tangerine, and a clean dry finish.' },
+          { name: 'Luscious', style: 'British Imperial Stout', abv: '11.0%', description: 'Rich, velvety imperial stout brewed with roasted barley and Belgian candy sugar, bursting with dark chocolate and espresso.' },
           { name: 'Crusher', style: 'Double IPA', abv: '8.0%', description: 'Intensely hopped DIPA featuring Australian and Pacific Northwest hop varieties.' },
         ],
         foodHighlights: 'Rotating local gourmet food truck lineup, Vermont artisan cheese & pretzel snacks, with scenic outdoor picnic lawn.',
@@ -87,7 +88,7 @@ export const VERIFIED_REAL_REGIONS: RealRegionBreweries[] = [
       },
       {
         name: 'Hill Farmstead Brewery',
-        tagline: 'Multi-time winner of World’s Best Brewery on RateBeer & master of farmhouse saisons',
+        tagline: 'Multi-time winner of World’s Best Brewery on RateBeer & master of farmhouse saisons and porters',
         address: '403 Hill Rd, Greensboro, VT 05841',
         city: 'Greensboro',
         state: 'VT',
@@ -102,8 +103,11 @@ export const VERIFIED_REAL_REGIONS: RealRegionBreweries[] = [
         tripAdvisorScore: 4.9,
         tripAdvisorCount: '620+ reviews',
         beerHighlights: [
+          { name: 'Everett', style: 'American Porter', abv: '7.5%', description: 'Acclaimed rich porter crafted with American malted barley, English roasted malts, and American hops; notes of dark chocolate, roasted coffee, and subtle fruit sweetness.' },
           { name: 'Edward', style: 'American Pale Ale', abv: '5.2%', description: 'Aromatic pale ale brewed with organic malted barley and Pacific Northwest hops; pure elegance and citrus aroma.' },
           { name: 'Arthur', style: 'Farmhouse Saison', abv: '6.0%', description: 'Oak barrel fermented farmhouse ale brewed with American malt and European noble hops.' },
+          { name: 'Twilight of the Idols', style: 'Baltic Porter', abv: '7.2%', description: 'Lagered porter brewed with winter spices and roasted malts, deep cocoa and dried dark fruit complexity.' },
+          { name: 'Marie', style: 'German Helles Lager', abv: '4.8%', description: 'Traditional unfiltered German-style Helles brewed with organic German malts and Saaz hops.' },
           { name: 'Abner', style: 'Imperial IPA', abv: '8.2%', description: 'Aromatic, complex imperial IPA with grapefruit, mango, and pine needle resin.' },
         ],
         foodHighlights: 'Wood-fired sourdough flatbreads and Vermont farmstead cheeses curated specifically to pair with barrel-aged ales.',
@@ -130,6 +134,7 @@ export const VERIFIED_REAL_REGIONS: RealRegionBreweries[] = [
         tripAdvisorCount: '480+ reviews',
         beerHighlights: [
           { name: 'Built to Spill', style: 'Double IPA', abv: '8.0%', description: 'Enormously juicy double IPA dry-hopped with Citra and Galaxy; aromas of ripe pineapple and melon.' },
+          { name: 'Youth Large', style: 'Oatmeal Stout', abv: '6.5%', description: 'Creamy, roasty oatmeal stout with notes of dark cacao, toasted oats, and baker’s cocoa.' },
           { name: 'Dead Flowers', style: 'Hazy IPA', abv: '6.2%', description: 'Soft, creamy oat and wheat malt body with intense passion fruit notes.' },
           { name: 'The Shining', style: 'Double IPA', abv: '8.0%', description: 'Lush and tropical with a silky mouthfeel and minimal bitterness.' },
         ],
