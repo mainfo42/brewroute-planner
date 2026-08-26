@@ -1,0 +1,6 @@
+{
+  "name": "BrewRoute",
+  "description": "Mobile-optimized microbrewery travel route and Google Maps itinerary planner with craft beer style curation, top review ratings, and stay recommendations.",
+  "requestFramePermissions": ["geolocation"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
