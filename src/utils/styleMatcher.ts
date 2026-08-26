@@ -1,138 +1,266 @@
-import { BreweryStop, BrewTravelRoute } from '../types';
+import { BreweryStop, BrewTravelRoute, BeerHighlight } from '../types';
 
 /**
- * Normalizes beer style strings and detects style matches including synonyms, sub-styles, and acclaimed named beers.
+ * Checks if a specific beer highlight matches a requested beer style.
+ * Uses strict style discrimination so that non-matching styles (e.g. Stout vs Porter,
+ * NEIPA vs West Coast IPA, Pilsner vs Dunkel) are accurately distinguished.
  */
-export function checkStyleMatch(text: string, preferredStyle: string): boolean {
-  const t = text.toLowerCase();
+export function checkBeerMatchesStyle(
+  beer: BeerHighlight,
+  preferredStyle: string
+): boolean {
+  if (!beer || !preferredStyle) return false;
   const p = preferredStyle.toLowerCase().trim();
+  const s = (beer.style || '').toLowerCase();
+  const n = (beer.name || '').toLowerCase();
+  const d = (beer.description || '').toLowerCase();
+  const combined = `${s} ${n} ${d}`;
 
-  if (t.includes(p)) return true;
-
-  // Specific alias and signature beer mappings
   switch (p) {
     case 'neipa':
+      // Hazy / New England IPAs only
       return (
-        t.includes('new england') ||
-        t.includes('hazy') ||
-        t.includes('neipa') ||
-        t.includes('double ipa') ||
-        t.includes('dipa') ||
-        t.includes('heady topper') ||
-        t.includes('focal banger') ||
-        t.includes('julius') ||
-        t.includes('sip of sunshine')
+        s.includes('hazy') ||
+        s.includes('new england') ||
+        s.includes('neipa') ||
+        s.includes('juicy') ||
+        s.includes('cloudy') ||
+        s.includes('east coast ipa') ||
+        n.includes('heady topper') ||
+        n.includes('focal banger') ||
+        n.includes('julius') ||
+        n.includes('green') ||
+        n.includes('haze') ||
+        n.includes('sip of sunshine') ||
+        n.includes('dead flowers') ||
+        n.includes('built to spill') ||
+        n.includes('king sue') ||
+        n.includes('pseudo sue') ||
+        (s.includes('ipa') && (d.includes('hazy') || d.includes('juicy') || d.includes('unfiltered') || d.includes('tropical')))
       );
+
     case 'ipa':
+      // Any IPA / Double IPA / Imperial IPA
       return (
-        t.includes('ipa') ||
-        t.includes('pale ale') ||
-        t.includes('hop') ||
-        t.includes('dipa') ||
-        t.includes('india pale') ||
-        t.includes('heady') ||
-        t.includes('edward') ||
-        t.includes('abner')
+        s.includes('ipa') ||
+        s.includes('india pale ale') ||
+        s.includes('dipa') ||
+        s.includes('double ipa') ||
+        s.includes('triple ipa') ||
+        s.includes('west coast ipa') ||
+        s.includes('session ipa') ||
+        s.includes('imperial ipa') ||
+        n.includes('heady topper') ||
+        n.includes('focal banger') ||
+        n.includes('pliny') ||
+        n.includes('blind pig') ||
+        n.includes('sculpin') ||
+        n.includes('two hearted') ||
+        n.includes('abner') ||
+        n.includes('crusher') ||
+        n.includes('sip of sunshine')
       );
+
     case 'lager':
+      // Any Craft Lager style
       return (
-        t.includes('lager') ||
-        t.includes('helles') ||
-        t.includes('pilsner') ||
-        t.includes('kolsch') ||
-        t.includes('marzen') ||
-        t.includes('vienna') ||
-        t.includes('marie') ||
-        t.includes('dunkel')
+        s.includes('lager') ||
+        s.includes('helles') ||
+        s.includes('pilsner') ||
+        s.includes('pils') ||
+        s.includes('kolsch') ||
+        s.includes('kölsch') ||
+        s.includes('marzen') ||
+        s.includes('märzen') ||
+        s.includes('oktoberfest') ||
+        s.includes('vienna') ||
+        s.includes('dunkel') ||
+        s.includes('bock') ||
+        s.includes('kellerbier') ||
+        s.includes('zwickel') ||
+        s.includes('rauchbier') ||
+        n.includes('marie') ||
+        n.includes('tipopils') ||
+        n.includes('von trapp')
       );
+
     case 'pilsner':
+      // Pilsners strictly (not dark lagers, marzen, bock, etc.)
       return (
-        t.includes('pils') ||
-        t.includes('pilsner') ||
-        t.includes('czech') ||
-        t.includes('german pilsner') ||
-        t.includes('noble') ||
-        t.includes('mary') ||
-        t.includes('scrag mountain')
+        s.includes('pilsner') ||
+        s.includes('pils') ||
+        s.includes('czech') ||
+        s.includes('german pils') ||
+        s.includes('italian pils') ||
+        s.includes('bohemian') ||
+        s.includes('keller pils') ||
+        n.includes('mary') ||
+        n.includes('tipopils') ||
+        n.includes('scrag mountain') ||
+        n.includes('pivo pils') ||
+        n.includes('prima pils')
       );
+
     case 'stout':
+      // Stouts only (NOT pure porters unless specified as stout/porter)
       return (
-        t.includes('stout') ||
-        t.includes('imperial stout') ||
-        t.includes('pastry stout') ||
-        t.includes('oatmeal stout') ||
-        t.includes('milk stout') ||
-        t.includes('luscious') ||
-        t.includes('fayston') ||
-        t.includes('damon') ||
-        t.includes('genealogy') ||
-        t.includes('black')
+        s.includes('stout') ||
+        s.includes('imperial stout') ||
+        s.includes('pastry stout') ||
+        s.includes('oatmeal stout') ||
+        s.includes('milk stout') ||
+        s.includes('coffee stout') ||
+        s.includes('russian imperial') ||
+        s.includes('dry stout') ||
+        s.includes('irish stout') ||
+        n.includes('luscious') ||
+        n.includes('genealogy of morals') ||
+        n.includes('damon') ||
+        n.includes('fayston maple') ||
+        n.includes('speedway stout') ||
+        n.includes('darkness') ||
+        n.includes('bourbon county') ||
+        n.includes('youth large')
       );
+
     case 'porter':
+      // Porters only (Baltic, Smoked, Robust, Imperial Porter)
       return (
-        t.includes('porter') ||
-        t.includes('baltic') ||
-        t.includes('baltic porter') ||
-        t.includes('smoked porter') ||
-        t.includes('robust porter') ||
-        t.includes('everett') ||
-        t.includes('twilight of the idols') ||
-        t.includes('george') ||
-        t.includes('shadow of a doubt') ||
-        t.includes('stout')
+        s.includes('porter') ||
+        s.includes('baltic') ||
+        s.includes('smoked porter') ||
+        s.includes('robust porter') ||
+        s.includes('imperial porter') ||
+        s.includes('coffee porter') ||
+        n.includes('everett') ||
+        n.includes('twilight of the idols') ||
+        n.includes('george') ||
+        n.includes('shadow of a doubt') ||
+        n.includes('black butte') ||
+        n.includes('edmund fitzgerald') ||
+        n.includes('anchor porter')
       );
+
     case 'scotch ale':
-      return t.includes('scotch') || t.includes('wee heavy') || t.includes('scottish ale');
+      return (
+        s.includes('scotch') ||
+        s.includes('wee heavy') ||
+        s.includes('scottish ale') ||
+        s.includes('scottish export') ||
+        n.includes('dirty bastard') ||
+        n.includes('backwoods bastard') ||
+        n.includes('skull splitter')
+      );
+
     case 'gose':
-      return t.includes('gose') || t.includes('saline') || t.includes('sour') || t.includes('coriander');
+      return (
+        s.includes('gose') ||
+        s.includes('salted') ||
+        s.includes('coriander') ||
+        s.includes('leipziger')
+      );
+
     case 'sour':
       return (
-        t.includes('sour') ||
-        t.includes('wild ale') ||
-        t.includes('lambic') ||
-        t.includes('berliner') ||
-        t.includes('tart') ||
-        t.includes('gose') ||
-        t.includes('flanders') ||
-        t.includes('mixed fermentation') ||
-        t.includes('flora')
+        s.includes('sour') ||
+        s.includes('wild ale') ||
+        s.includes('lambic') ||
+        s.includes('gueuze') ||
+        s.includes('flanders') ||
+        s.includes('oud bruin') ||
+        s.includes('mixed fermentation') ||
+        s.includes('spontaneous') ||
+        s.includes('barrel-aged sour') ||
+        s.includes('brett') ||
+        s.includes('farmhouse sour') ||
+        s.includes('berliner') ||
+        s.includes('tart') ||
+        n.includes('flora') ||
+        n.includes('consecration') ||
+        n.includes('supplication') ||
+        n.includes('jelly king')
       );
+
     case 'belgian':
       return (
-        t.includes('belgian') ||
-        t.includes('tripel') ||
-        t.includes('quad') ||
-        t.includes('dubbel') ||
-        t.includes('abbey') ||
-        t.includes('blonde ale') ||
-        t.includes('curieux') ||
-        t.includes('allagash')
+        s.includes('belgian') ||
+        s.includes('tripel') ||
+        s.includes('quadrupel') ||
+        s.includes('quad') ||
+        s.includes('dubbel') ||
+        s.includes('belgian blonde') ||
+        s.includes('belgian dark') ||
+        s.includes('belgian golden') ||
+        s.includes('abbey') ||
+        s.includes('trappist') ||
+        n.includes('curieux') ||
+        n.includes('allagash tripel')
       );
+
     case 'saison':
       return (
-        t.includes('saison') ||
-        t.includes('farmhouse') ||
-        t.includes('rustic') ||
-        t.includes('grisette') ||
-        t.includes('arthur') ||
-        t.includes('florence') ||
-        t.includes('anna') ||
-        t.includes('tank 7')
+        s.includes('saison') ||
+        s.includes('farmhouse') ||
+        s.includes('grisette') ||
+        s.includes('bière de garde') ||
+        s.includes('biere de garde') ||
+        s.includes('rustic') ||
+        n.includes('arthur') ||
+        n.includes('florence') ||
+        n.includes('anna') ||
+        n.includes('tank 7') ||
+        n.includes('saison dupont')
       );
+
     case 'amber ale':
-      return t.includes('amber') || t.includes('red ale') || t.includes('caramel malt') || t.includes('copper');
+      return (
+        s.includes('amber ale') ||
+        s.includes('red ale') ||
+        s.includes('american amber') ||
+        s.includes('irish red') ||
+        s.includes('copper ale')
+      );
+
     case 'wheat':
-      return t.includes('wheat') || t.includes('hefeweizen') || t.includes('witbier') || t.includes('white ale') || t.includes('dunkelweizen');
+      return (
+        s.includes('wheat') ||
+        s.includes('hefeweizen') ||
+        s.includes('witbier') ||
+        s.includes('white ale') ||
+        s.includes('belgian white') ||
+        s.includes('dunkelweizen') ||
+        s.includes('weizenbock') ||
+        n.includes('allagash white') ||
+        n.includes('oberon') ||
+        n.includes('weihenstephaner')
+      );
+
     case 'barleywine':
-      return t.includes('barleywine') || t.includes('barley wine') || t.includes('old ale') || t.includes('high gravity');
+      return (
+        s.includes('barleywine') ||
+        s.includes('barley wine') ||
+        s.includes('wheatwine') ||
+        s.includes('old ale') ||
+        n.includes('bigfoot') ||
+        n.includes('thomas hardy')
+      );
+
     default:
-      return t.includes(p);
+      return s.includes(p) || n.includes(p);
   }
 }
 
 /**
+ * Text search fallback helper.
+ */
+export function checkStyleMatch(text: string, preferredStyle: string): boolean {
+  if (!text || !preferredStyle) return false;
+  return checkBeerMatchesStyle({ name: text, style: text, description: text }, preferredStyle);
+}
+
+/**
  * Validates whether a brewery produces or highlights at least one of the selected preferred beer styles
- * by inspecting its beer list, website taplist information, Untappd catalog, and RateBeer portfolio.
+ * by strictly inspecting its active beers and catalog.
  */
 export function validateBreweryStyleMatch(
   brewery: BreweryStop,
@@ -162,19 +290,11 @@ export function validateBreweryStyleMatch(
   }
 
   const matched: string[] = [];
-
-  // Inspect all beer highlights, brewery tagline, style notices, and taplist info
-  const searchableTexts: string[] = [
-    brewery.tagline || '',
-    brewery.name || '',
-    brewery.atmosphere || '',
-    brewery.styleVerificationSources?.details || '',
-    ...(brewery.beerHighlights || []).map((b) => `${b.name} ${b.style} ${b.description}`),
-  ];
+  const beers = brewery.beerHighlights || [];
 
   preferredStyles.forEach((style) => {
-    const isMatched = searchableTexts.some((text) => checkStyleMatch(text, style));
-    if (isMatched && !matched.includes(style)) {
+    const hasBeerMatch = beers.some((b) => checkBeerMatchesStyle(b, style));
+    if (hasBeerMatch && !matched.includes(style)) {
       matched.push(style);
     }
   });
@@ -226,6 +346,7 @@ export function enrichAndValidateRoute(
         hasProximityExceeded = true;
       }
 
+      // Re-validate against the actual beers on tap / in catalog
       const validation = validateBreweryStyleMatch(brewery, preferredStyles);
 
       if (validation.hasPreferredStyle) {
@@ -234,23 +355,22 @@ export function enrichAndValidateRoute(
       totalBreweries++;
 
       // Construct verified Untappd and RateBeer links if not provided
-      const untappdUrl = brewery.untappdUrl ||
+      const untappdUrl =
+        brewery.untappdUrl ||
         `https://untappd.com/search?q=${encodeURIComponent(brewery.name + ' ' + (brewery.city || ''))}`;
-      const rateBeerUrl = brewery.rateBeerUrl ||
+      const rateBeerUrl =
+        brewery.rateBeerUrl ||
         `https://www.ratebeer.com/search?q=${encodeURIComponent(brewery.name + ' ' + (brewery.city || ''))}`;
-      const websiteUrl = brewery.websiteUrl ||
+      const websiteUrl =
+        brewery.websiteUrl ||
         `https://www.google.com/search?q=${encodeURIComponent(brewery.name + ' brewery official website tap list')}`;
 
       // Prioritize beers matching the preferred styles to the top of beerHighlights
       let sortedBeerHighlights = brewery.beerHighlights || [];
       if (preferredStyles && preferredStyles.length > 0 && sortedBeerHighlights.length > 0) {
         sortedBeerHighlights = [...sortedBeerHighlights].sort((a, b) => {
-          const aMatch = preferredStyles.some((st) =>
-            checkStyleMatch(`${a.name} ${a.style} ${a.description}`, st)
-          );
-          const bMatch = preferredStyles.some((st) =>
-            checkStyleMatch(`${b.name} ${b.style} ${b.description}`, st)
-          );
+          const aMatch = preferredStyles.some((st) => checkBeerMatchesStyle(a, st));
+          const bMatch = preferredStyles.some((st) => checkBeerMatchesStyle(b, st));
           if (aMatch && !bMatch) return -1;
           if (!aMatch && bMatch) return 1;
           return 0;
@@ -260,13 +380,13 @@ export function enrichAndValidateRoute(
       return {
         ...brewery,
         beerHighlights: sortedBeerHighlights,
-        hasPreferredStyle: brewery.hasPreferredStyle ?? validation.hasPreferredStyle,
-        matchedStyles: brewery.matchedStyles && brewery.matchedStyles.length > 0 ? brewery.matchedStyles : validation.matchedStyles,
-        styleNotice: brewery.styleNotice ?? validation.styleNotice,
+        hasPreferredStyle: validation.hasPreferredStyle,
+        matchedStyles: validation.matchedStyles,
+        styleNotice: validation.styleNotice,
         untappdUrl,
         rateBeerUrl,
         websiteUrl,
-        styleVerificationSources: brewery.styleVerificationSources || validation.styleVerificationSources,
+        styleVerificationSources: validation.styleVerificationSources,
       };
     });
 

@@ -216,6 +216,7 @@ export const VERIFIED_REAL_REGIONS: RealRegionBreweries[] = [
         tripAdvisorCount: '270+ reviews',
         beerHighlights: [
           { name: 'It’s Complicated Being a Wizard', style: 'Double IPA', abv: '8.0%', description: 'Hazy double IPA with Galaxy, Idaho 7, and Mosaic for luscious melon and citrus candy.' },
+          { name: 'Barista', style: 'Coffee Porter', abv: '7.3%', description: 'Rich, smooth robust porter brewed with freshly roasted local coffee beans, roasted barley, and raw cocoa.' },
           { name: 'Elaborate Metaphor', style: 'New England Pale Ale', abv: '5.4%', description: 'Smooth, pillowy pale ale with Citra and Amarillo hops.' },
           { name: 'You Can’t Get There From Here', style: 'Fruited Gose', abv: '4.5%', description: 'Refreshing tart wheat ale conditioned on seasonal berries and sea salt.' },
         ],

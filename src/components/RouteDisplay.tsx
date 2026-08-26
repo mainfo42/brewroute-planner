@@ -35,6 +35,7 @@ import {
 } from 'lucide-react';
 import { BrewTravelRoute, BreweryStop, StayRecommendation } from '../types';
 import { RouteMap } from './RouteMap';
+import { checkBeerMatchesStyle } from '../utils/styleMatcher';
 
 interface RouteDisplayProps {
   route: BrewTravelRoute;
@@ -560,9 +561,13 @@ export const RouteDisplay: React.FC<RouteDisplayProps> = ({
                                 </div>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                                   {brewery.beerHighlights.map((bh, bhIdx) => {
-                                    const isStyleMatch = (brewery.matchedStyles || []).some(st =>
-                                      `${bh.name} ${bh.style} ${bh.description}`.toLowerCase().includes(st.toLowerCase())
-                                    ) || (brewery.matchedStyles && brewery.matchedStyles.length > 0 && bhIdx === 0);
+                                    const preferredStylesToCheck =
+                                      route.parameters?.beerStyles && route.parameters.beerStyles.length > 0
+                                        ? route.parameters.beerStyles
+                                        : brewery.matchedStyles || [];
+                                    const isStyleMatch = preferredStylesToCheck.some((st) =>
+                                      checkBeerMatchesStyle(bh, st)
+                                    );
 
                                     return (
                                       <div

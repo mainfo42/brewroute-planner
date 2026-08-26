@@ -618,7 +618,7 @@ export const RouteForm: React.FC<RouteFormProps> = ({
             ) : (
               <>
                 <Sparkles className="w-4 h-4 text-amber-200" />
-                <span>Generate BrewRoute Itinerary</span>
+                <span>Generate BeerHop Itinerary</span>
                 <ChevronRight className="w-4 h-4" />
               </>
             )}

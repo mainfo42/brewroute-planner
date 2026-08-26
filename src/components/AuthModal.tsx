@@ -190,7 +190,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 {mode === 'forgot'
                   ? 'Reset Password'
                   : mode === 'login'
-                  ? 'Log In to BrewRoute'
+                  ? 'Log In to BeerHop'
                   : 'Create an Account'}
               </h2>
               <p className="text-xs text-slate-500">

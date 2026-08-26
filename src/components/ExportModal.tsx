@@ -62,7 +62,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose, route
 
   const handleDownloadIcs = () => {
     // Generate iCal ICS calendar file
-    let icsContent = "BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//BrewRoute//BrewRoutePlanner//EN\n";
+    let icsContent = "BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//BeerHop//BeerHopPlanner//EN\n";
 
     const baseDate = new Date();
     baseDate.setHours(11, 30, 0, 0);

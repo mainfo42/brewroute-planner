@@ -65,7 +65,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           <div>
             <div className="flex items-center gap-2">
               <span className="font-extrabold text-lg sm:text-xl tracking-tight text-white drop-shadow-xs">
-                BrewRoute
+                BeerHop
               </span>
               <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-orange-800/80 text-orange-100 border border-orange-400/40 tracking-wide">
                 Trail Guide

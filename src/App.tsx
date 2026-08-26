@@ -9,6 +9,7 @@ import { AuthModal } from './components/AuthModal';
 import { SavedItinerariesModal } from './components/SavedItinerariesModal';
 import { BrewTravelRoute, RouteParameters, AuthUser, SavedItinerary } from './types';
 import { SAMPLE_CURATED_ROUTE, POPULAR_DESTINATIONS } from './data/curatedRoutes';
+import { enrichAndValidateRoute } from './utils/styleMatcher';
 import {
   getCurrentUser,
   loginUser,
@@ -99,16 +100,18 @@ export default function App() {
       }
 
       const data: BrewTravelRoute = await response.json();
-      setCurrentRoute(data);
+      const validatedData = enrichAndValidateRoute(data, params.beerStyles || []);
+      setCurrentRoute(validatedData);
       setActiveMobileTab('plan');
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (err: any) {
       console.error('Failed to generate route from API:', err);
       // Fallback: Use curated high-quality sample if API fails
       setErrorMessage(
-        'BrewRoute Engine: Curated route synthesized with certified ratings and top local breweries.'
+        'BeerHop Engine: Curated route synthesized with certified ratings and top local breweries.'
       );
-      setCurrentRoute(SAMPLE_CURATED_ROUTE);
+      const validatedSample = enrichAndValidateRoute(SAMPLE_CURATED_ROUTE, params.beerStyles || []);
+      setCurrentRoute(validatedSample);
       setActiveMobileTab('plan');
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } finally {
@@ -154,7 +157,8 @@ export default function App() {
       }
 
       const data: BrewTravelRoute = await response.json();
-      setCurrentRoute(data);
+      const validatedData = enrichAndValidateRoute(data, updatedParams.beerStyles || []);
+      setCurrentRoute(validatedData);
       setSuccessToast('Generated alternative route with fresh top-rated breweries!');
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (err: any) {
@@ -204,7 +208,7 @@ export default function App() {
       setCurrentUser(res.user);
       setSavedItineraries(getSavedItineraries(res.user.id));
       setIsAuthModalOpen(false);
-      setSuccessToast(`Account created! Welcome to BrewRoute, ${res.user.displayName || res.user.email}!`);
+      setSuccessToast(`Account created! Welcome to BeerHop, ${res.user.displayName || res.user.email}!`);
       return { success: true, user: res.user };
     }
     return { success: false, error: res.error };
@@ -245,7 +249,8 @@ export default function App() {
   };
 
   const handleSelectSaved = (savedRoute: BrewTravelRoute) => {
-    setCurrentRoute(savedRoute);
+    const validated = enrichAndValidateRoute(savedRoute, savedRoute.parameters?.beerStyles || []);
+    setCurrentRoute(validated);
     setIsSavedItinerariesModalOpen(false);
     setActiveMobileTab('plan');
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -445,7 +450,7 @@ export default function App() {
         <div className="max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2 font-normal">
           <div className="flex items-center gap-1.5 font-medium text-slate-800">
             <Beer className="w-3.5 h-3.5 text-amber-600" />
-            <span>BrewRoute Planner • Drink Responsibly</span>
+            <span>BeerHop Planner • Drink Responsibly</span>
           </div>
           <div>
             ≤ 3 microbreweries/day • Spaced ≤ 25 min drive • Certified Untappd & Google Reviews

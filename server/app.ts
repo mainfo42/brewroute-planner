@@ -79,7 +79,7 @@ apiRouter.post('/generate-route', async (req, res) => {
        Generate a completely fresh, DIFFERENT set of top-tier, highly acclaimed microbreweries in/around ${params.destinationArea} that match the user's beer style preferences.`
     : '';
 
-  const prompt = `You are a world-class craft beer travel sommelier and itinerary master for BrewRoute.
+  const prompt = `You are a world-class craft beer travel sommelier and itinerary master for BeerHop.
 Generate a high-fidelity, 100% REAL-WORLD Brew Travel Route for microbrewery enthusiasts with full end-to-end driving directions including departure from home and return home navigation.
 
 CRITICAL REAL-WORLD VERIFICATION DIRECTIVE:
