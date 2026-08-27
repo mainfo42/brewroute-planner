@@ -72,7 +72,7 @@ export const BottomNavBar: React.FC<BottomNavBarProps> = ({
     <nav
       id="m3-bottom-navigation-bar"
       aria-label="Mobile Navigation"
-      className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-lg border-t border-slate-200 px-2 py-1.5 pb-safe transition-all shadow-[0_-4px_16px_rgba(0,0,0,0.06)] no-print"
+      className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#FAFBF9]/95 backdrop-blur-lg border-t border-[#D4E2D7] px-2 py-1.5 pb-safe transition-all shadow-[0_-4px_16px_rgba(13,40,24,0.06)] no-print"
     >
       <div className="flex items-center justify-around max-w-md mx-auto">
         {items.map((item) => {
@@ -91,19 +91,19 @@ export const BottomNavBar: React.FC<BottomNavBarProps> = ({
                 isDisabled ? 'opacity-35 cursor-not-allowed' : 'active:scale-95'
               }`}
             >
-              {/* Material 3 Active Indicator Pill */}
+              {/* Active Indicator Pill */}
               <div
                 className={`relative px-5 py-1 rounded-full flex items-center justify-center transition-all duration-200 ${
                   isActive
-                    ? 'bg-amber-100 text-amber-900 shadow-xs scale-100'
-                    : 'bg-transparent text-slate-500 hover:bg-slate-100'
+                    ? 'bg-[#D1E7D6] text-[#0D2818] shadow-2xs scale-100'
+                    : 'bg-transparent text-[#5B7564] hover:bg-[#EBF2EC]'
                 }`}
               >
-                <Icon className={`w-5 h-5 ${isActive ? 'stroke-[2.5] text-amber-900' : 'stroke-[1.8]'}`} />
+                <Icon className={`w-5 h-5 ${isActive ? 'stroke-[2.5] text-[#0D2818]' : 'stroke-[1.8]'}`} />
 
                 {/* Badge */}
                 {item.badge !== undefined && (
-                  <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] rounded-full bg-amber-600 text-white text-[10px] font-bold flex items-center justify-center px-1 shadow-xs">
+                  <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] rounded-full bg-[#15803D] text-white text-[10px] font-bold flex items-center justify-center px-1 shadow-2xs">
                     {item.badge}
                   </span>
                 )}
@@ -113,8 +113,8 @@ export const BottomNavBar: React.FC<BottomNavBarProps> = ({
               <span
                 className={`text-[11px] mt-0.5 tracking-tight font-medium transition-colors ${
                   isActive
-                    ? 'text-amber-900 font-bold'
-                    : 'text-slate-500'
+                    ? 'text-[#0D2818] font-bold'
+                    : 'text-[#5B7564]'
                 }`}
               >
                 {item.label}

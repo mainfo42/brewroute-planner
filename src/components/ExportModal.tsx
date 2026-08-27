@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { X, Copy, Check, Download, Calendar, Share2, MapPin, Beer } from 'lucide-react';
+import { X, Copy, Check, Download, Calendar, Share2, MapPin } from 'lucide-react';
+import { HopIcon } from './HopIcon';
 import { BrewTravelRoute } from '../types';
 
 interface ExportModalProps {
@@ -102,24 +103,24 @@ export const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose, route
 
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
-      <div className="bg-slate-50 rounded-t-3xl sm:rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl border border-slate-200 flex flex-col animate-slide-up sm:animate-none">
+      <div className="bg-[#FAFDF9] rounded-t-3xl sm:rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl border border-[#C6E2BD] flex flex-col animate-slide-up sm:animate-none">
         
         {/* Mobile Drag Handle */}
         <div className="sm:hidden pt-3 pb-1 flex justify-center">
-          <div className="w-10 h-1.5 rounded-full bg-slate-300" />
+          <div className="w-10 h-1.5 rounded-full bg-[#B2D8A6]/60" />
         </div>
 
         {/* Header */}
-        <div className="p-4 sm:p-5 bg-white flex items-center justify-between border-b border-slate-200">
+        <div className="p-4 sm:p-5 bg-white flex items-center justify-between border-b border-[#EAF4E6]">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-amber-100 text-amber-900 border border-amber-200 flex items-center justify-center font-bold shadow-xs">
-              <Share2 className="w-5 h-5 text-amber-700" />
+            <div className="w-10 h-10 rounded-2xl bg-[#DDF1D2] text-[#122B0F] border border-[#B2D8A6] flex items-center justify-center font-bold shadow-xs">
+              <Share2 className="w-5 h-5 text-[#58A72F]" />
             </div>
             <div>
-              <h2 className="text-base sm:text-lg font-bold text-slate-900 tracking-tight">
+              <h2 className="text-base sm:text-lg font-extrabold text-[#122610] tracking-tight font-display">
                 Export & Share Brew Route
               </h2>
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-[#4D6D47] font-medium">
                 Sync to your calendar or share with friends
               </p>
             </div>
@@ -129,7 +130,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose, route
             type="button"
             id="close-export-modal-btn"
             onClick={onClose}
-            className="p-2 rounded-full text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition-colors cursor-pointer"
+            className="p-2 rounded-full text-[#4D6D47] hover:text-[#122610] hover:bg-[#EAF4E6] transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -142,22 +143,22 @@ export const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose, route
             type="button"
             id="download-ics-calendar-btn"
             onClick={handleDownloadIcs}
-            className="w-full p-4 rounded-2xl bg-white hover:bg-amber-50/50 border border-slate-200 hover:border-amber-300 text-left transition-colors flex items-center justify-between cursor-pointer group shadow-xs"
+            className="w-full p-4 rounded-2xl bg-white hover:bg-[#DDF1D2]/40 border border-[#C6E2BD] hover:border-[#58A72F] text-left transition-colors flex items-center justify-between cursor-pointer group shadow-2xs"
           >
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-2xl bg-amber-100 text-amber-900 border border-amber-200 flex items-center justify-center font-bold shadow-xs">
-                <Calendar className="w-5 h-5 text-amber-700" />
+              <div className="w-10 h-10 rounded-2xl bg-[#DDF1D2] text-[#122B0F] border border-[#B2D8A6] flex items-center justify-center font-bold shadow-2xs">
+                <Calendar className="w-5 h-5 text-[#58A72F]" />
               </div>
               <div>
-                <div className="font-bold text-xs sm:text-sm text-slate-900">
+                <div className="font-extrabold text-xs sm:text-sm text-[#122610] font-display">
                   Export to Calendar (.ics)
                 </div>
-                <div className="text-[11px] text-slate-500">
+                <div className="text-[11px] text-[#4D6D47] font-medium">
                   Adds scheduled stops & tasting times to Apple, Google & Outlook
                 </div>
               </div>
             </div>
-            <Download className="w-5 h-5 text-amber-600" />
+            <Download className="w-5 h-5 text-[#58A72F]" />
           </button>
 
           {/* Copy Full Text Itinerary */}
@@ -165,27 +166,27 @@ export const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose, route
             type="button"
             id="copy-text-itinerary-btn"
             onClick={handleCopySummary}
-            className="w-full p-4 rounded-2xl bg-white hover:bg-slate-100 border border-slate-200 text-left transition-colors flex items-center justify-between cursor-pointer group shadow-xs"
+            className="w-full p-4 rounded-2xl bg-white hover:bg-[#EAF4E6] border border-[#C6E2BD] text-left transition-colors flex items-center justify-between cursor-pointer group shadow-2xs"
           >
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-2xl bg-slate-100 text-slate-800 flex items-center justify-center font-bold">
-                {copiedText ? <Check className="w-5 h-5 text-emerald-600" /> : <Copy className="w-5 h-5 text-amber-600" />}
+              <div className="w-10 h-10 rounded-2xl bg-[#EAF4E6] text-[#122610] flex items-center justify-center font-bold">
+                {copiedText ? <Check className="w-5 h-5 text-[#58A72F]" /> : <Copy className="w-5 h-5 text-[#58A72F]" />}
               </div>
               <div>
-                <div className="font-bold text-xs sm:text-sm text-slate-900">
+                <div className="font-extrabold text-xs sm:text-sm text-[#122610] font-display">
                   {copiedText ? 'Copied to Clipboard!' : 'Copy Formatted Text Summary'}
                 </div>
-                <div className="text-[11px] text-slate-500">
+                <div className="text-[11px] text-[#4D6D47] font-medium">
                   Formatted for group chats, SMS, Discord, or notes
                 </div>
               </div>
             </div>
             {copiedText ? (
-              <span className="text-[10px] font-bold text-emerald-900 bg-emerald-100 border border-emerald-200 px-2.5 py-0.5 rounded-full">
-                Copied!
+              <span className="text-[10px] font-black text-[#122B0F] bg-[#DDF1D2] border border-[#B2D8A6] px-2.5 py-0.5 rounded-full font-brand uppercase">
+                COPIED!
               </span>
             ) : (
-              <Copy className="w-4 h-4 text-slate-400" />
+              <Copy className="w-4 h-4 text-[#6D9364]" />
             )}
           </button>
 
@@ -194,27 +195,27 @@ export const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose, route
             type="button"
             id="copy-app-link-btn"
             onClick={handleCopyLink}
-            className="w-full p-4 rounded-2xl bg-white hover:bg-slate-100 border border-slate-200 text-left transition-colors flex items-center justify-between cursor-pointer group shadow-xs"
+            className="w-full p-4 rounded-2xl bg-white hover:bg-[#EAF4E6] border border-[#C6E2BD] text-left transition-colors flex items-center justify-between cursor-pointer group shadow-2xs"
           >
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-2xl bg-slate-100 text-slate-800 flex items-center justify-center font-bold">
-                {copiedLink ? <Check className="w-5 h-5 text-emerald-600" /> : <Share2 className="w-5 h-5 text-amber-600" />}
+              <div className="w-10 h-10 rounded-2xl bg-[#EAF4E6] text-[#122610] flex items-center justify-center font-bold">
+                {copiedLink ? <Check className="w-5 h-5 text-[#58A72F]" /> : <Share2 className="w-5 h-5 text-[#58A72F]" />}
               </div>
               <div>
-                <div className="font-bold text-xs sm:text-sm text-slate-900">
+                <div className="font-extrabold text-xs sm:text-sm text-[#122610] font-display">
                   {copiedLink ? 'Link Copied!' : 'Copy Direct App Link'}
                 </div>
-                <div className="text-[11px] text-slate-500">
+                <div className="text-[11px] text-[#4D6D47] font-medium">
                   Share this web app with your road trip travel crew
                 </div>
               </div>
             </div>
             {copiedLink ? (
-              <span className="text-[10px] font-bold text-emerald-900 bg-emerald-100 border border-emerald-200 px-2.5 py-0.5 rounded-full">
-                Copied!
+              <span className="text-[10px] font-black text-[#122B0F] bg-[#DDF1D2] border border-[#B2D8A6] px-2.5 py-0.5 rounded-full font-brand uppercase">
+                COPIED!
               </span>
             ) : (
-              <Share2 className="w-4 h-4 text-slate-400" />
+              <Share2 className="w-4 h-4 text-[#6D9364]" />
             )}
           </button>
         </div>
@@ -222,3 +223,4 @@ export const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose, route
     </div>
   );
 };
+

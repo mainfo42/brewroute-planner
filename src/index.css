@@ -2,35 +2,47 @@
 
 @layer base {
   :root {
-    --md-sys-color-primary: #d97706;
+    --md-sys-color-primary: #58a72f;
     --md-sys-color-on-primary: #ffffff;
-    --md-sys-color-primary-container: #fef3c7;
-    --md-sys-color-on-primary-container: #78350f;
-    --md-sys-color-surface: #f8fafc;
-    --md-sys-color-surface-dim: #e2e8f0;
+    --md-sys-color-primary-container: #ddf1d2;
+    --md-sys-color-on-primary-container: #122b0f;
+    --md-sys-color-surface: #f2f8f0;
+    --md-sys-color-surface-dim: #e2efe0;
     --md-sys-color-surface-bright: #ffffff;
     --md-sys-color-surface-container-lowest: #ffffff;
-    --md-sys-color-surface-container-low: #f8fafc;
-    --md-sys-color-surface-container: #f1f5f9;
-    --md-sys-color-surface-container-high: #e2e8f0;
-    --md-sys-color-surface-container-highest: #cbd5e1;
-    --md-sys-color-on-surface: #0f172a;
-    --md-sys-color-on-surface-variant: #475569;
-    --md-sys-color-outline: #94a3b8;
-    --md-sys-color-outline-variant: #e2e8f0;
+    --md-sys-color-surface-container-low: #f2f8f0;
+    --md-sys-color-surface-container: #eaf4e6;
+    --md-sys-color-surface-container-high: #deecd8;
+    --md-sys-color-surface-container-highest: #cfe4c7;
+    --md-sys-color-on-surface: #122610;
+    --md-sys-color-on-surface-variant: #3b5734;
+    --md-sys-color-outline: #6d9364;
+    --md-sys-color-outline-variant: #c6e2bd;
   }
 
   body {
-    font-family: 'Plus Jakarta Sans', 'Roboto', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    color: #0f172a;
-    background-color: #f8fafc;
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    color: #122610;
+    background-color: #f2f8f0;
     -webkit-tap-highlight-color: transparent;
   }
 
   h1, h2, h3, .font-display {
-    font-family: 'Plus Jakarta Sans', 'Roboto', system-ui, -apple-system, sans-serif;
-    letter-spacing: -0.02em;
-    font-weight: 700;
+    font-family: 'Barlow Semi Condensed', 'Syne', 'Plus Jakarta Sans', system-ui, sans-serif;
+    letter-spacing: -0.015em;
+    font-weight: 800;
+  }
+
+  .font-brand {
+    font-family: 'Barlow Semi Condensed', 'Syne', sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-weight: 900;
+  }
+
+  .font-impact {
+    font-family: 'Syne', 'Barlow Semi Condensed', sans-serif;
+    font-weight: 800;
   }
 }
 
@@ -39,25 +51,25 @@
   box-shadow: none;
 }
 .md-elevation-1 {
-  box-shadow: 0px 1px 3px 1px rgba(0, 0, 0, 0.08), 0px 1px 2px 0px rgba(0, 0, 0, 0.12);
+  box-shadow: 0px 1px 3px 1px rgba(18, 38, 16, 0.05), 0px 1px 2px 0px rgba(18, 38, 16, 0.08);
 }
 .md-elevation-2 {
-  box-shadow: 0px 2px 6px 2px rgba(0, 0, 0, 0.08), 0px 1px 2px 0px rgba(0, 0, 0, 0.12);
+  box-shadow: 0px 2px 6px 2px rgba(18, 38, 16, 0.07), 0px 1px 2px 0px rgba(18, 38, 16, 0.1);
 }
 .md-elevation-3 {
-  box-shadow: 0px 4px 8px 3px rgba(0, 0, 0, 0.08), 0px 1px 3px 0px rgba(0, 0, 0, 0.14);
+  box-shadow: 0px 4px 8px 3px rgba(18, 38, 16, 0.07), 0px 1px 3px 0px rgba(18, 38, 16, 0.12);
 }
 .md-elevation-4 {
-  box-shadow: 0px 6px 10px 4px rgba(0, 0, 0, 0.08), 0px 2px 3px 0px rgba(0, 0, 0, 0.14);
+  box-shadow: 0px 6px 10px 4px rgba(18, 38, 16, 0.09), 0px 2px 3px 0px rgba(18, 38, 16, 0.14);
 }
 
-/* Custom Leaflet Map styling matching Material UI */
+/* Custom Leaflet Map styling matching Fresh Hop Green theme */
 .leaflet-popup-content-wrapper {
   border-radius: 20px !important;
-  box-shadow: 0px 4px 12px 2px rgba(0, 0, 0, 0.12), 0px 1px 4px 0px rgba(0, 0, 0, 0.14) !important;
+  box-shadow: 0px 8px 24px 2px rgba(18, 38, 16, 0.18), 0px 2px 6px 0px rgba(18, 38, 16, 0.12) !important;
   padding: 0 !important;
   overflow: hidden !important;
-  border: 1px solid rgba(212, 196, 181, 0.6) !important;
+  border: 1px solid rgba(178, 216, 166, 0.6) !important;
   background: #ffffff !important;
 }
 
@@ -70,7 +82,7 @@
   background: #ffffff !important;
 }
 
-/* Material smooth scrollbar */
+/* Smooth Green scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -79,11 +91,11 @@
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #d4c4b5;
+  background: #b2d8a6;
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #a8988a;
+  background: #7bb56a;
 }
 
 /* Bottom sheet animation for mobile */

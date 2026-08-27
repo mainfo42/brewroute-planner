@@ -302,7 +302,7 @@ export default function App() {
   );
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col selection:bg-amber-100 selection:text-amber-950 font-sans">
+    <div className="min-h-screen bg-[#FAFBF9] text-[#0D2818] flex flex-col selection:bg-[#D1E7D6] selection:text-[#0D2818] font-sans">
       {/* Top App Bar */}
       <Navbar
         onOpenCurated={() => setIsCuratedModalOpen(true)}
@@ -318,15 +318,15 @@ export default function App() {
         }}
       />
 
-      {/* Success Notification Toast (Material 3 Snack bar style) */}
+      {/* Success Notification Toast */}
       {successToast && (
         <div className="fixed top-20 right-4 z-50 animate-in fade-in slide-in-from-top-4 duration-200">
-          <div className="p-3.5 rounded-2xl bg-slate-900 text-white border border-slate-700 text-xs font-semibold flex items-center gap-2.5 shadow-2xl">
-            <CheckCircle2 className="w-4 h-4 text-amber-400 shrink-0" />
+          <div className="p-3.5 rounded-2xl bg-[#0D2818] text-white border border-[#15803D]/40 text-xs font-semibold flex items-center gap-2.5 shadow-2xl">
+            <CheckCircle2 className="w-4 h-4 text-[#22C55E] shrink-0" />
             <span>{successToast}</span>
             <button
               onClick={() => setSuccessToast(null)}
-              className="text-slate-400 hover:text-white ml-2 cursor-pointer font-bold"
+              className="text-[#8DAA91] hover:text-white ml-2 cursor-pointer font-bold"
             >
               ✕
             </button>
@@ -337,7 +337,7 @@ export default function App() {
       {/* Error alert toast if present */}
       {errorMessage && (
         <div className="max-w-4xl mx-auto mt-4 px-4 sm:px-6 w-full">
-          <div className="p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-900 text-xs font-medium flex items-center justify-between shadow-xs">
+          <div className="p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-900 text-xs font-medium flex items-center justify-between shadow-2xs">
             <div className="flex items-center gap-2">
               <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
               <span>{errorMessage}</span>
@@ -384,7 +384,7 @@ export default function App() {
         )}
       </main>
 
-      {/* Material 3 Bottom Navigation Bar for Mobile */}
+      {/* Bottom Navigation Bar for Mobile */}
       <BottomNavBar
         activeTab={activeMobileTab}
         onChangeTab={handleMobileTabChange}
@@ -450,10 +450,10 @@ export default function App() {
       />
 
       {/* Footer */}
-      <footer className="py-6 px-4 border-t border-slate-200 text-center text-xs text-slate-500 bg-white/70 backdrop-blur-xs no-print hidden md:block">
+      <footer className="py-6 px-4 border-t border-[#EBF2EC] text-center text-xs text-[#52705B] bg-white/70 backdrop-blur-xs no-print hidden md:block">
         <div className="max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2 font-normal">
-          <div className="flex items-center gap-1.5 font-medium text-slate-800">
-            <Beer className="w-3.5 h-3.5 text-amber-600" />
+          <div className="flex items-center gap-1.5 font-medium text-[#0D2818]">
+            <Beer className="w-3.5 h-3.5 text-[#15803D]" />
             <span>BeerHop Planner • Drink Responsibly</span>
           </div>
           <div>

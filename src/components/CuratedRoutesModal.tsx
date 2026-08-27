@@ -1,5 +1,6 @@
 import React from 'react';
-import { X, Compass, MapPin, Beer, Sparkles, ChevronRight, Check } from 'lucide-react';
+import { X, Compass, MapPin, Sparkles, ChevronRight, Check } from 'lucide-react';
+import { HopIcon } from './HopIcon';
 import { POPULAR_DESTINATIONS, SAMPLE_CURATED_ROUTE } from '../data/curatedRoutes';
 import { BrewTravelRoute } from '../types';
 
@@ -20,24 +21,24 @@ export const CuratedRoutesModal: React.FC<CuratedRoutesModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
-      <div className="bg-slate-50 rounded-t-3xl sm:rounded-3xl max-w-3xl w-full max-h-[88vh] overflow-hidden shadow-2xl border border-slate-200 flex flex-col animate-slide-up sm:animate-none">
+      <div className="bg-[#FAFDF9] rounded-t-3xl sm:rounded-3xl max-w-3xl w-full max-h-[88vh] overflow-hidden shadow-2xl border border-[#C6E2BD] flex flex-col animate-slide-up sm:animate-none">
         
         {/* Mobile Drag Pill Handle */}
         <div className="sm:hidden pt-3 pb-1 flex justify-center">
-          <div className="w-10 h-1.5 rounded-full bg-slate-300" />
+          <div className="w-10 h-1.5 rounded-full bg-[#B2D8A6]/60" />
         </div>
 
         {/* Header */}
-        <div className="p-4 sm:p-6 bg-white flex items-center justify-between border-b border-slate-200">
+        <div className="p-4 sm:p-6 bg-white flex items-center justify-between border-b border-[#EAF4E6]">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-amber-100 text-amber-900 border border-amber-200 flex items-center justify-center font-bold shadow-xs">
-              <Compass className="w-5 h-5 text-amber-700" />
+            <div className="w-10 h-10 rounded-2xl bg-[#DDF1D2] text-[#122B0F] border border-[#B2D8A6] flex items-center justify-center font-bold shadow-xs">
+              <HopIcon className="w-5 h-5 text-[#58A72F]" filled />
             </div>
             <div>
-              <h2 className="text-base sm:text-lg font-bold text-slate-900 tracking-tight">
+              <h2 className="text-base sm:text-lg font-extrabold text-[#122610] tracking-tight font-display">
                 Famous Microbrewery Trails
               </h2>
-              <p className="text-xs text-slate-500 font-normal">
+              <p className="text-xs text-[#4D6D47] font-normal">
                 Iconic craft beer regions & instant verified itineraries
               </p>
             </div>
@@ -47,7 +48,7 @@ export const CuratedRoutesModal: React.FC<CuratedRoutesModalProps> = ({
             type="button"
             id="close-curated-modal-btn"
             onClick={onClose}
-            className="p-2 rounded-full text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition-colors cursor-pointer"
+            className="p-2 rounded-full text-[#4D6D47] hover:text-[#122610] hover:bg-[#EAF4E6] transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -57,28 +58,28 @@ export const CuratedRoutesModal: React.FC<CuratedRoutesModalProps> = ({
         <div className="p-4 sm:p-6 overflow-y-auto space-y-6">
           {/* Featured Ready-to-Explore Route */}
           <div className="space-y-2.5">
-            <span className="text-[11px] font-bold text-amber-700 uppercase tracking-wider flex items-center gap-1.5">
-              <Sparkles className="w-3.5 h-3.5 text-amber-600" />
+            <span className="text-[11px] font-black text-[#58A72F] uppercase tracking-wider flex items-center gap-1.5 font-brand">
+              <Sparkles className="w-3.5 h-3.5 text-[#58A72F]" />
               <span>Featured Complete Itinerary (Instant Preview)</span>
             </span>
 
-            <div className="p-4 sm:p-5 rounded-3xl bg-white border border-slate-200 hover:border-amber-400 transition-all flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 shadow-xs">
+            <div className="p-4 sm:p-5 rounded-3xl bg-white border border-[#C6E2BD] hover:border-[#58A72F] transition-all flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 shadow-2xs">
               <div className="space-y-1.5">
                 <div className="flex items-center gap-2">
-                  <span className="px-2.5 py-0.5 rounded-full bg-amber-600 text-white text-[10px] font-bold uppercase tracking-wider">
+                  <span className="px-2.5 py-0.5 rounded-full bg-[#58A72F] text-white text-[10px] font-black uppercase tracking-wider font-brand">
                     2 Days • 6 Breweries
                   </span>
-                  <span className="text-xs font-semibold text-slate-900">
+                  <span className="text-xs font-bold text-[#122610]">
                     {SAMPLE_CURATED_ROUTE.region}
                   </span>
                 </div>
-                <h3 className="text-base sm:text-lg font-bold text-slate-900">
+                <h3 className="text-base sm:text-lg font-extrabold text-[#122610] font-display">
                   {SAMPLE_CURATED_ROUTE.title}
                 </h3>
-                <p className="text-xs text-slate-500 max-w-xl font-normal leading-relaxed">
+                <p className="text-xs text-[#4D6D47] max-w-xl font-normal leading-relaxed">
                   {SAMPLE_CURATED_ROUTE.summary}
                 </p>
-                <div className="text-[11px] text-slate-700 font-medium pt-1">
+                <div className="text-[11px] text-[#122610]/80 font-medium pt-1">
                   Featuring: The Alchemist, von Trapp Bierhall, Idletyme, Prohibition Pig, Freak Folk & Lawson's + Stowe B&B stay.
                 </div>
               </div>
@@ -90,9 +91,9 @@ export const CuratedRoutesModal: React.FC<CuratedRoutesModalProps> = ({
                   onSelectRoute(SAMPLE_CURATED_ROUTE);
                   onClose();
                 }}
-                className="px-5 py-2.5 rounded-full bg-amber-600 hover:bg-amber-700 active:bg-amber-800 text-white font-bold text-xs shadow-xs flex items-center justify-center gap-1.5 transition-all shrink-0 cursor-pointer min-h-[40px]"
+                className="px-5 py-2.5 rounded-full bg-[#58A72F] hover:bg-[#489224] active:bg-[#3D7C1E] text-white font-black text-xs shadow-md flex items-center justify-center gap-1.5 transition-all shrink-0 cursor-pointer min-h-[40px] font-brand tracking-wider uppercase border border-[#7CD749]"
               >
-                <span>Load Trail</span>
+                <span>LOAD TRAIL</span>
                 <ChevronRight className="w-4 h-4" />
               </button>
             </div>
@@ -100,7 +101,7 @@ export const CuratedRoutesModal: React.FC<CuratedRoutesModalProps> = ({
 
           {/* Regional Inspirations */}
           <div className="space-y-3">
-            <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+            <span className="text-[11px] font-black text-[#4D6D47] uppercase tracking-wider font-brand">
               Iconic Craft Regions (Pre-Fill Parameters)
             </span>
 
@@ -108,25 +109,25 @@ export const CuratedRoutesModal: React.FC<CuratedRoutesModalProps> = ({
               {POPULAR_DESTINATIONS.map((dest, idx) => (
                 <div
                   key={idx}
-                  className="p-4 rounded-2xl border border-slate-200 bg-white hover:border-amber-400 transition-all flex flex-col justify-between shadow-xs"
+                  className="p-4 rounded-2xl border border-[#C6E2BD] bg-white hover:border-[#58A72F] transition-all flex flex-col justify-between shadow-2xs"
                 >
                   <div>
                     <div className="flex items-center justify-between mb-1">
-                      <h4 className="font-bold text-sm text-slate-900">
+                      <h4 className="font-extrabold text-sm text-[#122610] font-display">
                         {dest.name}
                       </h4>
-                      <span className="text-[10px] font-semibold text-amber-900 bg-amber-100 border border-amber-200 px-2 py-0.5 rounded-full">
+                      <span className="text-[10px] font-black text-[#122B0F] bg-[#DDF1D2] border border-[#B2D8A6] px-2 py-0.5 rounded-full font-brand uppercase">
                         {dest.region}
                       </span>
                     </div>
-                    <p className="text-xs text-slate-500 mb-2 font-normal">
+                    <p className="text-xs text-[#4D6D47] mb-2 font-normal">
                       {dest.highlight}
                     </p>
                     <div className="flex flex-wrap gap-1 mb-3">
                       {dest.suggestedStyles.map((st) => (
                         <span
                           key={st}
-                          className="px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 text-[10px] font-medium border border-slate-200"
+                          className="px-2 py-0.5 rounded-md bg-[#EAF4E6] text-[#122610] text-[10px] font-bold border border-[#C6E2BD]"
                         >
                           {st}
                         </span>
@@ -141,10 +142,10 @@ export const CuratedRoutesModal: React.FC<CuratedRoutesModalProps> = ({
                       onPrefillParams(dest.startLoc, dest.name, dest.suggestedStyles);
                       onClose();
                     }}
-                    className="w-full py-2 rounded-full bg-slate-100 hover:bg-amber-100 hover:text-amber-900 text-slate-800 font-semibold text-xs transition-colors flex items-center justify-center gap-1 cursor-pointer min-h-[36px]"
+                    className="w-full py-2 rounded-full bg-[#EAF4E6] hover:bg-[#DDF1D2] hover:text-[#122B0F] text-[#122610] font-black text-xs transition-colors flex items-center justify-center gap-1 cursor-pointer min-h-[36px] font-brand tracking-wider uppercase"
                   >
-                    <span>Use These Parameters</span>
-                    <ChevronRight className="w-3.5 h-3.5 text-amber-600" />
+                    <span>USE THESE PARAMETERS</span>
+                    <ChevronRight className="w-3.5 h-3.5 text-[#58A72F]" />
                   </button>
                 </div>
               ))}
@@ -155,3 +156,4 @@ export const CuratedRoutesModal: React.FC<CuratedRoutesModalProps> = ({
     </div>
   );
 };
+
