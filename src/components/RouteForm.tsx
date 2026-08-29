@@ -152,14 +152,10 @@ export const RouteForm: React.FC<RouteFormProps> = ({
     <div className="w-full max-w-3xl mx-auto py-6 sm:py-9 px-4 sm:px-6 space-y-6 pb-28 md:pb-14">
       {/* Hero Header Section */}
       <div className="text-center space-y-3">
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#DDF1D2] text-[#122B0F] border border-[#B2D8A6] text-xs font-black tracking-widest uppercase shadow-2xs font-brand">
-          <HopIcon className="w-4 h-4 text-[#58A72F]" filled />
-          <span>FRESH GREEN HOP TRAIL PLANNER</span>
-        </div>
-        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-[#122610] tracking-tight leading-tight font-display">
+        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-white tracking-tight leading-tight font-display">
           Plan Your Microbrewery Route
         </h1>
-        <p className="text-[#3B5734] text-xs sm:text-sm max-w-md mx-auto leading-relaxed font-medium">
+        <p className="text-[#A3B899] text-xs sm:text-sm max-w-md mx-auto leading-relaxed font-medium">
           Craft multi-stop tasting tours with verified ratings, drive times under 25 mins, and round-trip Google Maps routes.
         </p>
 
@@ -170,7 +166,7 @@ export const RouteForm: React.FC<RouteFormProps> = ({
               type="button"
               id="reset-form-fields-btn"
               onClick={handleClearAll}
-              className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full text-xs font-bold text-[#58A72F] bg-[#EAF4E6] hover:bg-[#DDF1D2] border border-[#B2D8A6] transition-colors cursor-pointer font-brand tracking-wider"
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold text-[#7DD748] bg-[#162D15] hover:bg-[#1E3B18] border border-[#58A72F]/40 transition-colors cursor-pointer font-brand tracking-wider shadow-xs"
             >
               <RotateCcw className="w-3 h-3 text-[#58A72F]" />
               <span>RESET ALL FIELDS</span>
@@ -181,27 +177,27 @@ export const RouteForm: React.FC<RouteFormProps> = ({
 
       {/* Validation Error Banner */}
       {validationError && (
-        <div className="p-4 rounded-2xl bg-rose-50 text-rose-900 text-xs font-semibold flex items-center gap-2.5 animate-in fade-in duration-200 border border-rose-200 shadow-xs">
-          <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
+        <div className="p-4 rounded-2xl bg-rose-950/80 text-rose-200 text-xs font-semibold flex items-center gap-2.5 animate-in fade-in duration-200 border border-rose-800 shadow-md">
+          <AlertCircle className="w-4 h-4 text-rose-400 shrink-0" />
           <span>{validationError}</span>
         </div>
       )}
 
       {/* Main Craft Form Container */}
-      <form onSubmit={handleSubmit} className="bg-white rounded-3xl border border-[#C6E2BD] shadow-xs overflow-hidden">
+      <form onSubmit={handleSubmit} className="bg-[#111111] rounded-3xl border border-[#262626] shadow-2xl overflow-hidden">
         <div className="p-5 sm:p-7 space-y-7">
           
           {/* STEP 1: Starting Location & Area to Visit */}
           <div className="space-y-4">
-            <div className="flex items-center gap-3.5 pb-3 border-b border-[#EAF4E6]">
-              <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-[#162D15] text-[#DDF1D2] flex items-center justify-center font-black text-lg sm:text-xl shadow-md ring-4 ring-[#DDF1D2] shrink-0 font-brand">
+            <div className="flex items-center gap-3.5 sm:gap-4 pb-3.5 border-b border-[#222222]">
+              <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-[#1E3B18] text-[#DDF1D2] border border-[#58A72F]/60 flex items-center justify-center font-black text-xl sm:text-2xl shadow-md ring-4 ring-[#58A72F]/20 shrink-0 font-brand">
                 1
               </div>
               <div>
-                <h2 className="text-base sm:text-lg font-extrabold text-[#122610] tracking-tight font-display uppercase">
+                <h2 className="text-lg sm:text-xl md:text-2xl font-black text-white tracking-tight font-display uppercase">
                   Locations & Destination
                 </h2>
-                <p className="text-xs text-[#4D6D47]">Where are you leaving from and where do you want to explore?</p>
+                <p className="text-xs sm:text-sm text-[#9CB394] font-medium">Where are you leaving from and where do you want to explore?</p>
               </div>
             </div>
 
@@ -224,6 +220,7 @@ export const RouteForm: React.FC<RouteFormProps> = ({
                 placeholder="e.g. Burlington VT, Boston, Denver..."
                 iconType="navigation"
                 helperText="Includes round-trip travel"
+                darkMode={true}
               />
 
               {/* Area to Visit */}
@@ -243,31 +240,32 @@ export const RouteForm: React.FC<RouteFormProps> = ({
                 placeholder="e.g. Vermont, Asheville, San Diego..."
                 iconType="mapPin"
                 helperText="≤ 25 min drive between stops"
+                darkMode={true}
               />
             </div>
           </div>
 
           {/* STEP 2: Preferred Beer Styles */}
           <div className="space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-[#EAF4E6]">
-              <div className="flex items-center gap-3.5">
-                <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-[#162D15] text-[#DDF1D2] flex items-center justify-center font-black text-lg sm:text-xl shadow-md ring-4 ring-[#DDF1D2] shrink-0 font-brand">
+            <div className="flex items-center justify-between gap-3 pb-3.5 border-b border-[#222222]">
+              <div className="flex items-center gap-3.5 sm:gap-4">
+                <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-[#1E3B18] text-[#DDF1D2] border border-[#58A72F]/60 flex items-center justify-center font-black text-xl sm:text-2xl shadow-md ring-4 ring-[#58A72F]/20 shrink-0 font-brand">
                   2
                 </div>
                 <div>
-                  <h2 className="text-base sm:text-lg font-extrabold text-[#122610] tracking-tight font-display uppercase">
+                  <h2 className="text-lg sm:text-xl md:text-2xl font-black text-white tracking-tight font-display uppercase">
                     Preferred Beer Styles
                   </h2>
-                  <p className="text-xs text-[#4D6D47]">Choose the styles you want to taste on the trail</p>
+                  <p className="text-xs sm:text-sm text-[#9CB394] font-medium">Choose the styles you want to taste on the trail</p>
                 </div>
               </div>
 
               {selectedBeerStyles.length > 0 ? (
-                <span className="text-xs font-black px-3 py-1 rounded-full bg-[#DDF1D2] text-[#122B0F] border border-[#B2D8A6] font-brand tracking-wider">
+                <span className="text-xs sm:text-sm font-black px-3.5 py-1.5 rounded-full bg-[#1E3B18] text-[#DDF1D2] border border-[#58A72F]/50 font-brand tracking-wider shadow-2xs shrink-0">
                   {selectedBeerStyles.length} SELECTED
                 </span>
               ) : (
-                <span className="text-xs font-bold px-3 py-1 rounded-full bg-[#EAF4E6] text-[#4D6D47]">
+                <span className="text-xs font-bold px-3 py-1 rounded-full bg-[#1E1E1E] text-[#888888] border border-[#333333] shrink-0">
                   None
                 </span>
               )}
@@ -275,7 +273,7 @@ export const RouteForm: React.FC<RouteFormProps> = ({
 
             {/* Quick Filter Assist Chips */}
             <div className="flex flex-wrap items-center gap-1.5 overflow-x-auto pb-1">
-              <span className="text-xs font-bold text-[#4D6D47] mr-1 font-brand tracking-wide">SHORTCUTS:</span>
+              <span className="text-xs font-bold text-[#9CB394] mr-1 font-brand tracking-wide">SHORTCUTS:</span>
               {[
                 { id: 'all', label: 'All Styles' },
                 { id: 'hoppy', label: 'Hoppy & IPAs' },
@@ -288,7 +286,7 @@ export const RouteForm: React.FC<RouteFormProps> = ({
                   type="button"
                   id={`style-filter-pill-${pill.id}`}
                   onClick={() => selectStylePreset(pill.id)}
-                  className="px-3.5 py-1.5 rounded-full text-xs font-bold bg-[#F2F8F0] hover:bg-[#DDF1D2] hover:text-[#122B0F] text-[#162D15] transition-colors cursor-pointer min-h-[32px] border border-[#C6E2BD]"
+                  className="px-3.5 py-1.5 rounded-full text-xs font-bold bg-[#1A1A1A] hover:bg-[#262626] hover:text-white text-[#D0D0D0] transition-colors cursor-pointer min-h-[32px] border border-[#333333] hover:border-[#58A72F]"
                 >
                   {pill.label}
                 </button>
@@ -298,7 +296,7 @@ export const RouteForm: React.FC<RouteFormProps> = ({
                   type="button"
                   id="style-filter-clear"
                   onClick={() => selectStylePreset('clear')}
-                  className="px-3 py-1.5 rounded-full text-xs font-bold text-rose-700 hover:bg-rose-50 transition-colors cursor-pointer"
+                  className="px-3 py-1.5 rounded-full text-xs font-bold text-rose-400 hover:bg-rose-950/40 hover:text-rose-300 transition-colors cursor-pointer"
                 >
                   Clear
                 </button>
@@ -317,23 +315,23 @@ export const RouteForm: React.FC<RouteFormProps> = ({
                     onClick={() => toggleBeerStyle(style.id)}
                     className={`p-3.5 rounded-2xl border text-left transition-all cursor-pointer flex flex-col justify-between min-h-[68px] ${
                       isSelected
-                        ? 'bg-[#EAF4E6] text-[#122610] border-[#58A72F] shadow-xs ring-2 ring-[#58A72F]/30'
-                        : 'bg-[#FAFDF9] hover:bg-[#F2F8F0] text-[#122610] border-[#C6E2BD]'
+                        ? 'bg-[#152B12] text-white border-2 border-[#58A72F] shadow-sm ring-2 ring-[#58A72F]/30'
+                        : 'bg-[#181818] hover:bg-[#202020] text-white border-[#2E2E2E] hover:border-[#58A72F]/60'
                     }`}
                   >
                     <div className="flex items-center justify-between gap-1 mb-1">
-                      <span className={`font-extrabold text-xs sm:text-sm font-display tracking-tight ${isSelected ? 'text-[#122610]' : 'text-[#122610]'}`}>
+                      <span className="font-black text-xs sm:text-sm font-display tracking-tight text-white">
                         {style.id}
                       </span>
                       <div
                         className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 transition-all ${
-                          isSelected ? 'bg-[#58A72F] text-white scale-100' : 'bg-[#DDF1D2] text-transparent'
+                          isSelected ? 'bg-[#58A72F] text-white scale-100' : 'bg-[#2A2A2A] text-transparent border border-[#444444]'
                         }`}
                       >
                         <Check className="w-3.5 h-3.5 stroke-[3]" />
                       </div>
                     </div>
-                    <span className={`text-[11px] leading-tight line-clamp-1 ${isSelected ? 'text-[#58A72F] font-bold' : 'text-[#4D6D47]'}`}>
+                    <span className={`text-[11px] leading-tight line-clamp-1 ${isSelected ? 'text-[#7DD748] font-bold' : 'text-[#8EAD84]'}`}>
                       {style.category}
                     </span>
                   </button>
@@ -344,25 +342,25 @@ export const RouteForm: React.FC<RouteFormProps> = ({
 
           {/* STEP 3: Total Length of the Trip */}
           <div className="space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-[#EAF4E6]">
-              <div className="flex items-center gap-3.5">
-                <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-[#162D15] text-[#DDF1D2] flex items-center justify-center font-black text-lg sm:text-xl shadow-md ring-4 ring-[#DDF1D2] shrink-0 font-brand">
+            <div className="flex items-center justify-between gap-3 pb-3.5 border-b border-[#222222]">
+              <div className="flex items-center gap-3.5 sm:gap-4">
+                <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-[#1E3B18] text-[#DDF1D2] border border-[#58A72F]/60 flex items-center justify-center font-black text-xl sm:text-2xl shadow-md ring-4 ring-[#58A72F]/20 shrink-0 font-brand">
                   3
                 </div>
                 <div>
-                  <h2 className="text-base sm:text-lg font-extrabold text-[#122610] tracking-tight font-display uppercase">
+                  <h2 className="text-lg sm:text-xl md:text-2xl font-black text-white tracking-tight font-display uppercase">
                     Trip Duration
                   </h2>
-                  <p className="text-xs text-[#4D6D47]">Choose the length of your beer road trip</p>
+                  <p className="text-xs sm:text-sm text-[#9CB394] font-medium">Choose the length of your beer road trip</p>
                 </div>
               </div>
 
               {tripLength ? (
-                <span className="text-xs font-black px-3 py-1 rounded-full bg-[#58A72F] text-white font-brand tracking-wider">
+                <span className="text-xs sm:text-sm font-black px-3.5 py-1.5 rounded-full bg-[#58A72F] text-white font-brand tracking-wider shadow-2xs shrink-0">
                   SELECTED
                 </span>
               ) : (
-                <span className="text-xs font-bold px-3 py-1 rounded-full bg-[#EAF4E6] text-[#4D6D47]">
+                <span className="text-xs font-bold px-3 py-1 rounded-full bg-[#1E1E1E] text-[#888888] border border-[#333333] shrink-0">
                   Select One
                 </span>
               )}
@@ -387,15 +385,15 @@ export const RouteForm: React.FC<RouteFormProps> = ({
                     }}
                     className={`p-3.5 rounded-2xl border text-left transition-all cursor-pointer min-h-[76px] ${
                       isSelected
-                        ? 'bg-[#58A72F] text-white border-[#58A72F] shadow-sm ring-2 ring-[#7DD748]/50'
-                        : 'bg-[#FAFDF9] hover:bg-[#F2F8F0] text-[#122610] border-[#C6E2BD]'
+                        ? 'bg-[#58A72F] text-white border-2 border-[#7DD748] shadow-md ring-2 ring-[#7DD748]/50'
+                        : 'bg-[#181818] hover:bg-[#202020] text-white border-[#2E2E2E] hover:border-[#58A72F]/60'
                     }`}
                   >
                     <div className="flex items-center justify-between mb-1">
-                      <span className="font-extrabold text-xs sm:text-sm font-display tracking-tight">{dur.label}</span>
-                      <Calendar className={`w-3.5 h-3.5 ${isSelected ? 'text-[#DDF1D2]' : 'text-[#6D9364]'}`} />
+                      <span className="font-black text-xs sm:text-sm font-display tracking-tight text-white">{dur.label}</span>
+                      <Calendar className={`w-3.5 h-3.5 ${isSelected ? 'text-[#DDF1D2]' : 'text-[#7DD748]'}`} />
                     </div>
-                    <span className={`text-[10px] leading-tight block ${isSelected ? 'text-[#DDF1D2] font-semibold' : 'text-[#4D6D47]'}`}>
+                    <span className={`text-[10px] leading-tight block ${isSelected ? 'text-[#E8F8E2] font-semibold' : 'text-[#8EAD84]'}`}>
                       {dur.desc}
                     </span>
                   </button>
@@ -406,16 +404,16 @@ export const RouteForm: React.FC<RouteFormProps> = ({
 
           {/* STEP 4: Conditional Overnight Stay (Only if 2 Days or Weekend) */}
           {isMultiDay && (
-            <div className="space-y-4 bg-[#F2F8F0] p-4 sm:p-5 rounded-3xl border border-[#C6E2BD] animate-in fade-in duration-200">
-              <div className="flex items-center gap-3.5 pb-3 border-b border-[#C6E2BD]">
-                <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-[#162D15] text-[#DDF1D2] flex items-center justify-center font-black text-lg sm:text-xl shadow-md ring-4 ring-[#DDF1D2] shrink-0 font-brand">
+            <div className="space-y-4 bg-[#141F12] p-4 sm:p-5 rounded-3xl border border-[#223820] animate-in fade-in duration-200">
+              <div className="flex items-center gap-3.5 sm:gap-4 pb-3.5 border-b border-[#223820]">
+                <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-[#1E3B18] text-[#DDF1D2] border border-[#58A72F]/60 flex items-center justify-center font-black text-xl sm:text-2xl shadow-md ring-4 ring-[#58A72F]/20 shrink-0 font-brand">
                   4
                 </div>
                 <div>
-                  <h2 className="text-base sm:text-lg font-extrabold text-[#122610] tracking-tight font-display uppercase">
+                  <h2 className="text-lg sm:text-xl md:text-2xl font-black text-white tracking-tight font-display uppercase">
                     Overnight Stay Options
                   </h2>
-                  <p className="text-xs text-[#4D6D47]">
+                  <p className="text-xs sm:text-sm text-[#9CB394] font-medium">
                     For {tripLength === '2_days' ? '2-day routes (1 overnight stay)' : '3-day weekend routes (2 overnight stays)'}, we locate stays within 30 min of the last brewery each day.
                   </p>
                 </div>
@@ -423,7 +421,7 @@ export const RouteForm: React.FC<RouteFormProps> = ({
 
               {/* Desire Stay Toggle */}
               <div>
-                <label className="block text-xs font-bold text-[#122610] mb-2 font-brand tracking-wide">
+                <label className="block text-xs font-bold text-white mb-2 font-brand tracking-wide">
                   INCLUDE AN OVERNIGHT STAY IN THE ITINERARY? <span className="text-[#58A72F]">*</span>
                 </label>
                 <div className="grid grid-cols-2 gap-2.5">
@@ -436,11 +434,11 @@ export const RouteForm: React.FC<RouteFormProps> = ({
                     }}
                     className={`p-3 rounded-2xl border font-black text-xs sm:text-sm flex items-center justify-center gap-2 transition-all cursor-pointer min-h-[48px] font-brand tracking-wider ${
                       desireStay === true
-                        ? 'bg-[#58A72F] text-white border-[#58A72F] shadow-xs'
-                        : 'bg-white hover:bg-[#EAF4E6] text-[#122610] border-[#C6E2BD]'
+                        ? 'bg-[#58A72F] text-white border-[#58A72F] shadow-sm'
+                        : 'bg-[#181818] hover:bg-[#222222] text-white border-[#333333]'
                     }`}
                   >
-                    <CheckCircle2 className={`w-4 h-4 ${desireStay === true ? 'text-white' : 'text-[#6D9364]'}`} />
+                    <CheckCircle2 className={`w-4 h-4 ${desireStay === true ? 'text-white' : 'text-[#7DD748]'}`} />
                     <span>YES, INCLUDE STAY</span>
                   </button>
 
@@ -453,11 +451,11 @@ export const RouteForm: React.FC<RouteFormProps> = ({
                     }}
                     className={`p-3 rounded-2xl border font-black text-xs sm:text-sm flex items-center justify-center gap-2 transition-all cursor-pointer min-h-[48px] font-brand tracking-wider ${
                       desireStay === false
-                        ? 'bg-[#162D15] text-white border-[#162D15] shadow-xs'
-                        : 'bg-white hover:bg-[#EAF4E6] text-[#122610] border-[#C6E2BD]'
+                        ? 'bg-[#223820] text-white border-[#58A72F] shadow-sm'
+                        : 'bg-[#181818] hover:bg-[#222222] text-white border-[#333333]'
                     }`}
                   >
-                    <XCircle className={`w-4 h-4 ${desireStay === false ? 'text-[#DDF1D2]' : 'text-[#6D9364]'}`} />
+                    <XCircle className={`w-4 h-4 ${desireStay === false ? 'text-[#DDF1D2]' : 'text-[#888888]'}`} />
                     <span>NO, BREWERIES ONLY</span>
                   </button>
                 </div>
@@ -465,10 +463,10 @@ export const RouteForm: React.FC<RouteFormProps> = ({
 
               {/* If YES: Show Lodging Type & Price Range */}
               {desireStay === true && (
-                <div className="space-y-4 pt-3 border-t border-[#C6E2BD] animate-in fade-in duration-150">
+                <div className="space-y-4 pt-3 border-t border-[#223820] animate-in fade-in duration-150">
                   {/* Lodging Type */}
                   <div>
-                    <label className="block text-xs font-bold text-[#122610] mb-2 font-brand tracking-wide">
+                    <label className="block text-xs font-bold text-white mb-2 font-brand tracking-wide">
                       LODGING TYPE (HOTEL OR AIRBNB) <span className="text-[#58A72F]">*</span>
                     </label>
                     <div className="grid grid-cols-2 gap-2.5">
@@ -489,15 +487,15 @@ export const RouteForm: React.FC<RouteFormProps> = ({
                             }}
                             className={`p-3.5 rounded-2xl border text-left transition-all cursor-pointer min-h-[68px] ${
                               isSelected
-                                ? 'bg-[#EAF4E6] text-[#122610] border-[#58A72F] shadow-xs ring-2 ring-[#58A72F]/30'
-                                : 'bg-white hover:bg-[#FAFDF9] text-[#122610] border-[#C6E2BD]'
+                                ? 'bg-[#1E3B18] text-white border-2 border-[#58A72F] shadow-sm ring-2 ring-[#58A72F]/30'
+                                : 'bg-[#181818] hover:bg-[#202020] text-white border-[#333333]'
                             }`}
                           >
                             <div className="flex items-center justify-between mb-1">
-                              <span className="font-extrabold text-xs sm:text-sm font-display">{stay.label}</span>
-                              <Icon className={`w-4 h-4 ${isSelected ? 'text-[#58A72F]' : 'text-[#6D9364]'}`} />
+                              <span className="font-black text-xs sm:text-sm font-display text-white">{stay.label}</span>
+                              <Icon className={`w-4 h-4 ${isSelected ? 'text-[#58A72F]' : 'text-[#7DD748]'}`} />
                             </div>
-                            <span className={`text-[10px] leading-tight block ${isSelected ? 'text-[#58A72F] font-bold' : 'text-[#4D6D47]'}`}>
+                            <span className={`text-[10px] leading-tight block ${isSelected ? 'text-[#DDF1D2] font-bold' : 'text-[#8EAD84]'}`}>
                               {stay.desc}
                             </span>
                           </button>
@@ -508,7 +506,7 @@ export const RouteForm: React.FC<RouteFormProps> = ({
 
                   {/* Price Range */}
                   <div>
-                    <label className="block text-xs font-bold text-[#122610] mb-2 font-brand tracking-wide">
+                    <label className="block text-xs font-bold text-white mb-2 font-brand tracking-wide">
                       PRICE RANGE PER NIGHT <span className="text-[#58A72F]">*</span>
                     </label>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
@@ -544,20 +542,20 @@ export const RouteForm: React.FC<RouteFormProps> = ({
                             }}
                             className={`p-3.5 rounded-2xl border text-left transition-all cursor-pointer min-h-[68px] ${
                               isSelected
-                                ? 'bg-[#58A72F] text-white border-[#58A72F] shadow-xs'
-                                : 'bg-white hover:bg-[#FAFDF9] text-[#122610] border-[#C6E2BD]'
+                                ? 'bg-[#58A72F] text-white border-2 border-[#7DD748] shadow-sm'
+                                : 'bg-[#181818] hover:bg-[#202020] text-white border-[#333333]'
                             }`}
                           >
                             <div className="flex items-center justify-between mb-0.5">
-                              <span className={`font-black text-[10px] uppercase tracking-wider font-brand ${isSelected ? 'text-[#DDF1D2]' : 'text-[#58A72F]'}`}>
+                              <span className={`font-black text-[10px] uppercase tracking-wider font-brand ${isSelected ? 'text-[#DDF1D2]' : 'text-[#7DD748]'}`}>
                                 {price.badge}
                               </span>
-                              <DollarSign className={`w-3.5 h-3.5 ${isSelected ? 'text-[#DDF1D2]' : 'text-[#6D9364]'}`} />
+                              <DollarSign className={`w-3.5 h-3.5 ${isSelected ? 'text-[#DDF1D2]' : 'text-[#7DD748]'}`} />
                             </div>
-                            <div className="font-extrabold text-xs sm:text-sm mb-0.5 font-display">
+                            <div className="font-black text-xs sm:text-sm mb-0.5 font-display text-white">
                               {price.label}
                             </div>
-                            <span className={`text-[10px] leading-tight block ${isSelected ? 'text-[#DDF1D2] font-semibold' : 'text-[#4D6D47]'}`}>
+                            <span className={`text-[10px] leading-tight block ${isSelected ? 'text-[#E8F8E2] font-semibold' : 'text-[#8EAD84]'}`}>
                               {price.desc}
                             </span>
                           </button>
@@ -573,9 +571,9 @@ export const RouteForm: React.FC<RouteFormProps> = ({
         </div>
 
         {/* Form Submission Footer */}
-        <div className="p-4 sm:p-6 bg-[#F2F8F0] border-t border-[#C6E2BD] flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-2 text-xs text-[#3B5734]">
-            <span className="w-2.5 h-2.5 rounded-full bg-[#58A72F] inline-block shrink-0" />
+        <div className="p-4 sm:p-6 bg-[#0E150C] border-t border-[#223820] flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-2 text-xs text-[#A3B899]">
+            <span className="w-2.5 h-2.5 rounded-full bg-[#58A72F] inline-block shrink-0 shadow-xs" />
             <span className="text-[11px] sm:text-xs font-semibold">Max 3 breweries/day • Spaced ≤ 25 min • Certified ratings</span>
           </div>
 
@@ -583,7 +581,7 @@ export const RouteForm: React.FC<RouteFormProps> = ({
             type="submit"
             id="generate-route-submit-btn"
             disabled={isLoading}
-            className="w-full sm:w-auto px-7 py-3.5 rounded-full bg-[#58A72F] hover:bg-[#68BF38] active:bg-[#489224] text-white font-black text-sm shadow-md flex items-center justify-center gap-2 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed min-h-[48px] font-brand tracking-wider border border-[#7CD749]"
+            className="w-full sm:w-auto px-7 py-3.5 rounded-full bg-[#58A72F] hover:bg-[#68BF38] active:bg-[#489224] text-white font-black text-sm shadow-xl flex items-center justify-center gap-2 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed min-h-[48px] font-brand tracking-wider border border-[#7CD749]"
           >
             {isLoading ? (
               <>

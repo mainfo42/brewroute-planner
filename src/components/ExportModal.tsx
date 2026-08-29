@@ -18,7 +18,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose, route
   const generateTextSummary = () => {
     let summary = `🍻 ${route.title} (${route.region})\n`;
     summary += `Total Breweries: ${route.totalBreweries} | Trip Length: ${route.days.length} Day(s)\n`;
-    summary += `Total Drive Time: ~${route.totalTravelTimeMin} mins (Round-Trip) | Distance: ~${route.totalDistanceMiles.toFixed(1)} miles\n\n`;
+    summary += `Total Drive Time: ~${route.totalTravelTimeMin} mins (Round-Trip) | Distance: ~${(route.totalDistanceMiles * 1.60934).toFixed(1)} km\n\n`;
 
     if (route.departureTransit) {
       summary += `🚗 DEPARTURE: From ${route.departureTransit.fromName} to ${route.departureTransit.toName} (~${route.departureTransit.driveTimeMin} mins)\n\n`;

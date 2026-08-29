@@ -16,6 +16,7 @@ interface LocationAutocompleteProps {
   iconType?: 'navigation' | 'mapPin';
   onUseCurrentLocation?: () => void;
   helperText?: string;
+  darkMode?: boolean;
 }
 
 export const LocationAutocomplete: React.FC<LocationAutocompleteProps> = ({
@@ -29,6 +30,7 @@ export const LocationAutocomplete: React.FC<LocationAutocompleteProps> = ({
   iconType = 'mapPin',
   onUseCurrentLocation,
   helperText,
+  darkMode = false,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
@@ -93,20 +95,24 @@ export const LocationAutocomplete: React.FC<LocationAutocompleteProps> = ({
     <div ref={containerRef} className="relative w-full">
       {/* Outlined Input Box */}
       <div
-        className={`relative flex flex-col justify-center px-4 pt-2.5 pb-2 bg-[#FAFDF9] rounded-2xl border transition-all ${
-          isFocused
+        className={`relative flex flex-col justify-center px-4 pt-2.5 pb-2 rounded-2xl border transition-all ${
+          darkMode
+            ? isFocused
+              ? 'border-[#58A72F] bg-[#1E1E1E] ring-2 ring-[#58A72F]/30 shadow-md'
+              : 'border-[#333333] bg-[#181818] hover:border-[#58A72F]'
+            : isFocused
             ? 'border-[#58A72F] bg-white ring-2 ring-[#58A72F]/20 shadow-xs'
-            : 'border-[#C6E2BD] hover:border-[#8BE052]'
+            : 'border-[#C6E2BD] bg-[#FAFDF9] hover:border-[#8BE052]'
         }`}
       >
         {/* Floating / Stacked Label */}
-        <div className="flex items-center justify-between text-[11px] font-bold text-[#3B5734]">
+        <div className={`flex items-center justify-between text-[11px] font-bold ${darkMode ? 'text-[#C6E2BD]' : 'text-[#3B5734]'}`}>
           <label htmlFor={id} className="cursor-text flex items-center gap-1">
             <span>{label}</span>
             {required && <span className="text-[#58A72F] font-bold">*</span>}
           </label>
           {helperText && (
-            <span className="text-[10px] text-[#6D9364] font-normal hidden sm:inline">
+            <span className={`text-[10px] font-normal hidden sm:inline ${darkMode ? 'text-[#8EA886]' : 'text-[#6D9364]'}`}>
               {helperText}
             </span>
           )}
@@ -138,7 +144,11 @@ export const LocationAutocomplete: React.FC<LocationAutocompleteProps> = ({
             onKeyDown={handleKeyDown}
             placeholder={placeholder}
             autoComplete="off"
-            className="w-full bg-transparent border-0 p-0 text-sm font-semibold text-[#122610] placeholder:text-[#A2D093] focus:ring-0 focus:outline-hidden min-h-[28px]"
+            className={`w-full bg-transparent border-0 p-0 text-sm font-semibold focus:ring-0 focus:outline-hidden min-h-[28px] ${
+              darkMode
+                ? 'text-white placeholder:text-[#666666]'
+                : 'text-[#122610] placeholder:text-[#A2D093]'
+            }`}
           />
 
           {/* Trailing Controls */}
@@ -152,7 +162,11 @@ export const LocationAutocomplete: React.FC<LocationAutocompleteProps> = ({
                   setIsOpen(true);
                   inputRef.current?.focus();
                 }}
-                className="p-1 rounded-full text-[#6D9364] hover:text-[#122610] hover:bg-[#EAF4E6] transition-colors cursor-pointer"
+                className={`p-1 rounded-full transition-colors cursor-pointer ${
+                  darkMode
+                    ? 'text-[#888888] hover:text-white hover:bg-[#2A2A2A]'
+                    : 'text-[#6D9364] hover:text-[#122610] hover:bg-[#EAF4E6]'
+                }`}
                 title="Clear input"
               >
                 <X className="w-4 h-4" />
@@ -164,7 +178,11 @@ export const LocationAutocomplete: React.FC<LocationAutocompleteProps> = ({
                 type="button"
                 id={`${id}-locate-me-btn`}
                 onClick={onUseCurrentLocation}
-                className="px-2.5 py-1 flex items-center gap-1 rounded-full text-[11px] font-black bg-[#DDF1D2] hover:bg-[#C8E7B8] active:bg-[#B2D8A6] text-[#122B0F] border border-[#B2D8A6] transition-colors cursor-pointer shrink-0 shadow-2xs font-brand tracking-wider"
+                className={`px-2.5 py-1 flex items-center gap-1 rounded-full text-[11px] font-black transition-colors cursor-pointer shrink-0 shadow-2xs font-brand tracking-wider ${
+                  darkMode
+                    ? 'bg-[#1E3B18] hover:bg-[#2A5222] active:bg-[#162D15] text-[#DDF1D2] border border-[#3E7430]'
+                    : 'bg-[#DDF1D2] hover:bg-[#C8E7B8] active:bg-[#B2D8A6] text-[#122B0F] border border-[#B2D8A6]'
+                }`}
                 title="Use current GPS location"
               >
                 <Navigation className="w-3 h-3 text-[#58A72F]" />
@@ -179,15 +197,21 @@ export const LocationAutocomplete: React.FC<LocationAutocompleteProps> = ({
       {isOpen && suggestions.length > 0 && (
         <div
           id={`${id}-suggestions-dropdown`}
-          className="absolute left-0 right-0 top-full mt-2 bg-white rounded-3xl border border-[#C6E2BD] shadow-xl z-50 overflow-hidden divide-y divide-[#EAF4E6] animate-in fade-in slide-in-from-top-1 duration-150"
+          className={`absolute left-0 right-0 top-full mt-2 rounded-3xl border shadow-2xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-1 duration-150 ${
+            darkMode
+              ? 'bg-[#181818] border-[#333333] divide-y divide-[#2A2A2A]'
+              : 'bg-white border-[#C6E2BD] divide-y divide-[#EAF4E6]'
+          }`}
         >
           {/* Header Bar */}
-          <div className="px-4 py-2 bg-[#F2F8F0] text-[#3B5734] flex items-center justify-between text-[11px] font-black uppercase font-brand tracking-wide">
+          <div className={`px-4 py-2 flex items-center justify-between text-[11px] font-black uppercase font-brand tracking-wide ${
+            darkMode ? 'bg-[#121212] text-[#C6E2BD]' : 'bg-[#F2F8F0] text-[#3B5734]'
+          }`}>
             <span className="flex items-center gap-1.5 text-[#58A72F]">
               <Compass className="w-3.5 h-3.5 text-[#58A72F]" />
               <span>Suggested Destinations</span>
             </span>
-            <span className="text-[10px] text-[#6D9364]">1-Tap Fill</span>
+            <span className={`text-[10px] ${darkMode ? 'text-[#888888]' : 'text-[#6D9364]'}`}>1-Tap Fill</span>
           </div>
 
           {/* Suggestion list */}
@@ -203,7 +227,11 @@ export const LocationAutocomplete: React.FC<LocationAutocompleteProps> = ({
                   onClick={() => handleSelect(item)}
                   onMouseEnter={() => setHighlightedIndex(index)}
                   className={`px-3.5 py-2.5 rounded-2xl flex items-start justify-between gap-3 cursor-pointer transition-colors ${
-                    isHighlighted
+                    darkMode
+                      ? isHighlighted
+                        ? 'bg-[#1E3B18] text-white'
+                        : 'hover:bg-[#242424] text-white'
+                      : isHighlighted
                       ? 'bg-[#EAF4E6] text-[#122610]'
                       : 'hover:bg-[#FAFDF9] text-[#122610]'
                   }`}
@@ -213,17 +241,23 @@ export const LocationAutocomplete: React.FC<LocationAutocompleteProps> = ({
                       {isStateOrProvince ? (
                         <Map className="w-3.5 h-3.5 text-[#58A72F] shrink-0" />
                       ) : (
-                        <Building2 className="w-3.5 h-3.5 text-[#6D9364] shrink-0" />
+                        <Building2 className={`w-3.5 h-3.5 shrink-0 ${darkMode ? 'text-[#888888]' : 'text-[#6D9364]'}`} />
                       )}
 
-                      <span className="font-extrabold text-xs sm:text-sm text-[#122610] font-display">
+                      <span className={`font-extrabold text-xs sm:text-sm font-display ${darkMode ? 'text-white' : 'text-[#122610]'}`}>
                         {item.name}
                       </span>
 
                       {/* Type Badge: State, Province, or City */}
                       <span
                         className={`px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider shrink-0 font-brand ${
-                          item.type === 'state'
+                          darkMode
+                            ? item.type === 'state'
+                              ? 'bg-[#1E3B18] text-[#DDF1D2] border border-[#3E7430]'
+                              : item.type === 'province'
+                              ? 'bg-[#162D15] text-[#C8E7B8] border border-[#2E5E24]'
+                              : 'bg-[#2A2A2A] text-[#D0D0D0]'
+                            : item.type === 'state'
                             ? 'bg-[#DDF1D2] text-[#122B0F] border border-[#B2D8A6]'
                             : item.type === 'province'
                             ? 'bg-[#C8E7B8] text-[#122B0F] border border-[#A2D093]'
@@ -235,19 +269,25 @@ export const LocationAutocomplete: React.FC<LocationAutocompleteProps> = ({
 
                       {/* Rank / Badge if available */}
                       {item.craftBeerHubRank && (
-                        <span className="px-2 py-0.5 rounded-full bg-[#EAF4E6] text-[#58A72F] text-[10px] font-bold border border-[#B2D8A6] shrink-0 flex items-center gap-1">
+                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold shrink-0 flex items-center gap-1 ${
+                          darkMode
+                            ? 'bg-[#1E3B18] text-[#58A72F] border border-[#3E7430]'
+                            : 'bg-[#EAF4E6] text-[#58A72F] border border-[#B2D8A6]'
+                        }`}>
                           <Award className="w-2.5 h-2.5 text-[#58A72F]" />
                           {item.craftBeerHubRank}
                         </span>
                       )}
                     </div>
-                    <p className="text-[11px] text-[#4D6D47] leading-tight truncate">
+                    <p className={`text-[11px] leading-tight truncate ${darkMode ? 'text-[#9CB394]' : 'text-[#4D6D47]'}`}>
                       {item.subtext}
                     </p>
                   </div>
 
                   <div className="hidden sm:block text-right shrink-0 self-center">
-                    <span className="px-2 py-0.5 rounded-full bg-[#EAF4E6] text-[#3B5734] text-[10px] font-bold">
+                    <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                      darkMode ? 'bg-[#2A2A2A] text-[#C6E2BD]' : 'bg-[#EAF4E6] text-[#3B5734]'
+                    }`}>
                       {item.country}
                     </span>
                   </div>

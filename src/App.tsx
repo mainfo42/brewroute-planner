@@ -7,6 +7,7 @@ import { ExportModal } from './components/ExportModal';
 import { CuratedRoutesModal } from './components/CuratedRoutesModal';
 import { AuthModal } from './components/AuthModal';
 import { SavedItinerariesModal } from './components/SavedItinerariesModal';
+import { AdSenseBanner } from './components/AdSenseBanner';
 import { BrewTravelRoute, RouteParameters, AuthUser, SavedItinerary } from './types';
 import { SAMPLE_CURATED_ROUTE, POPULAR_DESTINATIONS } from './data/curatedRoutes';
 import { enrichAndValidateRoute } from './utils/styleMatcher';
@@ -302,7 +303,13 @@ export default function App() {
   );
 
   return (
-    <div className="min-h-screen bg-[#FAFBF9] text-[#0D2818] flex flex-col selection:bg-[#D1E7D6] selection:text-[#0D2818] font-sans">
+    <div
+      className={`min-h-screen flex flex-col font-sans transition-colors ${
+        currentRoute
+          ? 'bg-[#FAFBF9] text-[#0D2818] selection:bg-[#D1E7D6] selection:text-[#0D2818]'
+          : 'bg-black text-white selection:bg-[#58A72F] selection:text-white'
+      }`}
+    >
       {/* Top App Bar */}
       <Navbar
         onOpenCurated={() => setIsCuratedModalOpen(true)}
@@ -371,16 +378,19 @@ export default function App() {
             isRegenerating={isRegenerating}
           />
         ) : (
-          <RouteForm
-            onSubmit={handleGenerateRoute}
-            isLoading={isLoading}
-            onSelectCuratedPreset={(idx) => {
-              const dest = POPULAR_DESTINATIONS[idx];
-              if (dest) {
-                handlePrefillParams(dest.startLoc, dest.name, dest.suggestedStyles);
-              }
-            }}
-          />
+          <div className="space-y-6">
+            <RouteForm
+              onSubmit={handleGenerateRoute}
+              isLoading={isLoading}
+              onSelectCuratedPreset={(idx) => {
+                const dest = POPULAR_DESTINATIONS[idx];
+                if (dest) {
+                  handlePrefillParams(dest.startLoc, dest.name, dest.suggestedStyles);
+                }
+              }}
+            />
+            <AdSenseBanner format="horizontal" className="max-w-3xl mx-auto" darkMode={true} />
+          </div>
         )}
       </main>
 
@@ -450,13 +460,19 @@ export default function App() {
       />
 
       {/* Footer */}
-      <footer className="py-6 px-4 border-t border-[#EBF2EC] text-center text-xs text-[#52705B] bg-white/70 backdrop-blur-xs no-print hidden md:block">
+      <footer
+        className={`py-6 px-4 border-t text-center text-xs no-print hidden md:block transition-colors ${
+          currentRoute
+            ? 'border-[#C6E2BD] text-[#4D6D47] bg-white/80 backdrop-blur-xs'
+            : 'border-[#222222] text-[#888888] bg-[#0A0A0A]'
+        }`}
+      >
         <div className="max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2 font-normal">
-          <div className="flex items-center gap-1.5 font-medium text-[#0D2818]">
-            <Beer className="w-3.5 h-3.5 text-[#15803D]" />
+          <div className={`flex items-center gap-1.5 font-bold ${currentRoute ? 'text-[#122610]' : 'text-white'}`}>
+            <span className="w-2 h-2 rounded-full bg-[#58A72F]" />
             <span>BeerHop Planner • Drink Responsibly</span>
           </div>
-          <div>
+          <div className={`text-[11px] ${currentRoute ? 'text-[#6D9364]' : 'text-[#8EAD84]'}`}>
             ≤ 3 microbreweries/day • Spaced ≤ 25 min drive • Certified Untappd & Google Reviews
           </div>
         </div>

@@ -57,22 +57,19 @@ export const Navbar: React.FC<NavbarProps> = ({
         <div
           id="brand-header-link"
           onClick={onReset}
-          className="flex items-center gap-3 cursor-pointer group shrink-0 select-none"
+          className="flex items-center gap-3.5 cursor-pointer group shrink-0 select-none py-1"
         >
-          <div className="w-10 h-10 rounded-2xl bg-[#58A72F] text-white flex items-center justify-center shadow-xs group-hover:scale-105 transition-transform shrink-0 border border-[#7DD748]/50">
-            <HopIcon className="w-6 h-6 text-white group-hover:rotate-6 transition-transform drop-shadow-xs" filled />
+          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-[#58A72F] text-white flex items-center justify-center shadow-md group-hover:scale-105 transition-transform shrink-0 border border-[#7DD748]/60">
+            <HopIcon className="w-6 h-6 sm:w-7 sm:h-7 text-white group-hover:rotate-6 transition-transform drop-shadow-xs" filled />
           </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="font-extrabold text-xl sm:text-2xl tracking-wide text-white drop-shadow-xs font-brand">
+          <div className="flex flex-col justify-center">
+            <div className="flex items-baseline gap-2.5">
+              <span className="font-black text-2xl sm:text-3xl tracking-wide text-white drop-shadow-xs font-brand leading-none">
                 BEERHOP
               </span>
-              <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-[#58A72F] text-white border border-[#76CB42] tracking-widest uppercase">
-                GREEN HOP
-              </span>
             </div>
-            <p className="text-[11px] text-[#A6D496] font-semibold tracking-tight hidden sm:block">
-              Fresh hop routes, microbreweries & certified tasting itineraries
+            <p className="text-[11px] sm:text-xs text-[#C6E2BD] font-semibold tracking-normal mt-0.5 leading-tight">
+              Fresh Hop Routes!
             </p>
           </div>
         </div>
