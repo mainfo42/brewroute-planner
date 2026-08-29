@@ -37,6 +37,7 @@ import { AdSenseBanner } from './AdSenseBanner';
 import { BrewTravelRoute, BreweryStop, StayRecommendation } from '../types';
 import { RouteMap } from './RouteMap';
 import { checkBeerMatchesStyle } from '../utils/styleMatcher';
+import { resolveCoordinates, calculateDrivingTransit } from '../utils/geoDistance';
 
 interface RouteDisplayProps {
   route: BrewTravelRoute;
@@ -107,11 +108,37 @@ export const RouteDisplay: React.FC<RouteDisplayProps> = ({
     return remainingMins > 0 ? `~${hrs} hr ${remainingMins} min` : `~${hrs} hr`;
   };
 
-  // Comprehensive Total Drive Time & Distance calculation (guaranteeing Departure from Origin + all stops + Return Home)
-  const departureDriveMin = route.departureTransit?.driveTimeMin || route.days[0]?.departureTransit?.driveTimeMin || 35;
-  const returnHomeDriveMin = route.returnHomeTransit?.driveTimeMin || route.days[route.days.length - 1]?.returnHomeTransit?.driveTimeMin || 40;
-  const departureDistMiles = route.departureTransit?.distanceMiles || route.days[0]?.departureTransit?.distanceMiles || 22.5;
-  const returnHomeDistMiles = route.returnHomeTransit?.distanceMiles || route.days[route.days.length - 1]?.returnHomeTransit?.distanceMiles || 25.0;
+  // Dynamic coordinate and transit resolution for Origin Departure & Return Home
+  const startLocationStr = route.parameters?.startLocation || route.departureTransit?.fromName || 'Burlington, VT';
+  const startCoord = resolveCoordinates(startLocationStr, route.startLocationCoord);
+
+  const firstBrewery = route.days[0]?.breweries[0];
+  const lastDay = route.days[route.days.length - 1];
+  const lastBrewery = lastDay?.breweries[lastDay?.breweries.length - 1];
+  const lastStop = lastDay?.stay || lastBrewery;
+
+  const firstBreweryCoord = firstBrewery ? { lat: firstBrewery.lat, lng: firstBrewery.lng } : { lat: 44.4654, lng: -72.6874 };
+  const lastStopCoord = lastStop ? { lat: lastStop.lat, lng: lastStop.lng } : firstBreweryCoord;
+
+  // Real Departure and Return Estimates
+  const calculatedDepartureTransit = calculateDrivingTransit(startCoord, firstBreweryCoord);
+  const calculatedReturnTransit = calculateDrivingTransit(lastStopCoord, startCoord);
+
+  const departureDriveMin = (route.departureTransit?.driveTimeMin && route.departureTransit.driveTimeMin > 0)
+    ? route.departureTransit.driveTimeMin
+    : calculatedDepartureTransit.driveTimeMin;
+
+  const returnHomeDriveMin = (route.returnHomeTransit?.driveTimeMin && route.returnHomeTransit.driveTimeMin > 0)
+    ? route.returnHomeTransit.driveTimeMin
+    : calculatedReturnTransit.driveTimeMin;
+
+  const departureDistMiles = (route.departureTransit?.distanceMiles && route.departureTransit.distanceMiles > 0)
+    ? route.departureTransit.distanceMiles
+    : calculatedDepartureTransit.distanceMiles;
+
+  const returnHomeDistMiles = (route.returnHomeTransit?.distanceMiles && route.returnHomeTransit.distanceMiles > 0)
+    ? route.returnHomeTransit.distanceMiles
+    : calculatedReturnTransit.distanceMiles;
 
   let intermediateDriveMin = 0;
   let intermediateDistMiles = 0;
@@ -133,12 +160,8 @@ export const RouteDisplay: React.FC<RouteDisplayProps> = ({
     }
   });
 
-  const computedRoundTripDriveMin = departureDriveMin + intermediateDriveMin + returnHomeDriveMin;
-  const computedRoundTripDistanceMiles = departureDistMiles + intermediateDistMiles + returnHomeDistMiles;
-
-  // Use the maximum of route's stored total and computed sum to strictly guarantee inclusion of starting departure and return home
-  const fullTotalDriveTimeMin = Math.max(route.totalTravelTimeMin || 0, computedRoundTripDriveMin);
-  const fullTotalDistanceMiles = Math.max(route.totalDistanceMiles || 0, computedRoundTripDistanceMiles);
+  const fullTotalDriveTimeMin = departureDriveMin + intermediateDriveMin + returnHomeDriveMin;
+  const fullTotalDistanceMiles = parseFloat((departureDistMiles + intermediateDistMiles + returnHomeDistMiles).toFixed(1));
 
   return (
     <div className="w-full max-w-6xl mx-auto py-4 sm:py-8 px-4 sm:px-6 space-y-5 pb-28 md:pb-12">
@@ -520,7 +543,7 @@ export const RouteDisplay: React.FC<RouteDisplayProps> = ({
                   </div>
 
                   {/* Departure Leg Card (Day 1) */}
-                  {isFirstDay && route.departureTransit && (
+                  {isFirstDay && (
                     <div className="bg-[#FAFDF9] rounded-2xl p-4 sm:p-5 border-2 border-[#C6E2BD] flex items-center justify-between gap-3 text-xs shadow-xs">
                       <div className="flex items-center gap-3.5">
                         <div className="w-10 h-10 rounded-2xl bg-[#DDF1D2] text-[#122B0F] border border-[#B2D8A6] flex items-center justify-center font-black text-lg shrink-0 shadow-2xs">
@@ -528,10 +551,10 @@ export const RouteDisplay: React.FC<RouteDisplayProps> = ({
                         </div>
                         <div>
                           <div className="font-black text-[#122610] text-sm sm:text-base font-display">
-                            Departure from {route.departureTransit.fromName}
+                            Departure from {route.departureTransit?.fromName || startLocationStr}
                           </div>
                           <div className="text-xs text-[#4D6D47] font-semibold mt-0.5">
-                            Drive {formatTime(route.departureTransit.driveTimeMin)} ({(route.departureTransit.distanceMiles * 1.60934).toFixed(1)} km) to Stop 1
+                            Drive {formatTime(departureDriveMin)} ({(departureDistMiles * 1.60934).toFixed(1)} km / {departureDistMiles.toFixed(1)} mi) to Stop 1
                           </div>
                         </div>
                       </div>
@@ -866,7 +889,7 @@ export const RouteDisplay: React.FC<RouteDisplayProps> = ({
                   )}
 
                   {/* Return Home Leg Card (Final Day) */}
-                  {isLastDay && route.returnHomeTransit && (
+                  {isLastDay && (
                     <div className="bg-[#FAFDF9] rounded-2xl p-4 sm:p-5 border-2 border-[#C6E2BD] flex items-center justify-between gap-3 text-xs shadow-xs">
                       <div className="flex items-center gap-3.5">
                         <div className="w-10 h-10 rounded-2xl bg-[#DDF1D2] text-[#122B0F] border border-[#B2D8A6] flex items-center justify-center font-black text-lg shrink-0 shadow-2xs">
@@ -874,10 +897,10 @@ export const RouteDisplay: React.FC<RouteDisplayProps> = ({
                         </div>
                         <div>
                           <div className="font-black text-[#122610] text-sm sm:text-base font-display">
-                            Return Home to {route.returnHomeTransit.toName}
+                            Return Home to {route.returnHomeTransit?.toName || startLocationStr}
                           </div>
                           <div className="text-xs text-[#4D6D47] font-semibold mt-0.5">
-                            Drive {formatTime(route.returnHomeTransit.driveTimeMin)} ({(route.returnHomeTransit.distanceMiles * 1.60934).toFixed(1)} km) from final stop
+                            Drive {formatTime(returnHomeDriveMin)} ({(returnHomeDistMiles * 1.60934).toFixed(1)} km / {returnHomeDistMiles.toFixed(1)} mi) from final stop
                           </div>
                         </div>
                       </div>

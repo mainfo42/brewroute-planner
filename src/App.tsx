@@ -343,7 +343,7 @@ export default function App() {
 
       {/* Error alert toast if present */}
       {errorMessage && (
-        <div className="max-w-4xl mx-auto mt-4 px-4 sm:px-6 w-full">
+        <div className={`max-w-4xl mx-auto mt-4 px-4 sm:px-6 w-full ${errorMessage.includes('BeerHop Engine') ? 'hidden sm:block' : ''}`}>
           <div className="p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-900 text-xs font-medium flex items-center justify-between shadow-2xs">
             <div className="flex items-center gap-2">
               <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />

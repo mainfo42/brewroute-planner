@@ -524,8 +524,12 @@ Return a strictly valid JSON object matching the JSON schema.`;
           lastDay.totalDriveDistanceMiles = parseFloat(((lastDay.totalDriveDistanceMiles || 10) + returnHomeDist).toFixed(1));
         }
 
-        // Update total breweries count
+        // Update total breweries count and attach route parameters
         parsed.totalBreweries = parsed.days.reduce((acc, d) => acc + d.breweries.length, 0);
+        parsed.parameters = params;
+        if (params.startLocationCoord) {
+          parsed.startLocationCoord = params.startLocationCoord;
+        }
 
         // Rigorously validate each brewery style and check proximity limits
         const fullyValidatedRoute = enrichAndValidateRoute(parsed, params.beerStyles || []);

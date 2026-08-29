@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { X, Copy, Check, Download, Calendar, Share2, MapPin } from 'lucide-react';
 import { HopIcon } from './HopIcon';
 import { BrewTravelRoute } from '../types';
+import { resolveCoordinates, calculateDrivingTransit } from '../utils/geoDistance';
 
 interface ExportModalProps {
   isOpen: boolean;
@@ -16,10 +17,35 @@ export const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose, route
   if (!isOpen || !route) return null;
 
   const generateTextSummary = () => {
-    const departureMin = route.departureTransit?.driveTimeMin || route.days[0]?.departureTransit?.driveTimeMin || 35;
-    const returnHomeMin = route.returnHomeTransit?.driveTimeMin || route.days[route.days.length - 1]?.returnHomeTransit?.driveTimeMin || 40;
-    const departureDist = route.departureTransit?.distanceMiles || route.days[0]?.departureTransit?.distanceMiles || 22.5;
-    const returnHomeDist = route.returnHomeTransit?.distanceMiles || route.days[route.days.length - 1]?.returnHomeTransit?.distanceMiles || 25.0;
+    const startLocationStr = route.parameters?.startLocation || route.departureTransit?.fromName || 'Burlington, VT';
+    const startCoord = resolveCoordinates(startLocationStr, route.startLocationCoord);
+
+    const firstBrewery = route.days[0]?.breweries[0];
+    const lastDay = route.days[route.days.length - 1];
+    const lastBrewery = lastDay?.breweries[lastDay?.breweries.length - 1];
+    const lastStop = lastDay?.stay || lastBrewery;
+
+    const firstBreweryCoord = firstBrewery ? { lat: firstBrewery.lat, lng: firstBrewery.lng } : { lat: 44.4654, lng: -72.6874 };
+    const lastStopCoord = lastStop ? { lat: lastStop.lat, lng: lastStop.lng } : firstBreweryCoord;
+
+    const calculatedDepartureTransit = calculateDrivingTransit(startCoord, firstBreweryCoord);
+    const calculatedReturnTransit = calculateDrivingTransit(lastStopCoord, startCoord);
+
+    const departureMin = (route.departureTransit?.driveTimeMin && route.departureTransit.driveTimeMin > 0)
+      ? route.departureTransit.driveTimeMin
+      : calculatedDepartureTransit.driveTimeMin;
+
+    const returnHomeMin = (route.returnHomeTransit?.driveTimeMin && route.returnHomeTransit.driveTimeMin > 0)
+      ? route.returnHomeTransit.driveTimeMin
+      : calculatedReturnTransit.driveTimeMin;
+
+    const departureDist = (route.departureTransit?.distanceMiles && route.departureTransit.distanceMiles > 0)
+      ? route.departureTransit.distanceMiles
+      : calculatedDepartureTransit.distanceMiles;
+
+    const returnHomeDist = (route.returnHomeTransit?.distanceMiles && route.returnHomeTransit.distanceMiles > 0)
+      ? route.returnHomeTransit.distanceMiles
+      : calculatedReturnTransit.distanceMiles;
 
     let intermediateDriveMin = 0;
     let intermediateDistMiles = 0;
@@ -41,16 +67,14 @@ export const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose, route
       }
     });
 
-    const fullTotalDriveMin = Math.max(route.totalTravelTimeMin || 0, departureMin + intermediateDriveMin + returnHomeMin);
-    const fullTotalDistanceMiles = Math.max(route.totalDistanceMiles || 0, departureDist + intermediateDistMiles + returnHomeDist);
+    const fullTotalDriveMin = departureMin + intermediateDriveMin + returnHomeMin;
+    const fullTotalDistanceMiles = parseFloat((departureDist + intermediateDistMiles + returnHomeDist).toFixed(1));
 
     let summary = `🍻 ${route.title} (${route.region})\n`;
     summary += `Total Breweries: ${route.totalBreweries} | Trip Length: ${route.days.length} Day(s)\n`;
-    summary += `Total Drive Time: ~${fullTotalDriveMin} mins (Round-Trip including departure & return) | Distance: ~${(fullTotalDistanceMiles * 1.60934).toFixed(1)} km (~${fullTotalDistanceMiles.toFixed(1)} mi)\n\n`;
+    summary += `Total Drive Time: ~${Math.floor(fullTotalDriveMin / 60)}h ${fullTotalDriveMin % 60}m (Round-Trip including departure & return) | Distance: ~${(fullTotalDistanceMiles * 1.60934).toFixed(1)} km (~${fullTotalDistanceMiles.toFixed(1)} mi)\n\n`;
 
-    if (route.departureTransit) {
-      summary += `🚗 DEPARTURE: From ${route.departureTransit.fromName} to ${route.departureTransit.toName} (~${route.departureTransit.driveTimeMin} mins)\n\n`;
-    }
+    summary += `🚗 DEPARTURE: From ${route.departureTransit?.fromName || startLocationStr} to ${route.departureTransit?.toName || firstBrewery?.name || 'Stop 1'} (~${departureMin} mins, ${(departureDist * 1.60934).toFixed(1)} km)\n\n`;
 
     route.days.forEach((day) => {
       summary += `📅 DAY ${day.dayNumber}: ${day.dayTitle}\n`;
@@ -66,9 +90,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose, route
       summary += `\n`;
     });
 
-    if (route.returnHomeTransit) {
-      summary += `🏡 RETURN HOME: From ${route.returnHomeTransit.fromName} back to ${route.returnHomeTransit.toName} (~${route.returnHomeTransit.driveTimeMin} mins)\n\n`;
-    }
+    summary += `🏡 RETURN HOME: From ${route.returnHomeTransit?.fromName || lastStop?.name || 'Final Stop'} back to ${route.returnHomeTransit?.toName || startLocationStr} (~${returnHomeMin} mins, ${(returnHomeDist * 1.60934).toFixed(1)} km)\n\n`;
 
     if (route.googleMapsMultiStopUrl) {
       summary += `🗺️ Google Maps Round-Trip Multi-Stop: ${route.googleMapsMultiStopUrl}\n`;

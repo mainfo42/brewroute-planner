@@ -14,6 +14,7 @@ export interface RouteParameters {
   priceRange?: PriceRange;
   excludeBreweries?: string[];
   regenerationCount?: number;
+  startLocationCoord?: { lat: number; lng: number };
 }
 
 export interface ReviewRatings {
