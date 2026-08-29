@@ -57,10 +57,10 @@ export const Navbar: React.FC<NavbarProps> = ({
         <div
           id="brand-header-link"
           onClick={onReset}
-          className="flex items-center gap-3.5 cursor-pointer group shrink-0 select-none py-1"
+          className="flex items-center gap-2.5 sm:gap-3 cursor-pointer group shrink-0 select-none py-1"
         >
-          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-[#58A72F] text-white flex items-center justify-center shadow-md group-hover:scale-105 transition-transform shrink-0 border border-[#7DD748]/60">
-            <HopIcon className="w-6 h-6 sm:w-7 sm:h-7 text-white group-hover:rotate-6 transition-transform drop-shadow-xs" filled />
+          <div className="flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:rotate-6 transition-all duration-200">
+            <HopIcon className="w-9 h-9 sm:w-11 sm:h-11 text-[#66DE37] drop-shadow-[0_2px_10px_rgba(102,222,55,0.4)]" filled />
           </div>
           <div className="flex flex-col justify-center">
             <div className="flex items-baseline gap-2.5">

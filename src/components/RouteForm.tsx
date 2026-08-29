@@ -152,10 +152,10 @@ export const RouteForm: React.FC<RouteFormProps> = ({
     <div className="w-full max-w-3xl mx-auto py-6 sm:py-9 px-4 sm:px-6 space-y-6 pb-28 md:pb-14">
       {/* Hero Header Section */}
       <div className="text-center space-y-3">
-        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-white tracking-tight leading-tight font-display">
+        <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight leading-tight font-display">
           Plan Your Microbrewery Route
         </h1>
-        <p className="text-[#A3B899] text-xs sm:text-sm max-w-md mx-auto leading-relaxed font-medium">
+        <p className="text-[#A3B899] text-sm sm:text-base max-w-lg mx-auto leading-relaxed font-medium">
           Craft multi-stop tasting tours with verified ratings, drive times under 25 mins, and round-trip Google Maps routes.
         </p>
 
@@ -166,9 +166,9 @@ export const RouteForm: React.FC<RouteFormProps> = ({
               type="button"
               id="reset-form-fields-btn"
               onClick={handleClearAll}
-              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold text-[#7DD748] bg-[#162D15] hover:bg-[#1E3B18] border border-[#58A72F]/40 transition-colors cursor-pointer font-brand tracking-wider shadow-xs"
+              className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold text-[#7DD748] bg-[#162D15] hover:bg-[#1E3B18] border border-[#58A72F]/40 transition-colors cursor-pointer font-brand tracking-wider shadow-xs"
             >
-              <RotateCcw className="w-3 h-3 text-[#58A72F]" />
+              <RotateCcw className="w-3.5 h-3.5 text-[#58A72F]" />
               <span>RESET ALL FIELDS</span>
             </button>
           </div>
@@ -185,19 +185,19 @@ export const RouteForm: React.FC<RouteFormProps> = ({
 
       {/* Main Craft Form Container */}
       <form onSubmit={handleSubmit} className="bg-[#111111] rounded-3xl border border-[#262626] shadow-2xl overflow-hidden">
-        <div className="p-5 sm:p-7 space-y-7">
+        <div className="p-5 sm:p-7 space-y-8">
           
           {/* STEP 1: Starting Location & Area to Visit */}
           <div className="space-y-4">
-            <div className="flex items-center gap-3.5 sm:gap-4 pb-3.5 border-b border-[#222222]">
-              <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-[#1E3B18] text-[#DDF1D2] border border-[#58A72F]/60 flex items-center justify-center font-black text-xl sm:text-2xl shadow-md ring-4 ring-[#58A72F]/20 shrink-0 font-brand">
+            <div className="flex items-center gap-3.5 sm:gap-4 pb-4 border-b border-[#222222]">
+              <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-2xl bg-[#1E3B18] text-[#DDF1D2] border border-[#58A72F]/60 flex items-center justify-center font-black text-xl sm:text-2xl md:text-3xl shadow-md ring-4 ring-[#58A72F]/20 shrink-0 font-brand">
                 1
               </div>
               <div>
-                <h2 className="text-lg sm:text-xl md:text-2xl font-black text-white tracking-tight font-display uppercase">
+                <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-white tracking-tight font-display uppercase leading-tight">
                   Locations & Destination
                 </h2>
-                <p className="text-xs sm:text-sm text-[#9CB394] font-medium">Where are you leaving from and where do you want to explore?</p>
+                <p className="text-xs sm:text-sm text-[#9CB394] font-medium mt-0.5">Where are you leaving from and where do you want to explore?</p>
               </div>
             </div>
 
@@ -247,16 +247,16 @@ export const RouteForm: React.FC<RouteFormProps> = ({
 
           {/* STEP 2: Preferred Beer Styles */}
           <div className="space-y-4">
-            <div className="flex items-center justify-between gap-3 pb-3.5 border-b border-[#222222]">
+            <div className="flex items-center justify-between gap-3 pb-4 border-b border-[#222222]">
               <div className="flex items-center gap-3.5 sm:gap-4">
-                <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-[#1E3B18] text-[#DDF1D2] border border-[#58A72F]/60 flex items-center justify-center font-black text-xl sm:text-2xl shadow-md ring-4 ring-[#58A72F]/20 shrink-0 font-brand">
+                <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-2xl bg-[#1E3B18] text-[#DDF1D2] border border-[#58A72F]/60 flex items-center justify-center font-black text-xl sm:text-2xl md:text-3xl shadow-md ring-4 ring-[#58A72F]/20 shrink-0 font-brand">
                   2
                 </div>
                 <div>
-                  <h2 className="text-lg sm:text-xl md:text-2xl font-black text-white tracking-tight font-display uppercase">
+                  <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-white tracking-tight font-display uppercase leading-tight">
                     Preferred Beer Styles
                   </h2>
-                  <p className="text-xs sm:text-sm text-[#9CB394] font-medium">Choose the styles you want to taste on the trail</p>
+                  <p className="text-xs sm:text-sm text-[#9CB394] font-medium mt-0.5">Choose the styles you want to taste on the trail</p>
                 </div>
               </div>
 
@@ -342,16 +342,16 @@ export const RouteForm: React.FC<RouteFormProps> = ({
 
           {/* STEP 3: Total Length of the Trip */}
           <div className="space-y-4">
-            <div className="flex items-center justify-between gap-3 pb-3.5 border-b border-[#222222]">
+            <div className="flex items-center justify-between gap-3 pb-4 border-b border-[#222222]">
               <div className="flex items-center gap-3.5 sm:gap-4">
-                <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-[#1E3B18] text-[#DDF1D2] border border-[#58A72F]/60 flex items-center justify-center font-black text-xl sm:text-2xl shadow-md ring-4 ring-[#58A72F]/20 shrink-0 font-brand">
+                <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-2xl bg-[#1E3B18] text-[#DDF1D2] border border-[#58A72F]/60 flex items-center justify-center font-black text-xl sm:text-2xl md:text-3xl shadow-md ring-4 ring-[#58A72F]/20 shrink-0 font-brand">
                   3
                 </div>
                 <div>
-                  <h2 className="text-lg sm:text-xl md:text-2xl font-black text-white tracking-tight font-display uppercase">
+                  <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-white tracking-tight font-display uppercase leading-tight">
                     Trip Duration
                   </h2>
-                  <p className="text-xs sm:text-sm text-[#9CB394] font-medium">Choose the length of your beer road trip</p>
+                  <p className="text-xs sm:text-sm text-[#9CB394] font-medium mt-0.5">Choose the length of your beer road trip</p>
                 </div>
               </div>
 
@@ -405,15 +405,15 @@ export const RouteForm: React.FC<RouteFormProps> = ({
           {/* STEP 4: Conditional Overnight Stay (Only if 2 Days or Weekend) */}
           {isMultiDay && (
             <div className="space-y-4 bg-[#141F12] p-4 sm:p-5 rounded-3xl border border-[#223820] animate-in fade-in duration-200">
-              <div className="flex items-center gap-3.5 sm:gap-4 pb-3.5 border-b border-[#223820]">
-                <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-[#1E3B18] text-[#DDF1D2] border border-[#58A72F]/60 flex items-center justify-center font-black text-xl sm:text-2xl shadow-md ring-4 ring-[#58A72F]/20 shrink-0 font-brand">
+              <div className="flex items-center gap-3.5 sm:gap-4 pb-4 border-b border-[#223820]">
+                <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-2xl bg-[#1E3B18] text-[#DDF1D2] border border-[#58A72F]/60 flex items-center justify-center font-black text-xl sm:text-2xl md:text-3xl shadow-md ring-4 ring-[#58A72F]/20 shrink-0 font-brand">
                   4
                 </div>
                 <div>
-                  <h2 className="text-lg sm:text-xl md:text-2xl font-black text-white tracking-tight font-display uppercase">
+                  <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-white tracking-tight font-display uppercase leading-tight">
                     Overnight Stay Options
                   </h2>
-                  <p className="text-xs sm:text-sm text-[#9CB394] font-medium">
+                  <p className="text-xs sm:text-sm text-[#9CB394] font-medium mt-0.5">
                     For {tripLength === '2_days' ? '2-day routes (1 overnight stay)' : '3-day weekend routes (2 overnight stays)'}, we locate stays within 30 min of the last brewery each day.
                   </p>
                 </div>

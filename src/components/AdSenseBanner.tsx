@@ -8,6 +8,8 @@ interface AdSenseBannerProps {
   className?: string;
   label?: string;
   darkMode?: boolean;
+  /** Set to false or use default false to hide placeholder when no client ID is provided */
+  showPlaceholder?: boolean;
 }
 
 export const AdSenseBanner: React.FC<AdSenseBannerProps> = ({
@@ -17,6 +19,7 @@ export const AdSenseBanner: React.FC<AdSenseBannerProps> = ({
   className = '',
   label = 'Sponsored / Advertisement',
   darkMode = false,
+  showPlaceholder = false,
 }) => {
   const adRef = useRef<HTMLDivElement>(null);
   const [adLoaded, setAdLoaded] = useState(false);
@@ -56,8 +59,12 @@ export const AdSenseBanner: React.FC<AdSenseBannerProps> = ({
     }
   }, [clientId, effectiveSlotId]);
 
-  // If no AdSense client ID configured yet, show a clean, unobtrusive placeholder for preview & layout testing
+  // If no AdSense client ID configured yet, optionally hide or render placeholder
   if (!clientId) {
+    if (!showPlaceholder) {
+      return null;
+    }
+
     return (
       <aside
         aria-label="Advertisement Placement"
