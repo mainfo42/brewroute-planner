@@ -8,10 +8,11 @@ import { CuratedRoutesModal } from './components/CuratedRoutesModal';
 import { AuthModal } from './components/AuthModal';
 import { SavedItinerariesModal } from './components/SavedItinerariesModal';
 import { AdSenseBanner } from './components/AdSenseBanner';
-import { BrewTravelRoute, RouteParameters, AuthUser, SavedItinerary } from './types';
+import { BrewTravelRoute, RouteParameters, AuthUser, SavedItinerary, ColorThemeVariant } from './types';
 import { SAMPLE_CURATED_ROUTE, POPULAR_DESTINATIONS } from './data/curatedRoutes';
 import { enrichAndValidateRoute } from './utils/styleMatcher';
 import { generateClientFallbackRoute } from './utils/fallbackGenerator';
+import { getSavedThemeVariant, applyThemeVariant } from './utils/themeManager';
 import {
   getCurrentUser,
   loginUser,
@@ -29,6 +30,19 @@ export default function App() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successToast, setSuccessToast] = useState<string | null>(null);
   const [activeMobileTab, setActiveMobileTab] = useState<MobileTab>('plan');
+
+  // Color Palette Theme State
+  const [colorTheme, setColorTheme] = useState<ColorThemeVariant>(() => getSavedThemeVariant());
+
+  // Apply theme on mount and change
+  useEffect(() => {
+    applyThemeVariant(colorTheme);
+  }, [colorTheme]);
+
+  const handleSelectTheme = (theme: ColorThemeVariant) => {
+    setColorTheme(theme);
+    applyThemeVariant(theme);
+  };
 
   // User Auth State
   const [currentUser, setCurrentUser] = useState<AuthUser | null>(() => getCurrentUser());
@@ -323,6 +337,8 @@ export default function App() {
           setCurrentRoute(null);
           setActiveMobileTab('plan');
         }}
+        currentTheme={colorTheme}
+        onSelectTheme={handleSelectTheme}
       />
 
       {/* Success Notification Toast */}
@@ -382,6 +398,7 @@ export default function App() {
             <RouteForm
               onSubmit={handleGenerateRoute}
               isLoading={isLoading}
+              currentTheme={colorTheme}
               onSelectCuratedPreset={(idx) => {
                 const dest = POPULAR_DESTINATIONS[idx];
                 if (dest) {

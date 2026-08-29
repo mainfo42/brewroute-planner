@@ -320,10 +320,10 @@ export const RouteDisplay: React.FC<RouteDisplayProps> = ({
           </div>
         </div>
 
-        {/* Route Stats Ribbon - Standout Key Gauges */}
+        {/* Route Stats Ribbon - Standout Key Gauges with Complementary Color Accents */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 pt-5">
-          {/* Gauge 1: Total Stops */}
-          <div className="p-4 bg-gradient-to-br from-white via-[#FAFDF9] to-[#F1F8EE] rounded-2xl border-2 border-[#C6E2BD] hover:border-[#58A72F] transition-all shadow-xs flex flex-col justify-between space-y-2">
+          {/* Gauge 1: Total Stops (Fresh Hop Emerald) */}
+          <div className="p-4 bg-gradient-to-br from-emerald-50/40 via-white to-emerald-50/20 rounded-2xl border-2 border-[#C6E2BD] hover:border-[#58A72F] transition-all shadow-xs flex flex-col justify-between space-y-2">
             <div className="flex items-center justify-between">
               <span className="text-[11px] text-[#3B5734] font-black font-brand tracking-wider uppercase">
                 TOTAL STOPS
@@ -348,81 +348,81 @@ export const RouteDisplay: React.FC<RouteDisplayProps> = ({
             </div>
           </div>
 
-          {/* Gauge 2: Total Drive Time (Fully includes Start departure, all stops, and Return Home) */}
-          <div className="p-4 bg-gradient-to-br from-white via-[#FAFDF9] to-[#F1F8EE] rounded-2xl border-2 border-[#C6E2BD] hover:border-[#58A72F] transition-all shadow-xs flex flex-col justify-between space-y-2">
+          {/* Gauge 2: Total Drive Time (Complementary Warm Amber Ale) */}
+          <div className="p-4 bg-gradient-to-br from-amber-50/50 via-white to-amber-50/30 rounded-2xl border-2 border-amber-200/90 hover:border-amber-400 transition-all shadow-xs flex flex-col justify-between space-y-2">
             <div className="flex items-center justify-between">
-              <span className="text-[11px] text-[#3B5734] font-black font-brand tracking-wider uppercase">
+              <span className="text-[11px] text-amber-900 font-black font-brand tracking-wider uppercase">
                 TOTAL DRIVE
               </span>
-              <div className="w-7 h-7 rounded-xl bg-[#DDF1D2] text-[#122B0F] border border-[#B2D8A6] flex items-center justify-center shadow-2xs">
-                <Clock className="w-3.5 h-3.5 text-[#58A72F]" />
+              <div className="w-7 h-7 rounded-xl bg-amber-100 text-amber-900 border border-amber-300 flex items-center justify-center shadow-2xs">
+                <Clock className="w-3.5 h-3.5 text-amber-700" />
               </div>
             </div>
             <div>
-              <div className="text-2xl sm:text-3xl font-black text-[#122610] font-display tracking-tight leading-none">
+              <div className="text-2xl sm:text-3xl font-black text-amber-950 font-display tracking-tight leading-none">
                 {formatTime(fullTotalDriveTimeMin)}
               </div>
-              <div className="text-[10px] text-[#4D6D47] font-semibold mt-1">
+              <div className="text-[10px] text-amber-800 font-semibold mt-1">
                 Start ➔ All Stops ➔ Return Home
               </div>
             </div>
-            <div className="pt-1 border-t border-[#EAF4E6] flex items-center justify-between">
-              <span className="text-[10px] font-black text-[#122B0F] bg-[#DDF1D2] px-2 py-0.5 rounded-full font-brand uppercase tracking-wide flex items-center gap-1">
-                <RotateCcw className="w-2.5 h-2.5 text-[#58A72F]" />
+            <div className="pt-1 border-t border-amber-100 flex items-center justify-between">
+              <span className="text-[10px] font-black text-amber-900 bg-amber-100 px-2 py-0.5 rounded-full font-brand uppercase tracking-wide flex items-center gap-1 border border-amber-200">
+                <RotateCcw className="w-2.5 h-2.5 text-amber-700" />
                 Full Round-Trip
               </span>
-              <span className="text-[10px] text-[#58A72F] font-bold">Start & Return Inc.</span>
+              <span className="text-[10px] text-amber-700 font-bold">Start & Return Inc.</span>
             </div>
           </div>
 
-          {/* Gauge 3: Total Distance in KM (Fully includes Start departure and Return Home) */}
-          <div className="p-4 bg-gradient-to-br from-white via-[#FAFDF9] to-[#F1F8EE] rounded-2xl border-2 border-[#C6E2BD] hover:border-[#58A72F] transition-all shadow-xs flex flex-col justify-between space-y-2">
+          {/* Gauge 3: Total Distance in KM (Complementary Crisp Glacial Blue) */}
+          <div className="p-4 bg-gradient-to-br from-sky-50/50 via-white to-sky-50/30 rounded-2xl border-2 border-sky-200/90 hover:border-sky-400 transition-all shadow-xs flex flex-col justify-between space-y-2">
             <div className="flex items-center justify-between">
-              <span className="text-[11px] text-[#3B5734] font-black font-brand tracking-wider uppercase">
+              <span className="text-[11px] text-sky-900 font-black font-brand tracking-wider uppercase">
                 TOTAL DISTANCE
               </span>
-              <div className="w-7 h-7 rounded-xl bg-[#DDF1D2] text-[#122B0F] border border-[#B2D8A6] flex items-center justify-center shadow-2xs">
-                <Car className="w-3.5 h-3.5 text-[#58A72F]" />
+              <div className="w-7 h-7 rounded-xl bg-sky-100 text-sky-900 border border-sky-300 flex items-center justify-center shadow-2xs">
+                <Car className="w-3.5 h-3.5 text-sky-700" />
               </div>
             </div>
             <div>
-              <div className="text-2xl sm:text-3xl font-black text-[#122610] font-display tracking-tight leading-none">
+              <div className="text-2xl sm:text-3xl font-black text-sky-950 font-display tracking-tight leading-none">
                 ~{(fullTotalDistanceMiles * 1.60934).toFixed(1)}
-                <span className="text-xs sm:text-sm font-bold text-[#4D6D47] ml-1.5 font-brand uppercase">
+                <span className="text-xs sm:text-sm font-bold text-sky-700 ml-1.5 font-brand uppercase">
                   KM
                 </span>
               </div>
-              <div className="text-[10px] text-[#4D6D47] font-semibold mt-1 truncate">
+              <div className="text-[10px] text-sky-800 font-semibold mt-1 truncate">
                 ~{fullTotalDistanceMiles.toFixed(1)} Miles Total
               </div>
             </div>
-            <div className="pt-1 border-t border-[#EAF4E6] flex items-center justify-between overflow-hidden">
-              <span className="text-[10px] font-black text-[#122B0F] bg-[#DDF1D2] px-2 py-0.5 rounded-full font-brand uppercase tracking-wide truncate max-w-full">
+            <div className="pt-1 border-t border-sky-100 flex items-center justify-between overflow-hidden">
+              <span className="text-[10px] font-black text-sky-900 bg-sky-100 px-2 py-0.5 rounded-full font-brand uppercase tracking-wide truncate max-w-full border border-sky-200">
                 From {route.parameters.startLocation}
               </span>
             </div>
           </div>
 
-          {/* Gauge 4: Beer Styles */}
-          <div className="p-4 bg-gradient-to-br from-white via-[#FAFDF9] to-[#F1F8EE] rounded-2xl border-2 border-[#C6E2BD] hover:border-[#58A72F] transition-all shadow-xs flex flex-col justify-between space-y-2">
+          {/* Gauge 4: Beer Styles (Complementary Warm Barley Malt) */}
+          <div className="p-4 bg-gradient-to-br from-orange-50/40 via-white to-orange-50/20 rounded-2xl border-2 border-orange-200/90 hover:border-orange-400 transition-all shadow-xs flex flex-col justify-between space-y-2">
             <div className="flex items-center justify-between">
-              <span className="text-[11px] text-[#3B5734] font-black font-brand tracking-wider uppercase">
+              <span className="text-[11px] text-orange-900 font-black font-brand tracking-wider uppercase">
                 BEER STYLES
               </span>
-              <div className="w-7 h-7 rounded-xl bg-[#DDF1D2] text-[#122B0F] border border-[#B2D8A6] flex items-center justify-center shadow-2xs">
-                <Award className="w-3.5 h-3.5 text-[#58A72F]" />
+              <div className="w-7 h-7 rounded-xl bg-orange-100 text-orange-900 border border-orange-300 flex items-center justify-center shadow-2xs">
+                <Award className="w-3.5 h-3.5 text-orange-700" />
               </div>
             </div>
             <div>
-              <div className="text-base sm:text-lg font-black text-[#122610] font-display truncate leading-tight">
+              <div className="text-base sm:text-lg font-black text-orange-950 font-display truncate leading-tight">
                 {route.parameters.beerStyles.slice(0, 3).join(', ')}
               </div>
             </div>
-            <div className="pt-1 border-t border-[#EAF4E6] flex items-center justify-between">
-              <span className="text-[10px] font-black text-[#122B0F] bg-[#DDF1D2] px-2 py-0.5 rounded-full font-brand uppercase tracking-wide">
+            <div className="pt-1 border-t border-orange-100 flex items-center justify-between">
+              <span className="text-[10px] font-black text-orange-900 bg-orange-100 px-2 py-0.5 rounded-full font-brand uppercase tracking-wide border border-orange-200">
                 {route.parameters.beerStyles.length} Selected
               </span>
-              <span className="text-[10px] text-[#6D9364] font-semibold">Curated Match</span>
+              <span className="text-[10px] text-orange-700 font-semibold">Curated Match</span>
             </div>
           </div>
         </div>
@@ -848,41 +848,41 @@ export const RouteDisplay: React.FC<RouteDisplayProps> = ({
                     })}
                   </div>
 
-                  {/* Day Stay Recommendation (if applicable) */}
+                  {/* Day Stay Recommendation (if applicable - Complementary Terracotta & Copper Honey) */}
                   {day.stay && (
-                    <div className="bg-[#DDF1D2]/50 rounded-3xl p-4 sm:p-5 border border-[#B2D8A6] space-y-3">
+                    <div className="bg-[#FFF9F2] rounded-3xl p-4 sm:p-5 border-2 border-[#FED7AA] shadow-xs space-y-3">
                       <div className="flex items-start justify-between gap-3">
                         <div className="flex items-center gap-3">
-                          <div className="w-9 h-9 rounded-2xl bg-[#58A72F] text-white flex items-center justify-center font-bold text-sm shadow-xs">
+                          <div className="w-10 h-10 rounded-2xl bg-[#EA580C] text-white flex items-center justify-center font-bold text-base shadow-xs">
                             🛏️
                           </div>
                           <div>
                             <div className="flex items-center gap-2">
-                              <span className="text-[10px] font-black text-[#58A72F] uppercase tracking-wider font-brand">
+                              <span className="text-[10px] font-black text-[#C2410C] uppercase tracking-wider font-brand">
                                 Night {day.dayNumber} Recommended Stay
                               </span>
-                              <span className="px-2 py-0.5 rounded-full bg-white text-[#122610] text-[10px] font-black uppercase font-brand border border-[#C6E2BD]">
+                              <span className="px-2 py-0.5 rounded-full bg-[#FFEDD5] text-[#9A3412] text-[10px] font-black uppercase font-brand border border-[#FDBA74]">
                                 {day.stay.type.toUpperCase()}
                               </span>
                             </div>
-                            <h3 className="text-sm sm:text-base font-extrabold text-[#122610] mt-0.5 font-display">
+                            <h3 className="text-sm sm:text-base font-extrabold text-[#7C2D12] mt-0.5 font-display">
                               {day.stay.name}
                             </h3>
-                            <p className="text-[11px] text-[#4D6D47]">{day.stay.address}</p>
+                            <p className="text-[11px] text-[#9A3412]/80">{day.stay.address}</p>
                           </div>
                         </div>
 
                         <div className="text-right shrink-0">
-                          <div className="text-sm sm:text-base font-extrabold text-[#122610] font-display">
+                          <div className="text-sm sm:text-base font-extrabold text-[#7C2D12] font-display">
                             {day.stay.estimatedPricePerNight}
                           </div>
-                          <span className="text-[10px] text-[#58A72F] font-bold">
+                          <span className="text-[10px] text-[#EA580C] font-bold">
                             ~{day.stay.driveTimeFromLastBreweryMin} min from final brewery
                           </span>
                         </div>
                       </div>
 
-                      <div className="text-xs text-[#3B5734] leading-relaxed pt-1 font-medium">
+                      <div className="text-xs text-[#9A3412] leading-relaxed pt-1 font-medium bg-[#FFF3E6] p-3 rounded-2xl border border-[#FDBA74]/50">
                         {day.stay.whyRecommended}
                       </div>
                     </div>

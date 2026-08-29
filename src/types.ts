@@ -4,6 +4,8 @@ export type StayType = 'none' | 'hotel' | 'airbnb';
 
 export type PriceRange = 'under_100' | '100_to_200' | 'over_200';
 
+export type ColorThemeVariant = 'hop_amber' | 'roasted_copper' | 'hazy_citrus' | 'bourbon_oak';
+
 export interface RouteParameters {
   startLocation: string;
   destinationArea: string;

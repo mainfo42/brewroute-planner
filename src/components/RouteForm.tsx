@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   MapPin,
   Navigation,
@@ -14,22 +14,48 @@ import {
   XCircle,
   AlertCircle,
   RotateCcw,
+  Loader2,
 } from 'lucide-react';
 import { HopIcon } from './HopIcon';
-import { RouteParameters, TripDuration, StayType, PriceRange } from '../types';
+import { RouteParameters, TripDuration, StayType, PriceRange, ColorThemeVariant } from '../types';
 import { BEER_STYLE_OPTIONS } from '../data/curatedRoutes';
 import { LocationAutocomplete } from './LocationAutocomplete';
+import { THEME_VARIANTS, getSavedThemeVariant } from '../utils/themeManager';
 
 interface RouteFormProps {
   onSubmit: (params: RouteParameters) => void;
   isLoading: boolean;
   onSelectCuratedPreset?: (presetIndex: number) => void;
+  currentTheme?: ColorThemeVariant;
 }
 
 export const RouteForm: React.FC<RouteFormProps> = ({
   onSubmit,
   isLoading,
+  currentTheme,
 }) => {
+  // Active Theme Config
+  const activeThemeConfig = (currentTheme && THEME_VARIANTS[currentTheme])
+    ? THEME_VARIANTS[currentTheme]
+    : THEME_VARIANTS[getSavedThemeVariant()] || THEME_VARIANTS.hop_amber;
+
+  // Track loading elapsed seconds to show friendly message if >= 15 seconds
+  const [loadingSeconds, setLoadingSeconds] = useState(0);
+
+  useEffect(() => {
+    let interval: NodeJS.Timeout | null = null;
+    if (isLoading) {
+      setLoadingSeconds(0);
+      interval = setInterval(() => {
+        setLoadingSeconds((prev) => prev + 1);
+      }, 1000);
+    } else {
+      setLoadingSeconds(0);
+    }
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [isLoading]);
   // All fields initialize empty with NO default pre-selected items
   const [startLocation, setStartLocation] = useState<string>('');
   const [destinationArea, setDestinationArea] = useState<string>('');
@@ -571,31 +597,93 @@ export const RouteForm: React.FC<RouteFormProps> = ({
         </div>
 
         {/* Form Submission Footer */}
-        <div className="p-4 sm:p-6 bg-[#0E150C] border-t border-[#223820] flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-2 text-xs text-[#A3B899]">
-            <span className="w-2.5 h-2.5 rounded-full bg-[#58A72F] inline-block shrink-0 shadow-xs" />
-            <span className="text-[11px] sm:text-xs font-semibold">Max 3 breweries/day • Spaced ≤ 25 min • Certified ratings</span>
-          </div>
+        <div className="p-4 sm:p-6 bg-[#0E150C] border-t border-[#223820] space-y-4">
+          {/* Extended Loading / Brewing Progress Notification (if >= 15 seconds) */}
+          {isLoading && loadingSeconds >= 15 && (
+            <div
+              id="route-brewing-delayed-notice"
+              className="p-4 sm:p-5 rounded-2xl border-2 flex items-center gap-3.5 sm:gap-4 animate-in fade-in slide-in-from-bottom-2 duration-300 shadow-xl"
+              style={{
+                backgroundColor: '#151D13',
+                borderColor: activeThemeConfig.accentColor,
+              }}
+            >
+              {/* Spinning Wheel with Complementary Theme Accent */}
+              <div className="relative shrink-0 flex items-center justify-center">
+                <div
+                  className="w-9 h-9 sm:w-10 sm:h-10 border-3 rounded-full animate-spin"
+                  style={{
+                    borderColor: `${activeThemeConfig.primaryColor}30`,
+                    borderTopColor: activeThemeConfig.accentColor,
+                    borderRightColor: activeThemeConfig.primaryColor,
+                  }}
+                />
+                <div className="absolute inset-0 flex items-center justify-center text-sm">
+                  🍺
+                </div>
+              </div>
 
-          <button
-            type="submit"
-            id="generate-route-submit-btn"
-            disabled={isLoading}
-            className="w-full sm:w-auto px-7 py-3.5 rounded-full bg-[#58A72F] hover:bg-[#68BF38] active:bg-[#489224] text-white font-black text-sm shadow-xl flex items-center justify-center gap-2 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed min-h-[48px] font-brand tracking-wider border border-[#7CD749]"
-          >
-            {isLoading ? (
-              <>
-                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                <span>CRAFTING YOUR ROUTE...</span>
-              </>
-            ) : (
-              <>
-                <HopIcon className="w-4 h-4 text-white" filled />
-                <span>GENERATE BEERHOP ITINERARY</span>
-                <ChevronRight className="w-4 h-4" />
-              </>
-            )}
-          </button>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h4
+                    className="text-sm sm:text-base font-black font-brand uppercase tracking-wider leading-tight"
+                    style={{ color: activeThemeConfig.accentColor }}
+                  >
+                    Route is Brewing....just a moment.
+                  </h4>
+                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-white/10 text-white/90 font-mono font-bold">
+                    {loadingSeconds}s elapsed
+                  </span>
+                </div>
+                <p className="text-[11px] sm:text-xs text-[#A3B899] mt-0.5 leading-snug font-medium">
+                  Untappd scores, verified driving legs (&le; 25 min), and local craft itineraries are being assembled.
+                </p>
+              </div>
+            </div>
+          )}
+
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-2 text-xs text-[#A3B899]">
+              <span
+                className="w-2.5 h-2.5 rounded-full inline-block shrink-0 shadow-xs"
+                style={{ backgroundColor: activeThemeConfig.primaryColor }}
+              />
+              <span className="text-[11px] sm:text-xs font-semibold">
+                Max 3 breweries/day • Spaced ≤ 25 min • Certified ratings
+              </span>
+            </div>
+
+            <button
+              type="submit"
+              id="generate-route-submit-btn"
+              disabled={isLoading}
+              style={{
+                background: `linear-gradient(135deg, ${activeThemeConfig.primaryColor} 0%, ${activeThemeConfig.accentColor} 100%)`,
+                boxShadow: `0 10px 25px -5px ${activeThemeConfig.primaryColor}55, 0 4px 12px -2px ${activeThemeConfig.accentColor}44`,
+                borderColor: `${activeThemeConfig.accentColor}99`,
+              }}
+              className="w-full sm:w-auto px-8 py-4 rounded-full text-white font-black text-sm shadow-xl flex items-center justify-center gap-3 transition-all cursor-pointer hover:brightness-110 active:scale-[0.98] disabled:opacity-75 disabled:cursor-not-allowed min-h-[52px] font-brand tracking-wider border-2"
+            >
+              {isLoading ? (
+                <>
+                  <div className="relative flex items-center justify-center">
+                    <div className="w-5 h-5 border-2 border-white/30 border-t-white border-r-white rounded-full animate-spin" />
+                  </div>
+                  <span>
+                    {loadingSeconds >= 15
+                      ? 'ROUTE IS BREWING.... JUST A MOMENT'
+                      : 'CRAFTING YOUR ROUTE...'}
+                  </span>
+                </>
+              ) : (
+                <>
+                  <HopIcon className="w-5 h-5 text-white drop-shadow-xs" filled />
+                  <span className="drop-shadow-xs">GENERATE BEERHOP ITINERARY</span>
+                  <ChevronRight className="w-4 h-4 text-white/90" />
+                </>
+              )}
+            </button>
+          </div>
         </div>
       </form>
     </div>

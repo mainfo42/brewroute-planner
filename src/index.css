@@ -2,6 +2,19 @@
 
 @layer base {
   :root {
+    --theme-primary: #58a72f;
+    --theme-primary-hover: #489224;
+    --theme-primary-light: #ddf1d2;
+    --theme-primary-dark: #122b0f;
+    --theme-accent: #d97706;
+    --theme-accent-hover: #b45309;
+    --theme-accent-light: #fef3c7;
+    --theme-accent-dark: #78350f;
+    --theme-accent-border: #fde68a;
+    --theme-bg-canvas: #f2f8f0;
+    --theme-header-bg: #162d15;
+    --theme-border-card: #c6e2bd;
+
     --md-sys-color-primary: #58a72f;
     --md-sys-color-on-primary: #ffffff;
     --md-sys-color-primary-container: #ddf1d2;
@@ -18,6 +31,51 @@
     --md-sys-color-on-surface-variant: #3b5734;
     --md-sys-color-outline: #6d9364;
     --md-sys-color-outline-variant: #c6e2bd;
+  }
+
+  [data-color-theme="roasted_copper"] {
+    --theme-primary: #c2410c;
+    --theme-primary-hover: #9a3412;
+    --theme-primary-light: #ffedd5;
+    --theme-primary-dark: #431407;
+    --theme-accent: #059669;
+    --theme-accent-hover: #047857;
+    --theme-accent-light: #d1fae5;
+    --theme-accent-dark: #064e3b;
+    --theme-accent-border: #6ee7b7;
+    --theme-bg-canvas: #faf6f1;
+    --theme-header-bg: #29170e;
+    --theme-border-card: #fed7aa;
+  }
+
+  [data-color-theme="hazy_citrus"] {
+    --theme-primary: #d97706;
+    --theme-primary-hover: #b45309;
+    --theme-primary-light: #fef3c7;
+    --theme-primary-dark: #451a03;
+    --theme-accent: #047857;
+    --theme-accent-hover: #065f46;
+    --theme-accent-light: #d1fae5;
+    --theme-accent-dark: #064e3b;
+    --theme-accent-border: #a7f3d0;
+    --theme-bg-canvas: #fcf8f0;
+    --theme-header-bg: #261b0c;
+    --theme-border-card: #fde68a;
+  }
+
+  [data-color-theme="bourbon_oak"] {
+    --theme-primary: #9a3412;
+    --theme-primary-hover: #7c2d12;
+    --theme-primary-light: #ffedd5;
+    --theme-primary-dark: #431407;
+    --theme-accent: #0284c7;
+    --theme-accent-hover: #0369a1;
+    --theme-accent-light: #e0f2fe;
+    --theme-accent-dark: #075985;
+    --theme-accent-border: #bae6fd;
+    --theme-bg-canvas: #f6f7fa;
+    --theme-header-bg: #21131e;
+    --theme-border-card: #cbd5e1;
   }
 
   body {

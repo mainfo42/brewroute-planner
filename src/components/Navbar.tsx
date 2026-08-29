@@ -10,7 +10,8 @@ import {
   Plus,
 } from 'lucide-react';
 import { HopIcon } from './HopIcon';
-import { AuthUser } from '../types';
+import { AuthUser, ColorThemeVariant } from '../types';
+import { ThemeSelector } from './ThemeSelector';
 
 interface NavbarProps {
   onOpenCurated?: () => void;
@@ -21,6 +22,8 @@ interface NavbarProps {
   onLogout: () => void;
   hasActiveRoute: boolean;
   onReset: () => void;
+  currentTheme: ColorThemeVariant;
+  onSelectTheme: (theme: ColorThemeVariant) => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -32,6 +35,8 @@ export const Navbar: React.FC<NavbarProps> = ({
   onLogout,
   hasActiveRoute,
   onReset,
+  currentTheme,
+  onSelectTheme,
 }) => {
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
@@ -76,6 +81,9 @@ export const Navbar: React.FC<NavbarProps> = ({
 
         {/* Action Buttons & User Auth (Desktop & Mobile Top Row) */}
         <div className="flex items-center gap-2 shrink-0">
+          {/* Color Palette Theme Switcher */}
+          <ThemeSelector currentTheme={currentTheme} onSelectTheme={onSelectTheme} />
+
           {/* Plan New Route button (Desktop & Header) */}
           {hasActiveRoute && (
             <button
