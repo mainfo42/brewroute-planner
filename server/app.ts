@@ -47,7 +47,7 @@ apiRouter.post('/generate-route', async (req, res) => {
 
   const ai = getGeminiClient();
 
-  const dayCount = params.tripLength === 'few_hours' || params.tripLength === '1_day' 
+  const dayCount = params.tripLength === '1_day' 
     ? 1 
     : params.tripLength === '2_days' 
       ? 2 

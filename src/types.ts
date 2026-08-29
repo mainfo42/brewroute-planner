@@ -1,4 +1,4 @@
-export type TripDuration = 'few_hours' | '1_day' | '2_days' | 'weekend';
+export type TripDuration = '1_day' | '2_days' | 'weekend';
 
 export type StayType = 'none' | 'hotel' | 'airbnb';
 

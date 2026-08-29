@@ -337,8 +337,6 @@ export default function App() {
           setCurrentRoute(null);
           setActiveMobileTab('plan');
         }}
-        currentTheme={colorTheme}
-        onSelectTheme={handleSelectTheme}
       />
 
       {/* Success Notification Toast */}

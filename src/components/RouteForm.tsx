@@ -392,12 +392,11 @@ export const RouteForm: React.FC<RouteFormProps> = ({
               )}
             </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               {[
-                { id: 'few_hours', label: 'Few Hours', desc: 'Half-day tasting crawl' },
                 { id: '1_day', label: '1 Day', desc: 'Full-day tour (≤ 3 stops)' },
                 { id: '2_days', label: '2 Days', desc: 'Overnight adventure' },
-                { id: 'weekend', label: 'Weekend', desc: 'Multi-day craft getaway' },
+                { id: 'weekend', label: 'Weekend', desc: '3-day craft getaway' },
               ].map((dur) => {
                 const isSelected = tripLength === dur.id;
                 return (
@@ -409,17 +408,17 @@ export const RouteForm: React.FC<RouteFormProps> = ({
                       setValidationError(null);
                       setTripLength(dur.id as TripDuration);
                     }}
-                    className={`p-3.5 rounded-2xl border text-left transition-all cursor-pointer min-h-[76px] ${
+                    className={`p-4 rounded-2xl border text-left transition-all cursor-pointer min-h-[82px] ${
                       isSelected
                         ? 'bg-[#58A72F] text-white border-2 border-[#7DD748] shadow-md ring-2 ring-[#7DD748]/50'
                         : 'bg-[#181818] hover:bg-[#202020] text-white border-[#2E2E2E] hover:border-[#58A72F]/60'
                     }`}
                   >
                     <div className="flex items-center justify-between mb-1">
-                      <span className="font-black text-xs sm:text-sm font-display tracking-tight text-white">{dur.label}</span>
-                      <Calendar className={`w-3.5 h-3.5 ${isSelected ? 'text-[#DDF1D2]' : 'text-[#7DD748]'}`} />
+                      <span className="font-black text-sm sm:text-base font-display tracking-tight text-white">{dur.label}</span>
+                      <Calendar className={`w-4 h-4 ${isSelected ? 'text-[#DDF1D2]' : 'text-[#7DD748]'}`} />
                     </div>
-                    <span className={`text-[10px] leading-tight block ${isSelected ? 'text-[#E8F8E2] font-semibold' : 'text-[#8EAD84]'}`}>
+                    <span className={`text-[11px] leading-tight block ${isSelected ? 'text-[#E8F8E2] font-semibold' : 'text-[#8EAD84]'}`}>
                       {dur.desc}
                     </span>
                   </button>

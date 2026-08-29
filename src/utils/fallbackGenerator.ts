@@ -15,7 +15,7 @@ export function findMatchingRealRegion(areaQuery: string): RealRegionBreweries |
 }
 
 export function generateClientFallbackRoute(params: RouteParameters): BrewTravelRoute {
-  const dayCount = (params.tripLength === 'few_hours' || params.tripLength === '1_day')
+  const dayCount = (params.tripLength === '1_day')
     ? 1
     : (params.tripLength === '2_days')
       ? 2
