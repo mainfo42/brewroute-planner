@@ -1,4 +1,5 @@
 import { BreweryStop, BrewTravelRoute, BeerHighlight, DayItinerary, StayRecommendation } from '../types';
+import { resolveCoordinates, calculateDrivingTransit } from './geoDistance';
 
 /**
  * Normalizes user / API style inputs to standard canonical style keys.
@@ -589,8 +590,109 @@ export function enrichAndValidateRoute(
     };
   });
 
+  // Calculate real geographic coordinates and driving distances
+  const startLocationStr = route.parameters?.startLocation || route.departureTransit?.fromName || 'Burlington, VT';
+  const startCoord = resolveCoordinates(startLocationStr, route.startLocationCoord);
+
+  const firstBrewery = enrichedDays[0]?.breweries[0];
+  const lastDay = enrichedDays[enrichedDays.length - 1];
+  const lastBrewery = lastDay?.breweries[lastDay?.breweries.length - 1];
+  const lastStop = lastDay?.stay || lastBrewery;
+
+  const firstBreweryCoord = firstBrewery ? { lat: firstBrewery.lat, lng: firstBrewery.lng } : { lat: 44.4654, lng: -72.6874 };
+  const lastStopCoord = lastStop ? { lat: lastStop.lat, lng: lastStop.lng } : firstBreweryCoord;
+
+  // Real Driving Departure Transit
+  const departureTransitEstimate = calculateDrivingTransit(startCoord, firstBreweryCoord);
+  const departureTransit = {
+    fromName: startLocationStr,
+    toName: firstBrewery ? `${firstBrewery.name} (${firstBrewery.city || ''})` : 'First Brewery',
+    driveTimeMin: departureTransitEstimate.driveTimeMin,
+    distanceMiles: departureTransitEstimate.distanceMiles,
+    directionsUrl: `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(startLocationStr)}&destination=${encodeURIComponent(firstBrewery?.address ? `${firstBrewery.name}, ${firstBrewery.address}` : (firstBrewery?.name || 'Stowe, VT'))}&travelmode=driving`,
+    notes: `Scenic drive from ${startLocationStr} to ${firstBrewery?.name || 'Stop 1'} (${departureTransitEstimate.formattedTime}, ${departureTransitEstimate.distanceKm} km)`,
+  };
+
+  // Real Driving Return Home Transit
+  const returnHomeTransitEstimate = calculateDrivingTransit(lastStopCoord, startCoord);
+  const returnHomeTransit = {
+    fromName: lastStop ? `${lastStop.name} (${(lastStop as any).city || ''})` : 'Last Stop',
+    toName: startLocationStr,
+    driveTimeMin: returnHomeTransitEstimate.driveTimeMin,
+    distanceMiles: returnHomeTransitEstimate.distanceMiles,
+    directionsUrl: `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent((lastStop as any)?.address ? `${lastStop?.name}, ${(lastStop as any)?.address}` : (lastStop?.name || 'Waitsfield, VT'))}&destination=${encodeURIComponent(startLocationStr)}&travelmode=driving`,
+    notes: `Safe return journey back to ${startLocationStr} (${returnHomeTransitEstimate.formattedTime}, ${returnHomeTransitEstimate.distanceKm} km)`,
+  };
+
+  // Attach transit legs to Day 1 and Last Day
+  if (enrichedDays[0]) {
+    enrichedDays[0].departureTransit = departureTransit;
+  }
+  if (lastDay) {
+    lastDay.returnHomeTransit = returnHomeTransit;
+  }
+
+  // Calculate sum of intermediate drives
+  let intermediateDriveTimeMin = 0;
+  let intermediateDistanceMiles = 0;
+
+  enrichedDays.forEach((day, dIdx) => {
+    let dayLocalDriveMin = 0;
+    let dayLocalDistMiles = 0;
+
+    day.breweries.forEach((b, bi) => {
+      if (bi > 0) {
+        // Calculate between previous brewery and current brewery if coordinates exist
+        const prevB = day.breweries[bi - 1];
+        if (prevB && prevB.lat && b.lat) {
+          const interEst = calculateDrivingTransit({ lat: prevB.lat, lng: prevB.lng }, { lat: b.lat, lng: b.lng });
+          b.driveTimeFromPrevMin = Math.min(b.driveTimeFromPrevMin || interEst.driveTimeMin, interEst.driveTimeMin);
+          b.driveDistanceFromPrevMiles = interEst.distanceMiles;
+        }
+        dayLocalDriveMin += (b.driveTimeFromPrevMin || 10);
+        dayLocalDistMiles += (b.driveDistanceFromPrevMiles || 4.0);
+      }
+    });
+
+    if (day.stay) {
+      const lastB = day.breweries[day.breweries.length - 1];
+      if (lastB && lastB.lat && day.stay.lat) {
+        const stayEst = calculateDrivingTransit({ lat: lastB.lat, lng: lastB.lng }, { lat: day.stay.lat, lng: day.stay.lng });
+        day.stay.driveTimeFromLastBreweryMin = stayEst.driveTimeMin;
+      }
+      dayLocalDriveMin += (day.stay.driveTimeFromLastBreweryMin || 12);
+      dayLocalDistMiles += 4.5;
+    }
+
+    if (dIdx > 0 && enrichedDays[dIdx - 1]?.stay) {
+      const prevStay = enrichedDays[dIdx - 1].stay;
+      const firstB = day.breweries[0];
+      if (prevStay && prevStay.lat && firstB && firstB.lat) {
+        const nextEst = calculateDrivingTransit({ lat: prevStay.lat, lng: prevStay.lng }, { lat: firstB.lat, lng: firstB.lng });
+        prevStay.driveTimeToNextBreweryMin = nextEst.driveTimeMin;
+      }
+      dayLocalDriveMin += (prevStay?.driveTimeToNextBreweryMin || 14);
+      dayLocalDistMiles += 5.0;
+    }
+
+    intermediateDriveTimeMin += dayLocalDriveMin;
+    intermediateDistanceMiles += dayLocalDistMiles;
+
+    // Update day's totalDriveTimeMin (including day 1 departure or last day return if applicable)
+    day.totalDriveTimeMin = dayLocalDriveMin + (dIdx === 0 ? departureTransit.driveTimeMin : 0) + (dIdx === enrichedDays.length - 1 ? returnHomeTransit.driveTimeMin : 0);
+    day.totalDriveDistanceMiles = parseFloat((dayLocalDistMiles + (dIdx === 0 ? departureTransit.distanceMiles : 0) + (dIdx === enrichedDays.length - 1 ? returnHomeTransit.distanceMiles : 0)).toFixed(1));
+  });
+
+  const totalCalculatedTravelTimeMin = departureTransit.driveTimeMin + intermediateDriveTimeMin + returnHomeTransit.driveTimeMin;
+  const totalCalculatedDistanceMiles = parseFloat((departureTransit.distanceMiles + intermediateDistanceMiles + returnHomeTransit.distanceMiles).toFixed(1));
+
   const updatedRoute: BrewTravelRoute = {
     ...route,
+    startLocationCoord: startCoord,
+    departureTransit,
+    returnHomeTransit,
+    totalTravelTimeMin: totalCalculatedTravelTimeMin,
+    totalDistanceMiles: totalCalculatedDistanceMiles,
     days: enrichedDays,
   };
 

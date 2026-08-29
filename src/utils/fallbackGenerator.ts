@@ -1,6 +1,7 @@
 import { BrewTravelRoute, RouteParameters, DayItinerary, BreweryStop, StayRecommendation } from '../types';
 import { VERIFIED_REAL_REGIONS, RealRegionBreweries, RealBreweryRecord } from '../data/verifiedRealBreweries';
 import { enrichAndValidateRoute, validateBreweryStyleMatch, checkBeerMatchesStyle } from './styleMatcher';
+import { resolveCoordinates, calculateDrivingTransit } from './geoDistance';
 
 export function findMatchingRealRegion(areaQuery: string): RealRegionBreweries | undefined {
   if (!areaQuery) return undefined;

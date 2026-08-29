@@ -483,45 +483,45 @@ Return a strictly valid JSON object matching the JSON schema.`;
         });
 
         // Ensure Total Drive Time and Total Distance rigorously include Start Leg and Return Home Leg
-        const departureMin = parsed.departureTransit?.driveTimeMin || 0;
-        const returnHomeMin = parsed.returnHomeTransit?.driveTimeMin || 0;
-        const departureDist = parsed.departureTransit?.distanceMiles || 0;
-        const returnHomeDist = parsed.returnHomeTransit?.distanceMiles || 0;
+        const departureMin = parsed.departureTransit?.driveTimeMin || 35;
+        const returnHomeMin = parsed.returnHomeTransit?.driveTimeMin || 40;
+        const departureDist = parsed.departureTransit?.distanceMiles || 22.5;
+        const returnHomeDist = parsed.returnHomeTransit?.distanceMiles || 25.0;
 
         // Sum intermediate brewery drives
         let intermediateMin = 0;
         let intermediateDist = 0;
-        parsed.days.forEach(d => {
+        parsed.days.forEach((d, dayIdx) => {
           d.breweries.forEach((b, bi) => {
             if (bi > 0) {
-              intermediateMin += b.driveTimeFromPrevMin || 10;
-              intermediateDist += b.driveDistanceFromPrevMiles || 4.0;
+              intermediateMin += b.driveTimeFromPrevMin || 12;
+              intermediateDist += b.driveDistanceFromPrevMiles || 4.5;
             }
           });
           if (d.stay) {
-            intermediateMin += d.stay.driveTimeFromLastBreweryMin || 12;
+            intermediateMin += d.stay.driveTimeFromLastBreweryMin || 14;
             intermediateDist += 5.0;
+          }
+          if (dayIdx > 0 && parsed.days[dayIdx - 1]?.stay) {
+            intermediateMin += parsed.days[dayIdx - 1].stay?.driveTimeToNextBreweryMin || 15;
+            intermediateDist += 6.0;
           }
         });
 
         const calculatedTotalTravelTimeMin = departureMin + intermediateMin + returnHomeMin;
-        const calculatedTotalDistanceMiles = departureDist + intermediateDist + returnHomeDist;
+        const calculatedTotalDistanceMiles = parseFloat((departureDist + intermediateDist + returnHomeDist).toFixed(1));
 
-        if (!parsed.totalTravelTimeMin || parsed.totalTravelTimeMin < calculatedTotalTravelTimeMin * 0.8) {
-          parsed.totalTravelTimeMin = calculatedTotalTravelTimeMin;
-        }
-        if (!parsed.totalDistanceMiles || parsed.totalDistanceMiles < calculatedTotalDistanceMiles * 0.8) {
-          parsed.totalDistanceMiles = calculatedTotalDistanceMiles;
-        }
+        parsed.totalTravelTimeMin = Math.max(parsed.totalTravelTimeMin || 0, calculatedTotalTravelTimeMin);
+        parsed.totalDistanceMiles = Math.max(parsed.totalDistanceMiles || 0, calculatedTotalDistanceMiles);
 
         // Also adjust Day 1 and Last Day totalDriveTimeMin
         if (parsed.days[0]) {
-          parsed.days[0].totalDriveTimeMin = (parsed.days[0].totalDriveTimeMin || 20) + (isMultiDay ? departureMin : 0);
-          parsed.days[0].totalDriveDistanceMiles = (parsed.days[0].totalDriveDistanceMiles || 10) + (isMultiDay ? departureDist : 0);
+          parsed.days[0].totalDriveTimeMin = (parsed.days[0].totalDriveTimeMin || 20) + (isMultiDay ? departureMin : (departureMin + returnHomeMin));
+          parsed.days[0].totalDriveDistanceMiles = parseFloat(((parsed.days[0].totalDriveDistanceMiles || 10) + (isMultiDay ? departureDist : (departureDist + returnHomeDist))).toFixed(1));
         }
         if (lastDay && isMultiDay) {
           lastDay.totalDriveTimeMin = (lastDay.totalDriveTimeMin || 20) + returnHomeMin;
-          lastDay.totalDriveDistanceMiles = (lastDay.totalDriveDistanceMiles || 10) + returnHomeDist;
+          lastDay.totalDriveDistanceMiles = parseFloat(((lastDay.totalDriveDistanceMiles || 10) + returnHomeDist).toFixed(1));
         }
 
         // Update total breweries count
@@ -538,7 +538,7 @@ Return a strictly valid JSON object matching the JSON schema.`;
 
   // Fallback generation if Gemini API is missing or had transient failure
   const fallbackRoute = generateSmartFallbackRoute(params, dayCount, priceRangeLabel, wantsStay);
-  return res.json(fallbackRoute);
+  return res.json(enrichAndValidateRoute(fallbackRoute, params.beerStyles || []));
 });
 
 // Real-world verified fallback generator that delivers genuine, physical microbreweries and stays

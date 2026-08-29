@@ -16,9 +16,37 @@ export const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose, route
   if (!isOpen || !route) return null;
 
   const generateTextSummary = () => {
+    const departureMin = route.departureTransit?.driveTimeMin || route.days[0]?.departureTransit?.driveTimeMin || 35;
+    const returnHomeMin = route.returnHomeTransit?.driveTimeMin || route.days[route.days.length - 1]?.returnHomeTransit?.driveTimeMin || 40;
+    const departureDist = route.departureTransit?.distanceMiles || route.days[0]?.departureTransit?.distanceMiles || 22.5;
+    const returnHomeDist = route.returnHomeTransit?.distanceMiles || route.days[route.days.length - 1]?.returnHomeTransit?.distanceMiles || 25.0;
+
+    let intermediateDriveMin = 0;
+    let intermediateDistMiles = 0;
+
+    route.days.forEach((day, dIdx) => {
+      day.breweries.forEach((b, bi) => {
+        if (bi > 0) {
+          intermediateDriveMin += (b.driveTimeFromPrevMin || 12);
+          intermediateDistMiles += (b.driveDistanceFromPrevMiles || 4.5);
+        }
+      });
+      if (day.stay) {
+        intermediateDriveMin += (day.stay.driveTimeFromLastBreweryMin || 14);
+        intermediateDistMiles += 5.0;
+      }
+      if (dIdx > 0 && route.days[dIdx - 1]?.stay) {
+        intermediateDriveMin += (route.days[dIdx - 1].stay?.driveTimeToNextBreweryMin || 15);
+        intermediateDistMiles += 6.0;
+      }
+    });
+
+    const fullTotalDriveMin = Math.max(route.totalTravelTimeMin || 0, departureMin + intermediateDriveMin + returnHomeMin);
+    const fullTotalDistanceMiles = Math.max(route.totalDistanceMiles || 0, departureDist + intermediateDistMiles + returnHomeDist);
+
     let summary = `🍻 ${route.title} (${route.region})\n`;
     summary += `Total Breweries: ${route.totalBreweries} | Trip Length: ${route.days.length} Day(s)\n`;
-    summary += `Total Drive Time: ~${route.totalTravelTimeMin} mins (Round-Trip) | Distance: ~${(route.totalDistanceMiles * 1.60934).toFixed(1)} km\n\n`;
+    summary += `Total Drive Time: ~${fullTotalDriveMin} mins (Round-Trip including departure & return) | Distance: ~${(fullTotalDistanceMiles * 1.60934).toFixed(1)} km (~${fullTotalDistanceMiles.toFixed(1)} mi)\n\n`;
 
     if (route.departureTransit) {
       summary += `🚗 DEPARTURE: From ${route.departureTransit.fromName} to ${route.departureTransit.toName} (~${route.departureTransit.driveTimeMin} mins)\n\n`;
