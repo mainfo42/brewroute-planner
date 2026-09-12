@@ -73,19 +73,19 @@ export const THEME_VARIANTS: Record<ColorThemeVariant, ThemeConfig> = {
   bourbon_oak: {
     id: 'bourbon_oak',
     name: 'Bourbon Barrel & Honey',
-    subtitle: 'Rich Oak & Spiced Honey with Spearmint Accents',
+    subtitle: 'Rich Oak & Spiced Honey with Warm Amber Accents',
     primaryColor: '#9A3412',
-    accentColor: '#0284C7',
-    complementaryName: 'Glacial Crisp Blue',
+    accentColor: '#D97706',
+    complementaryName: 'Spiced Amber Ale',
     primaryClass: 'text-[#9A3412] bg-[#9A3412]',
-    accentClass: 'text-[#0284C7] bg-[#0284C7]',
-    cardBorder: 'border-[#E0E7FF]',
+    accentClass: 'text-[#D97706] bg-[#D97706]',
+    cardBorder: 'border-[#FDE68A]',
     badgeBg: 'bg-[#FEF3C7]',
     badgeText: 'text-[#78350F]',
     badgeBorder: 'border-[#FCD34D]',
     heroBg: 'bg-[#131114]',
     headerBg: 'bg-[#261517]',
-    previewPill: 'from-[#9A3412] to-[#0284C7]',
+    previewPill: 'from-[#9A3412] to-[#D97706]',
   },
 };
 
@@ -94,7 +94,7 @@ const THEME_STORAGE_KEY = 'beerhop_color_theme_variant';
 export function getSavedThemeVariant(): ColorThemeVariant {
   try {
     const saved = localStorage.getItem(THEME_STORAGE_KEY) as ColorThemeVariant;
-    if (saved && THEME_VARIANTS[saved]) {
+    if (saved && saved !== 'bourbon_oak' && THEME_VARIANTS[saved]) {
       return saved;
     }
   } catch {

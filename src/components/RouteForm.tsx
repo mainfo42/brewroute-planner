@@ -216,7 +216,7 @@ export const RouteForm: React.FC<RouteFormProps> = ({
           {/* STEP 1: Starting Location & Area to Visit */}
           <div className="space-y-4">
             <div className="flex items-center gap-3.5 sm:gap-4 pb-4 border-b border-[#222222]">
-              <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-2xl bg-[#1E3B18] text-[#DDF1D2] border border-[#58A72F]/60 flex items-center justify-center font-black text-xl sm:text-2xl md:text-3xl shadow-md ring-4 ring-[#58A72F]/20 shrink-0 font-brand">
+              <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-2xl bg-[#D97706] text-white border-2 border-[#F59E0B] flex items-center justify-center font-black text-xl sm:text-2xl md:text-3xl shadow-lg ring-4 ring-[#D97706]/30 shrink-0 font-brand">
                 1
               </div>
               <div>
@@ -275,7 +275,7 @@ export const RouteForm: React.FC<RouteFormProps> = ({
           <div className="space-y-4">
             <div className="flex items-center justify-between gap-3 pb-4 border-b border-[#222222]">
               <div className="flex items-center gap-3.5 sm:gap-4">
-                <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-2xl bg-[#1E3B18] text-[#DDF1D2] border border-[#58A72F]/60 flex items-center justify-center font-black text-xl sm:text-2xl md:text-3xl shadow-md ring-4 ring-[#58A72F]/20 shrink-0 font-brand">
+                <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-2xl bg-[#D97706] text-white border-2 border-[#F59E0B] flex items-center justify-center font-black text-xl sm:text-2xl md:text-3xl shadow-lg ring-4 ring-[#D97706]/30 shrink-0 font-brand">
                   2
                 </div>
                 <div>
@@ -370,7 +370,7 @@ export const RouteForm: React.FC<RouteFormProps> = ({
           <div className="space-y-4">
             <div className="flex items-center justify-between gap-3 pb-4 border-b border-[#222222]">
               <div className="flex items-center gap-3.5 sm:gap-4">
-                <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-2xl bg-[#1E3B18] text-[#DDF1D2] border border-[#58A72F]/60 flex items-center justify-center font-black text-xl sm:text-2xl md:text-3xl shadow-md ring-4 ring-[#58A72F]/20 shrink-0 font-brand">
+                <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-2xl bg-[#D97706] text-white border-2 border-[#F59E0B] flex items-center justify-center font-black text-xl sm:text-2xl md:text-3xl shadow-lg ring-4 ring-[#D97706]/30 shrink-0 font-brand">
                   3
                 </div>
                 <div>
@@ -431,7 +431,7 @@ export const RouteForm: React.FC<RouteFormProps> = ({
           {isMultiDay && (
             <div className="space-y-4 bg-[#141F12] p-4 sm:p-5 rounded-3xl border border-[#223820] animate-in fade-in duration-200">
               <div className="flex items-center gap-3.5 sm:gap-4 pb-4 border-b border-[#223820]">
-                <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-2xl bg-[#1E3B18] text-[#DDF1D2] border border-[#58A72F]/60 flex items-center justify-center font-black text-xl sm:text-2xl md:text-3xl shadow-md ring-4 ring-[#58A72F]/20 shrink-0 font-brand">
+                <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-2xl bg-[#D97706] text-white border-2 border-[#F59E0B] flex items-center justify-center font-black text-xl sm:text-2xl md:text-3xl shadow-lg ring-4 ring-[#D97706]/30 shrink-0 font-brand">
                   4
                 </div>
                 <div>

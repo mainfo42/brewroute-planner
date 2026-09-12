@@ -285,7 +285,7 @@ export const RouteMap: React.FC<RouteMapProps> = ({
     if (startPoint && firstBrewery) {
       const firstPoint: [number, number] = [firstBrewery.lat || 44.46, firstBrewery.lng || -72.7];
       L.polyline([startPoint, firstPoint], {
-        color: '#0284C7', // Slate cyan/blue departure line
+        color: '#D97706', // Warm amber departure line
         weight: 3.5,
         opacity: 0.85,
         dashArray: '8, 8',
@@ -337,7 +337,7 @@ export const RouteMap: React.FC<RouteMapProps> = ({
           <span>Stay (≤30 min)</span>
         </div>
         <div className="flex items-center gap-1.5 text-[10px] text-[#52705B] pt-0.5 border-t border-[#D4E2D7]">
-          <span className="inline-block w-4 h-0.5 border-t-2 border-dashed border-[#0284C7]" />
+          <span className="inline-block w-4 h-0.5 border-t-2 border-dashed border-[#D97706]" />
           <span>Departure</span>
           <span className="inline-block w-4 h-0.5 border-t-2 border-dashed border-[#15803D] ml-1" />
           <span>Return Home</span>
