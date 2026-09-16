@@ -55,18 +55,25 @@ export const POPULAR_DESTINATIONS = [
     suggestedStyles: ['IPA', 'Gose', 'Lager', 'Stout'],
   },
   {
-    name: 'Denver & Boulder, Colorado',
-    region: 'Front Range Mile-High Trail',
-    startLoc: 'LoDo Denver, CO',
-    highlight: 'Great American Beer Festival hub with cutting-edge stouts & lagers',
-    suggestedStyles: ['Stout', 'Lager', 'Scotch Ale', 'IPA'],
-  },
-  {
     name: 'Asheville, North Carolina',
     region: 'Blue Ridge Mountain Trail',
     startLoc: 'Downtown Asheville, NC',
     highlight: 'South Slope brewing district with wild ales, farmhouse saisons, and live music',
     suggestedStyles: ['Sour', 'Saison', 'Porter', 'NEIPA'],
+  },
+  {
+    name: 'Wellington & Nelson, New Zealand',
+    region: 'Southern Hop Coast & Capital Trail',
+    startLoc: 'Wellington, New Zealand',
+    highlight: 'Birthplace of Nelson Sauvin & Motueka hops, fresh-hop hazies, and wild sours (Garage Project, ParrotDog, Hop Federation)',
+    suggestedStyles: ['NEIPA', 'IPA', 'Pilsner', 'Sour', 'Lager'],
+  },
+  {
+    name: 'Belgium (Brussels & Pajottenland)',
+    region: 'Zenne Valley & Lambic Trail',
+    startLoc: 'Brussels, Belgium',
+    highlight: 'Spontaneous fermentation shrines, authentic traditional gueuze, and abbey ales (Brasserie Cantillon, 3 Fonteinen, Brussels Beer Project)',
+    suggestedStyles: ['Sour', 'Saison', 'Belgian', 'Wheat', 'Stout'],
   },
 ];
 

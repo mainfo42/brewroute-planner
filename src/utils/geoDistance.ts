@@ -353,6 +353,20 @@ const CITY_COORDINATES: Record<string, LatLng> = {
   'los angeles, ca': { lat: 34.0522, lng: -118.2437 },
   'austin, tx': { lat: 30.2672, lng: -97.7431 },
   'dallas, tx': { lat: 32.7767, lng: -96.7970 },
+
+  // International Craft Beer Capitals
+  'brussels': { lat: 50.8503, lng: 4.3517 },
+  'brussels, belgium': { lat: 50.8503, lng: 4.3517 },
+  'belgium': { lat: 50.8503, lng: 4.3517 },
+  'beersel': { lat: 50.7672, lng: 4.2861 },
+  'lot, belgium': { lat: 50.7672, lng: 4.2861 },
+  'wellington': { lat: -41.2865, lng: 174.7762 },
+  'wellington, new zealand': { lat: -41.2865, lng: 174.7762 },
+  'wellington, nz': { lat: -41.2865, lng: 174.7762 },
+  'new zealand': { lat: -41.2865, lng: 174.7762 },
+  'nelson, new zealand': { lat: -41.2706, lng: 173.2840 },
+  'nelson, nz': { lat: -41.2706, lng: 173.2840 },
+  'riwaka, new zealand': { lat: -41.0667, lng: 172.9989 },
 };
 
 // Regional centroids for resilient state/province level resolution
@@ -361,6 +375,9 @@ const REGION_CENTROIDS: Record<string, LatLng> = {
   'quebec': { lat: 46.8139, lng: -71.2080 },
   'on': { lat: 43.6532, lng: -79.3832 }, // Toronto region
   'ontario': { lat: 43.6532, lng: -79.3832 },
+  'belgium': { lat: 50.8503, lng: 4.3517 },
+  'new zealand': { lat: -41.2865, lng: 174.7762 },
+  'nz': { lat: -41.2865, lng: 174.7762 },
   'vt': { lat: 44.4759, lng: -73.2121 }, // Vermont / Burlington
   'vermont': { lat: 44.4759, lng: -73.2121 },
   'nh': { lat: 43.0718, lng: -70.7626 },

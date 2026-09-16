@@ -9,10 +9,10 @@ export interface LocationSuggestion {
 }
 
 export interface RegionData {
-  name: string; // e.g. "Vermont", "Ontario"
-  code: string; // e.g. "VT", "ON"
-  country: 'USA' | 'Canada';
-  type: 'state' | 'province';
+  name: string; // e.g. "Vermont", "Ontario", "Belgium"
+  code: string; // e.g. "VT", "ON", "BE"
+  country: 'USA' | 'Canada' | 'International';
+  type: 'state' | 'province' | 'region';
   description: string;
   cities: {
     name: string;
@@ -795,10 +795,36 @@ export const CANADA_PROVINCES_AND_CITIES: RegionData[] = [
   },
 ];
 
+export const INTERNATIONAL_REGIONS_AND_CITIES: RegionData[] = [
+  {
+    name: 'Belgium',
+    code: 'BE',
+    country: 'International',
+    type: 'region',
+    description: 'World capital of Lambics, Gueuze, Trappist ales, and Saisons',
+    cities: [
+      { name: 'Brussels, Belgium', subtext: 'Brasserie Cantillon, Brussels Beer Project, Grand Place', hubRank: 'World Top 5 Craft City' },
+      { name: 'Beersel & Lot, Belgium', subtext: 'Brouwerij 3 Fonteinen & Pajottenland Lambic Trail', hubRank: 'Lambic Capital' },
+    ],
+  },
+  {
+    name: 'New Zealand',
+    code: 'NZ',
+    country: 'International',
+    type: 'region',
+    description: 'Southern Hemisphere hop capital (Nelson Sauvin, Motueka, Riwaka) & wild hazies',
+    cities: [
+      { name: 'Wellington, New Zealand', subtext: 'Garage Project, ParrotDog, Craft Beer Capital of NZ', hubRank: 'NZ Craft Capital' },
+      { name: 'Nelson, New Zealand', subtext: 'Hop Federation, Eddyline, Tasman Hop Country', hubRank: 'World Hop Capital' },
+    ],
+  },
+];
+
 // Combine all regions for fast search
 export const ALL_REGIONS: RegionData[] = [
   ...US_STATES_AND_CITIES,
   ...CANADA_PROVINCES_AND_CITIES,
+  ...INTERNATIONAL_REGIONS_AND_CITIES,
 ];
 
 /**
@@ -853,12 +879,12 @@ export function getMatchingLocations(query: string, maxResults: number = 8): Loc
       'Stowe & Waterbury, VT, USA',
       'Portland, ME, USA',
       'San Diego, CA, USA',
-      'Denver, CO, USA',
       'Asheville, NC, USA',
       'Montreal, QC, Canada',
       'Ontario, Canada',
       'Toronto, ON, Canada',
-      'Vancouver, BC, Canada',
+      'Brussels, Belgium',
+      'Wellington, New Zealand',
     ];
     return ALL_LOCATION_SUGGESTIONS.filter((item) => defaults.includes(item.name)).slice(0, maxResults);
   }
