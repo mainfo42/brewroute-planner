@@ -8,11 +8,18 @@ import {
   LogIn,
   ChevronDown,
   Plus,
+  Menu,
+  Home,
+  Newspaper,
+  Info,
 } from 'lucide-react';
 import { HopIcon } from './HopIcon';
-import { AuthUser } from '../types';
+import { AuthUser, AppPageView } from '../types';
 
 interface NavbarProps {
+  currentPage: AppPageView;
+  onNavigate: (page: AppPageView) => void;
+  onOpenHamburger: () => void;
   onOpenCurated?: () => void;
   onOpenSavedItineraries: () => void;
   savedItinerariesCount: number;
@@ -24,6 +31,9 @@ interface NavbarProps {
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
+  currentPage,
+  onNavigate,
+  onOpenHamburger,
   onOpenCurated,
   onOpenSavedItineraries,
   savedItinerariesCount,
@@ -52,29 +62,105 @@ export const Navbar: React.FC<NavbarProps> = ({
       id="m3-top-app-bar"
       className="sticky top-0 z-40 bg-[#162D15] text-white border-b border-[#254A23] transition-colors no-print shadow-md"
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-3">
-        {/* Brand Logo & Editorial Title */}
-        <div
-          id="brand-header-link"
-          onClick={onReset}
-          className="flex items-center gap-2.5 sm:gap-3 cursor-pointer group shrink-0 select-none py-1"
-        >
-          <div className="flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:rotate-6 transition-all duration-200">
-            <HopIcon className="w-9 h-9 sm:w-11 sm:h-11 text-[#66DE37] drop-shadow-[0_2px_10px_rgba(102,222,55,0.4)]" filled />
-          </div>
-          <div className="flex flex-col justify-center">
-            <div className="flex items-baseline gap-2.5">
-              <span className="font-black text-2xl sm:text-3xl tracking-wide text-white drop-shadow-xs font-brand leading-none">
-                BEERHOP
-              </span>
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-3">
+        {/* Left: Hamburger Menu Button & Brand Logo */}
+        <div className="flex items-center gap-2 sm:gap-4">
+          {/* Hamburger Menu Trigger */}
+          <button
+            type="button"
+            id="hamburger-menu-btn"
+            onClick={onOpenHamburger}
+            className="w-10 h-10 rounded-2xl bg-[#1E3B18] hover:bg-[#284E20] text-white flex items-center justify-center transition-all cursor-pointer border border-[#58A72F]/50 shadow-xs active:scale-95 shrink-0"
+            aria-label="Open menu"
+            title="Open Menu"
+          >
+            <Menu className="w-5 h-5 text-[#66DE37]" />
+          </button>
+
+          {/* Brand Logo & Editorial Title */}
+          <div
+            id="brand-header-link"
+            onClick={() => onNavigate('home')}
+            className="flex items-center gap-2 sm:gap-3 cursor-pointer group shrink-0 select-none py-1"
+          >
+            <div className="flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:rotate-6 transition-all duration-200">
+              <HopIcon className="w-8 h-8 sm:w-10 sm:h-10 text-[#66DE37] drop-shadow-[0_2px_10px_rgba(102,222,55,0.4)]" filled />
             </div>
-            <p className="text-[11px] sm:text-xs text-[#C6E2BD] font-semibold tracking-normal mt-0.5 leading-tight">
-              Fresh Hop Routes!
-            </p>
+            <div className="flex flex-col justify-center">
+              <div className="flex items-baseline gap-2">
+                <span className="font-black text-xl sm:text-2xl tracking-wide text-white drop-shadow-xs font-brand leading-none">
+                  BEERHOP
+                </span>
+              </div>
+              <p className="text-[10px] sm:text-xs text-[#C6E2BD] font-semibold tracking-normal mt-0.5 leading-tight">
+                Fresh Hop Routes!
+              </p>
+            </div>
           </div>
         </div>
 
-        {/* Action Buttons & User Auth (Desktop & Mobile Top Row) */}
+        {/* Center: Desktop Navigation Links */}
+        <nav className="hidden lg:flex items-center gap-1.5 bg-[#122611] p-1 rounded-full border border-[#22401E]">
+          <button
+            type="button"
+            id="desktop-nav-home"
+            onClick={() => onNavigate('home')}
+            className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
+              currentPage === 'home'
+                ? 'bg-[#D97706] text-white shadow-xs font-brand tracking-wider'
+                : 'text-[#C6E2BD] hover:text-white hover:bg-white/5'
+            }`}
+          >
+            Home
+          </button>
+
+          <button
+            type="button"
+            id="desktop-nav-plan"
+            onClick={() => onNavigate('plan')}
+            className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+              currentPage === 'plan'
+                ? 'bg-[#58A72F] text-white shadow-xs font-brand tracking-wider'
+                : 'text-[#C6E2BD] hover:text-white hover:bg-white/5'
+            }`}
+          >
+            <span>Plan Trail</span>
+            {hasActiveRoute && (
+              <span className="w-2 h-2 rounded-full bg-[#66DE37] animate-ping" />
+            )}
+          </button>
+
+          <button
+            type="button"
+            id="desktop-nav-news"
+            onClick={() => onNavigate('news')}
+            className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+              currentPage === 'news'
+                ? 'bg-[#D97706] text-white shadow-xs font-brand tracking-wider'
+                : 'text-[#C6E2BD] hover:text-white hover:bg-white/5'
+            }`}
+          >
+            <span>Beer News</span>
+            <span className="text-[9px] font-black px-1.5 py-0.2 rounded-full bg-[#D97706] text-white">
+              LIVE
+            </span>
+          </button>
+
+          <button
+            type="button"
+            id="desktop-nav-about"
+            onClick={() => onNavigate('about')}
+            className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
+              currentPage === 'about'
+                ? 'bg-[#D97706] text-white shadow-xs font-brand tracking-wider'
+                : 'text-[#C6E2BD] hover:text-white hover:bg-white/5'
+            }`}
+          >
+            About
+          </button>
+        </nav>
+
+        {/* Right: Action Buttons & User Auth */}
         <div className="flex items-center gap-2 shrink-0">
           {/* Plan New Route button (Desktop & Header) */}
           {hasActiveRoute && (
@@ -82,7 +168,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               type="button"
               id="nav-new-route-btn"
               onClick={onReset}
-              className="flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-bold bg-[#58A72F] hover:bg-[#68BF38] text-white active:bg-[#489224] shadow-xs transition-all shrink-0 cursor-pointer border border-[#7CD749]"
+              className="flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-bold bg-[#58A72F] hover:bg-[#68BF38] text-white active:bg-[#489224] shadow-xs transition-all shrink-0 cursor-pointer border border-[#7CD749]"
             >
               <Plus className="w-4 h-4 text-white" />
               <span className="hidden sm:inline font-brand tracking-wider">NEW TRAIL</span>
@@ -100,7 +186,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               title="View your saved itineraries"
             >
               <FolderHeart className="w-4 h-4 text-[#8BE052]" />
-              <span className="font-brand tracking-wider">SAVED ROUTES</span>
+              <span className="font-brand tracking-wider">SAVED</span>
               {savedItinerariesCount > 0 && (
                 <span className="w-4 h-4 rounded-full bg-[#58A72F] text-white text-[10px] font-black flex items-center justify-center">
                   {savedItinerariesCount}

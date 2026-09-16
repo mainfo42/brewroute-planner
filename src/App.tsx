@@ -8,7 +8,18 @@ import { CuratedRoutesModal } from './components/CuratedRoutesModal';
 import { AuthModal } from './components/AuthModal';
 import { SavedItinerariesModal } from './components/SavedItinerariesModal';
 import { AdSenseBanner } from './components/AdSenseBanner';
-import { BrewTravelRoute, RouteParameters, AuthUser, SavedItinerary, ColorThemeVariant } from './types';
+import { HomePage } from './components/HomePage';
+import { AboutPage } from './components/AboutPage';
+import { BeerNewsPage } from './components/BeerNewsPage';
+import { HamburgerMenu } from './components/HamburgerMenu';
+import {
+  BrewTravelRoute,
+  RouteParameters,
+  AuthUser,
+  SavedItinerary,
+  ColorThemeVariant,
+  AppPageView,
+} from './types';
 import { SAMPLE_CURATED_ROUTE, POPULAR_DESTINATIONS } from './data/curatedRoutes';
 import { enrichAndValidateRoute } from './utils/styleMatcher';
 import { generateClientFallbackRoute } from './utils/fallbackGenerator';
@@ -25,11 +36,13 @@ import {
 import { AlertCircle, Beer, Sparkles, CheckCircle2 } from 'lucide-react';
 
 export default function App() {
+  const [currentPage, setCurrentPage] = useState<AppPageView>('home');
+  const [isHamburgerOpen, setIsHamburgerOpen] = useState<boolean>(false);
   const [currentRoute, setCurrentRoute] = useState<BrewTravelRoute | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successToast, setSuccessToast] = useState<string | null>(null);
-  const [activeMobileTab, setActiveMobileTab] = useState<MobileTab>('plan');
+  const [activeMobileTab, setActiveMobileTab] = useState<MobileTab>('home');
 
   // Color Palette Theme State
   const [colorTheme, setColorTheme] = useState<ColorThemeVariant>(() => getSavedThemeVariant());
@@ -101,6 +114,8 @@ export default function App() {
     setIsLoading(true);
     setErrorMessage(null);
     setRegenerationCount(0);
+    setCurrentPage('plan');
+    setActiveMobileTab('plan');
 
     try {
       const response = await fetch('/api/generate-route', {
@@ -279,12 +294,18 @@ export default function App() {
   // Mobile Bottom Navigation Tab Switcher
   const handleMobileTabChange = (tab: MobileTab) => {
     setActiveMobileTab(tab);
-    if (tab === 'plan') {
-      // Stay on planner or current route
-    } else if (tab === 'map') {
-      // If there's an active route, switch to map view
+    if (tab === 'home') {
+      setCurrentPage('home');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else if (tab === 'plan') {
+      setCurrentPage('plan');
+    } else if (tab === 'news') {
+      setCurrentPage('news');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     } else if (tab === 'curated') {
       setIsCuratedModalOpen(true);
+    } else if (tab === 'menu') {
+      setIsHamburgerOpen(true);
     } else if (tab === 'saved') {
       if (!currentUser) {
         setAuthModalMode('login');
@@ -297,7 +318,6 @@ export default function App() {
         setAuthModalMode('login');
         setIsAuthModalOpen(true);
       } else {
-        // Trigger quick logout or status
         setSuccessToast(`Logged in as ${currentUser.displayName || currentUser.email}`);
       }
     }
@@ -319,15 +339,29 @@ export default function App() {
   return (
     <div
       className={`min-h-screen flex flex-col font-sans transition-colors ${
-        currentRoute
+        currentPage === 'plan' && currentRoute
           ? 'bg-[#FAFBF9] text-[#0D2818] selection:bg-[#D1E7D6] selection:text-[#0D2818]'
           : 'bg-black text-white selection:bg-[#58A72F] selection:text-white'
       }`}
     >
-      {/* Top App Bar */}
+      {/* Top App Bar with Hamburger Menu Trigger */}
       <Navbar
+        currentPage={currentPage}
+        onNavigate={(page) => {
+          setCurrentPage(page);
+          setActiveMobileTab(page === 'news' ? 'news' : page === 'home' ? 'home' : 'plan');
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }}
+        onOpenHamburger={() => setIsHamburgerOpen(true)}
         onOpenCurated={() => setIsCuratedModalOpen(true)}
-        onOpenSavedItineraries={() => setIsSavedItinerariesModalOpen(true)}
+        onOpenSavedItineraries={() => {
+          if (!currentUser) {
+            setAuthModalMode('login');
+            setIsAuthModalOpen(true);
+          } else {
+            setIsSavedItinerariesModalOpen(true);
+          }
+        }}
         savedItinerariesCount={savedItineraries.length}
         user={currentUser}
         onOpenAuth={handleOpenAuth}
@@ -335,6 +369,7 @@ export default function App() {
         hasActiveRoute={!!currentRoute}
         onReset={() => {
           setCurrentRoute(null);
+          setCurrentPage('plan');
           setActiveMobileTab('plan');
         }}
       />
@@ -373,39 +408,94 @@ export default function App() {
         </div>
       )}
 
-      {/* Main View Area */}
+      {/* Main View Area with Dynamic Multi-Page Routing */}
       <main className="flex-1 flex flex-col">
-        {currentRoute ? (
-          <RouteDisplay
-            route={currentRoute}
-            onOpenExport={() => setIsExportModalOpen(true)}
-            onToggleVisited={handleToggleVisited}
-            visitedBreweries={visitedBreweries}
-            onPlanNew={() => {
-              setCurrentRoute(null);
+        {/* 1. Home Page: Explains Site Purpose, Value Proposition & Philosophy */}
+        {currentPage === 'home' && (
+          <HomePage
+            onStartPlanning={() => {
+              setCurrentPage('plan');
               setActiveMobileTab('plan');
+              window.scrollTo({ top: 0, behavior: 'smooth' });
             }}
-            isSaved={isCurrentRouteSaved}
-            onSaveItinerary={() => handleSaveItinerary()}
-            isLoggedIn={!!currentUser}
-            onRegenerateAlternative={handleRegenerateAlternativeRoute}
-            isRegenerating={isRegenerating}
+            onNavigate={(page) => {
+              setCurrentPage(page);
+              setActiveMobileTab(page === 'news' ? 'news' : page === 'home' ? 'home' : 'plan');
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+            onSelectCuratedDestination={(idx) => {
+              const dest = POPULAR_DESTINATIONS[idx];
+              if (dest) {
+                setCurrentPage('plan');
+                setActiveMobileTab('plan');
+                handlePrefillParams(dest.startLoc, dest.name, dest.suggestedStyles);
+              }
+            }}
+            onOpenCuratedModal={() => setIsCuratedModalOpen(true)}
           />
-        ) : (
-          <div className="space-y-6">
-            <RouteForm
-              onSubmit={handleGenerateRoute}
-              isLoading={isLoading}
-              currentTheme={colorTheme}
-              onSelectCuratedPreset={(idx) => {
-                const dest = POPULAR_DESTINATIONS[idx];
-                if (dest) {
-                  handlePrefillParams(dest.startLoc, dest.name, dest.suggestedStyles);
-                }
+        )}
+
+        {/* 2. About Page: Detailed Mission, History, Routing Algorithm & Safety Charter */}
+        {currentPage === 'about' && (
+          <AboutPage
+            onStartPlanning={() => {
+              setCurrentPage('plan');
+              setActiveMobileTab('plan');
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+            onNavigate={(page) => {
+              setCurrentPage(page);
+              setActiveMobileTab(page === 'news' ? 'news' : page === 'home' ? 'home' : 'plan');
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+          />
+        )}
+
+        {/* 3. Beer Updates / News Page: Dynamic Blog Format with Articles from across the Web */}
+        {currentPage === 'news' && (
+          <BeerNewsPage
+            onStartPlanning={() => {
+              setCurrentPage('plan');
+              setActiveMobileTab('plan');
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+          />
+        )}
+
+        {/* 4. Plan a Trail: Route Architect & Active Route Map */}
+        {currentPage === 'plan' && (
+          currentRoute ? (
+            <RouteDisplay
+              route={currentRoute}
+              onOpenExport={() => setIsExportModalOpen(true)}
+              onToggleVisited={handleToggleVisited}
+              visitedBreweries={visitedBreweries}
+              onPlanNew={() => {
+                setCurrentRoute(null);
+                setActiveMobileTab('plan');
               }}
+              isSaved={isCurrentRouteSaved}
+              onSaveItinerary={() => handleSaveItinerary()}
+              isLoggedIn={!!currentUser}
+              onRegenerateAlternative={handleRegenerateAlternativeRoute}
+              isRegenerating={isRegenerating}
             />
-            <AdSenseBanner format="horizontal" className="max-w-3xl mx-auto" darkMode={true} />
-          </div>
+          ) : (
+            <div className="space-y-6">
+              <RouteForm
+                onSubmit={handleGenerateRoute}
+                isLoading={isLoading}
+                currentTheme={colorTheme}
+                onSelectCuratedPreset={(idx) => {
+                  const dest = POPULAR_DESTINATIONS[idx];
+                  if (dest) {
+                    handlePrefillParams(dest.startLoc, dest.name, dest.suggestedStyles);
+                  }
+                }}
+              />
+              <AdSenseBanner format="horizontal" className="max-w-3xl mx-auto" darkMode={true} />
+            </div>
+          )
         )}
       </main>
 
@@ -418,11 +508,39 @@ export default function App() {
         hasActiveRoute={!!currentRoute}
         onPlanNew={() => {
           setCurrentRoute(null);
+          setCurrentPage('plan');
           setActiveMobileTab('plan');
         }}
+        onOpenHamburger={() => setIsHamburgerOpen(true)}
       />
 
-      {/* Modals */}
+      {/* Hamburger Navigation Drawer */}
+      <HamburgerMenu
+        isOpen={isHamburgerOpen}
+        onClose={() => setIsHamburgerOpen(false)}
+        currentPage={currentPage}
+        onNavigate={(page) => {
+          setCurrentPage(page);
+          setActiveMobileTab(page === 'news' ? 'news' : page === 'home' ? 'home' : 'plan');
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }}
+        onOpenCurated={() => setIsCuratedModalOpen(true)}
+        onOpenSavedItineraries={() => {
+          if (!currentUser) {
+            setAuthModalMode('login');
+            setIsAuthModalOpen(true);
+          } else {
+            setIsSavedItinerariesModalOpen(true);
+          }
+        }}
+        savedItinerariesCount={savedItineraries.length}
+        user={currentUser}
+        onOpenAuth={handleOpenAuth}
+        onLogout={handleLogout}
+        hasActiveRoute={!!currentRoute}
+      />
+
+      {/* Curated Pre-Crafted Routes Modal */}
       <CuratedRoutesModal
         isOpen={isCuratedModalOpen}
         onClose={() => {
@@ -431,12 +549,14 @@ export default function App() {
         }}
         onSelectRoute={(route) => {
           setCurrentRoute(route);
+          setCurrentPage('plan');
           setActiveMobileTab('plan');
           window.scrollTo({ top: 0, behavior: 'smooth' });
         }}
         onPrefillParams={handlePrefillParams}
       />
 
+      {/* Multi-Format Export Modal */}
       <ExportModal
         isOpen={isExportModalOpen}
         onClose={() => setIsExportModalOpen(false)}
@@ -448,13 +568,11 @@ export default function App() {
         isOpen={isAuthModalOpen}
         onClose={() => {
           setIsAuthModalOpen(false);
-          setActiveMobileTab('plan');
         }}
         onSuccess={(user) => {
           setCurrentUser(user);
           setSavedItineraries(getSavedItineraries(user.id));
           setIsAuthModalOpen(false);
-          setActiveMobileTab('plan');
           setSuccessToast(`Welcome, ${user.displayName || user.email}!`);
         }}
         onLogin={handleLogin}
@@ -467,27 +585,29 @@ export default function App() {
         isOpen={isSavedItinerariesModalOpen}
         onClose={() => {
           setIsSavedItinerariesModalOpen(false);
-          setActiveMobileTab('plan');
         }}
         savedItineraries={savedItineraries}
-        onSelectItinerary={handleSelectSaved}
+        onSelectItinerary={(route) => {
+          handleSelectSaved(route);
+          setCurrentPage('plan');
+        }}
         onDeleteItinerary={handleDeleteSaved}
       />
 
       {/* Footer */}
       <footer
         className={`py-6 px-4 border-t text-center text-xs no-print hidden md:block transition-colors ${
-          currentRoute
+          currentPage === 'plan' && currentRoute
             ? 'border-[#C6E2BD] text-[#4D6D47] bg-white/80 backdrop-blur-xs'
             : 'border-[#222222] text-[#888888] bg-[#0A0A0A]'
         }`}
       >
         <div className="max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2 font-normal">
-          <div className={`flex items-center gap-1.5 font-bold ${currentRoute ? 'text-[#122610]' : 'text-white'}`}>
+          <div className={`flex items-center gap-1.5 font-bold ${currentPage === 'plan' && currentRoute ? 'text-[#122610]' : 'text-white'}`}>
             <span className="w-2 h-2 rounded-full bg-[#58A72F]" />
             <span>BeerHop Planner • Drink Responsibly</span>
           </div>
-          <div className={`text-[11px] ${currentRoute ? 'text-[#6D9364]' : 'text-[#8EAD84]'}`}>
+          <div className={`text-[11px] ${currentPage === 'plan' && currentRoute ? 'text-[#6D9364]' : 'text-[#8EAD84]'}`}>
             ≤ 3 microbreweries/day • Spaced ≤ 25 min drive • Certified Untappd & Google Reviews
           </div>
         </div>

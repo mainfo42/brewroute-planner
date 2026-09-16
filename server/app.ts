@@ -1,9 +1,10 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import { GoogleGenAI, Type } from '@google/genai';
-import { RouteParameters, BrewTravelRoute, DayItinerary, BreweryStop, StayRecommendation } from '../src/types';
+import { RouteParameters, BrewTravelRoute, DayItinerary, BreweryStop, StayRecommendation, BeerNewsArticle } from '../src/types';
 import { findMatchingRealRegion, VERIFIED_REAL_REGIONS, RealBreweryRecord } from '../src/data/verifiedRealBreweries';
 import { enrichAndValidateRoute, validateBreweryStyleMatch, checkStyleMatch } from '../src/utils/styleMatcher';
+import { CURATED_BEER_NEWS } from '../src/data/beerNewsData';
 
 dotenv.config();
 
@@ -36,6 +37,123 @@ apiRouter.get('/health', (req, res) => {
     hasGeminiKey: !!process.env.GEMINI_API_KEY,
     timestamp: new Date().toISOString(),
   });
+});
+
+// Google AdSense Authorized Digital Sellers
+apiRouter.get(['/ads.txt', '/ad.txt'], (req, res) => {
+  res.type('text/plain');
+  res.send('google.com, pub-8821168386123284, DIRECT, f08c47fec0942fa0\n');
+});
+
+// Dynamic Beer Updates & News from across the globe
+let newsCache: { articles: BeerNewsArticle[]; cachedAt: number } | null = null;
+const NEWS_CACHE_TTL_MS = 30 * 60 * 1000; // 30 minutes
+
+apiRouter.get('/beer-news', async (req, res) => {
+  const forceRefresh = req.query.refresh === 'true';
+  const now = Date.now();
+
+  if (!forceRefresh && newsCache && now - newsCache.cachedAt < NEWS_CACHE_TTL_MS) {
+    return res.json({
+      source: 'cache',
+      updatedAt: new Date(newsCache.cachedAt).toISOString(),
+      articles: newsCache.articles,
+    });
+  }
+
+  const ai = getGeminiClient();
+  if (!ai) {
+    return res.json({
+      source: 'curated',
+      updatedAt: new Date().toISOString(),
+      articles: CURATED_BEER_NEWS,
+    });
+  }
+
+  try {
+    const prompt = `You are an expert international craft beer journalist and editor for BeerHop.
+Search and synthesize 7 to 9 fresh, authentic, real-world craft beer news updates from independent microbreweries, hop breeding organizations, festivals, and conferences around the world.
+
+Include updates across these distinct categories:
+1. "New Launch" (e.g. notable independent breweries like Hill Farmstead, Cantillon, Monkish, Tree House, Trillium, Other Half, Russian River, Cloudwater, Omnipollo, Garage Project)
+2. "Hops & Breeding" (e.g., Krush/HBC 586, Superdelic, Vista, Elani, Pink Boots Blend, experimental varieties from Yakima Chief Hops, NZ Hops, BarthHaas)
+3. "Festival" (e.g. Great American Beer Festival, Mikkeller Beer Celebration, Great British Beer Festival, Firestone Walker Invitational, Cantillon Quintessence)
+4. "Conference" (e.g. Craft Brewers Conference CBC, World Beer Cup, European Beer Congress, Craft Brewers Association symposiums)
+5. "Craft Trends" (e.g. Cold IPAs, thiolized yeast strains, heritage malt kilning, low-intervention barrel aging)
+
+Format strictly as a JSON object with an "articles" array of 7-9 items.
+Each item must have:
+- id: unique string slug (e.g. "news-hops-krush-586")
+- title: engaging, informative headline
+- category: strictly one of ["New Launch", "Hops & Breeding", "Festival", "Conference", "Craft Trends"]
+- breweryOrOrg: name of brewery, breeding cooperative, or organization
+- location: City, State/Region, Country (e.g. "Yakima Valley, Washington, USA" or "Brussels, Belgium")
+- publishDate: string (e.g. "September 2026")
+- readTimeMin: integer number of minutes (e.g. 3 or 4)
+- summary: 2-3 sentence punchy summary of what happened and why it matters
+- content: 2-3 paragraphs of detailed journalistic prose with specific brewing techniques, hop oils, tasting notes, and industry context
+- tags: array of 3-5 hashtag strings
+- sourceName: publication name (e.g. "Brewers Association", "Good Beer Hunting", "Hop Culture")
+- highlightFact: a single fascinating key takeaway sentence or statistic`;
+
+    const response = await ai.models.generateContent({
+      model: 'gemini-3.8-flash',
+      contents: prompt,
+      config: {
+        responseMimeType: 'application/json',
+      },
+    });
+
+    const responseText = response.text;
+    if (!responseText) {
+      throw new Error('Empty response from AI model');
+    }
+
+    const parsed = JSON.parse(responseText);
+    const rawArticles = Array.isArray(parsed)
+      ? parsed
+      : Array.isArray(parsed.articles)
+      ? parsed.articles
+      : null;
+
+    if (rawArticles && rawArticles.length >= 5) {
+      const sanitized: BeerNewsArticle[] = rawArticles.map((a: any, idx: number) => ({
+        id: a.id || `news-${idx}-${Date.now()}`,
+        title: a.title || 'Craft Beer Industry Dispatch',
+        category: a.category || 'Craft Trends',
+        breweryOrOrg: a.breweryOrOrg || 'Craft Brewing Collective',
+        location: a.location || 'Global Craft Scene',
+        publishDate: a.publishDate || 'Recent Dispatch',
+        readTimeMin: typeof a.readTimeMin === 'number' ? a.readTimeMin : 3,
+        summary: a.summary || '',
+        content: a.content || a.summary || '',
+        tags: Array.isArray(a.tags) ? a.tags : ['#CraftBeer', '#Brewing'],
+        sourceName: a.sourceName || 'Craft Beer Wire',
+        highlightFact: a.highlightFact || undefined,
+      }));
+
+      newsCache = { articles: sanitized, cachedAt: now };
+      return res.json({
+        source: 'live',
+        updatedAt: new Date().toISOString(),
+        articles: sanitized,
+      });
+    }
+
+    // Fallback to curated if response didn't contain enough articles
+    return res.json({
+      source: 'curated',
+      updatedAt: new Date().toISOString(),
+      articles: CURATED_BEER_NEWS,
+    });
+  } catch (err: any) {
+    console.error('Error fetching dynamic beer news from Gemini:', err);
+    return res.json({
+      source: 'curated',
+      updatedAt: new Date().toISOString(),
+      articles: CURATED_BEER_NEWS,
+    });
+  }
 });
 
 apiRouter.post('/generate-route', async (req, res) => {

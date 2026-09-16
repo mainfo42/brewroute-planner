@@ -20,6 +20,20 @@ export const BEER_STYLE_OPTIONS = [
 
 export const POPULAR_DESTINATIONS = [
   {
+    name: 'Quebec (Montreal & Townships)',
+    region: 'Route des Brasseurs & Mile End',
+    startLoc: 'Montreal, QC, Canada',
+    highlight: 'French-Canadian craft mastery: world-renowned Péché Mortel, wild sours, and farmhouse ales (Dieu du Ciel!, Messorem, Pit Caribou)',
+    suggestedStyles: ['Stout', 'Belgian', 'Saison', 'Sour', 'NEIPA'],
+  },
+  {
+    name: 'Ontario (Toronto & Golden Horseshoe)',
+    region: 'West End & Leslieville Craft Trail',
+    startLoc: 'Toronto, ON, Canada',
+    highlight: 'Pioneering dry-hopped sours, crisp pilsners, and cutting-edge IPAs (Bellwoods Brewery, Blood Brothers, Left Field)',
+    suggestedStyles: ['Sour', 'NEIPA', 'Pilsner', 'IPA', 'Stout'],
+  },
+  {
     name: 'Portland, Maine',
     region: 'Industrial & Bayside Trail',
     startLoc: 'Downtown Portland, ME',

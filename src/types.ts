@@ -148,3 +148,29 @@ export interface SavedItinerary {
   savedAt: string;
   notes?: string;
 }
+
+export type AppPageView = 'home' | 'plan' | 'about' | 'news';
+
+export type BeerNewsCategory =
+  | 'New Launch'
+  | 'Hops & Breeding'
+  | 'Festival'
+  | 'Conference'
+  | 'Craft Trends';
+
+export interface BeerNewsArticle {
+  id: string;
+  title: string;
+  category: BeerNewsCategory;
+  breweryOrOrg: string;
+  location: string;
+  publishDate: string;
+  readTimeMin: number;
+  summary: string;
+  content: string;
+  tags: string[];
+  imageUrl?: string;
+  sourceName?: string;
+  sourceUrl?: string;
+  highlightFact?: string;
+}

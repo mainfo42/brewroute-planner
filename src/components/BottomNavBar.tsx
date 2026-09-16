@@ -7,10 +7,13 @@ import {
   Sparkles,
   Map as MapIcon,
   ListOrdered,
+  Home,
+  Newspaper,
+  Menu,
 } from 'lucide-react';
 import { AuthUser } from '../types';
 
-export type MobileTab = 'plan' | 'map' | 'curated' | 'saved' | 'account';
+export type MobileTab = 'home' | 'plan' | 'news' | 'map' | 'curated' | 'saved' | 'account' | 'menu';
 
 interface BottomNavBarProps {
   activeTab: MobileTab;
@@ -19,6 +22,16 @@ interface BottomNavBarProps {
   user: AuthUser | null;
   hasActiveRoute: boolean;
   onPlanNew: () => void;
+  onOpenHamburger: () => void;
+}
+
+interface NavItem {
+  id: MobileTab;
+  label: string;
+  icon: React.ComponentType<{ className?: string }>;
+  badge?: number;
+  disabled?: boolean;
+  onClick: () => void;
 }
 
 export const BottomNavBar: React.FC<BottomNavBarProps> = ({
@@ -28,47 +41,43 @@ export const BottomNavBar: React.FC<BottomNavBarProps> = ({
   user,
   hasActiveRoute,
   onPlanNew,
+  onOpenHamburger,
 }) => {
-  const items = [
+  const items: NavItem[] = [
     {
-      id: 'plan' as MobileTab,
+      id: 'home',
+      label: 'Home',
+      icon: Home,
+      onClick: () => onChangeTab('home'),
+    },
+    {
+      id: 'plan',
       label: hasActiveRoute ? 'Trail' : 'Planner',
       icon: hasActiveRoute ? ListOrdered : Sparkles,
       onClick: () => onChangeTab('plan'),
     },
     {
-      id: 'map' as MobileTab,
-      label: 'Map',
-      icon: MapIcon,
-      disabled: !hasActiveRoute,
-      onClick: () => {
-        if (hasActiveRoute) {
-          onChangeTab('map');
-        }
-      },
+      id: 'news',
+      label: 'News',
+      icon: Newspaper,
+      onClick: () => onChangeTab('news'),
     },
     {
-      id: 'curated' as MobileTab,
-      label: 'Famous',
-      icon: Compass,
-      onClick: () => onChangeTab('curated'),
-    },
-    {
-      id: 'saved' as MobileTab,
+      id: 'saved',
       label: 'Saved',
       icon: FolderHeart,
       badge: savedCount > 0 ? savedCount : undefined,
       onClick: () => onChangeTab('saved'),
     },
     {
-      id: 'account' as MobileTab,
-      label: user ? (user.displayName?.split(' ')[0] || 'Profile') : 'Account',
-      icon: User,
-      onClick: () => onChangeTab('account'),
+      id: 'menu',
+      label: 'Menu',
+      icon: Menu,
+      onClick: onOpenHamburger,
     },
   ];
 
-  const isDark = !hasActiveRoute;
+  const isDark = true;
 
   return (
     <nav
