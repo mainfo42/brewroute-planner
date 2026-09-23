@@ -154,7 +154,9 @@ export type AppPageView = 'home' | 'plan' | 'about' | 'news';
 export type BeerNewsCategory =
   | 'New Launch'
   | 'Hops & Breeding'
+  | 'Awards & Contests'
   | 'Festival'
+  | 'New Brewery'
   | 'Conference'
   | 'Craft Trends';
 
@@ -165,6 +167,7 @@ export interface BeerNewsArticle {
   breweryOrOrg: string;
   location: string;
   publishDate: string;
+  isoDate?: string; // YYYY-MM-DD for deterministic chronological sorting
   readTimeMin: number;
   summary: string;
   content: string;
@@ -173,4 +176,5 @@ export interface BeerNewsArticle {
   sourceName?: string;
   sourceUrl?: string;
   highlightFact?: string;
+  badge?: string; // e.g. "Upcoming Contest", "New Beer Prize", "Upcoming Festival", "New Brewery"
 }

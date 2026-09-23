@@ -60,39 +60,65 @@ export const BeerNewsPage: React.FC<BeerNewsPageProps> = ({ onStartPlanning }) =
     }
   };
 
-  const categories: string[] = [
-    'All',
-    'New Launch',
-    'Hops & Breeding',
-    'Festival',
-    'Conference',
-    'Craft Trends',
+  const categoryFilters: { label: string; value: string; icon?: React.ReactNode }[] = [
+    { label: 'All Dispatches', value: 'All' },
+    { label: 'Awards & Contests', value: 'Awards & Contests' },
+    { label: 'New Beers & Launches', value: 'New Launch' },
+    { label: 'New Hops & Breeding', value: 'Hops & Breeding' },
+    { label: 'Festivals & Events', value: 'Festival' },
+    { label: 'New Breweries', value: 'New Brewery' },
+    { label: 'Brewery Trends', value: 'Craft Trends' },
   ];
 
-  // Filter articles
-  const filteredArticles = articles.filter((article) => {
-    const matchesCategory =
-      selectedCategory === 'All' || article.category === selectedCategory;
+  // Helper to parse dates into timestamp for guaranteed reverse chronological sorting
+  const getArticleTimestamp = (article: BeerNewsArticle): number => {
+    if (article.isoDate) {
+      const parsed = new Date(article.isoDate).getTime();
+      if (!isNaN(parsed)) return parsed;
+    }
+    const parsedPublish = new Date(article.publishDate).getTime();
+    if (!isNaN(parsedPublish)) return parsedPublish;
+    return 0;
+  };
 
-    const matchesSearch =
-      searchQuery.trim() === '' ||
-      article.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      article.breweryOrOrg.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      article.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      article.summary.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      article.tags.some((t) => t.toLowerCase().includes(searchQuery.toLowerCase()));
+  // Filter & sort articles strictly with most recent first
+  const filteredAndSortedArticles = articles
+    .filter((article) => {
+      const matchesCategory =
+        selectedCategory === 'All' ||
+        article.category === selectedCategory ||
+        (selectedCategory === 'Awards & Contests' && (article.category === 'Awards & Contests' || article.category === 'Conference')) ||
+        (selectedCategory === 'New Launch' && article.category === 'New Launch') ||
+        (selectedCategory === 'Hops & Breeding' && article.category === 'Hops & Breeding') ||
+        (selectedCategory === 'Festival' && article.category === 'Festival') ||
+        (selectedCategory === 'New Brewery' && article.category === 'New Brewery') ||
+        (selectedCategory === 'Craft Trends' && article.category === 'Craft Trends');
 
-    return matchesCategory && matchesSearch;
-  });
+      const matchesSearch =
+        searchQuery.trim() === '' ||
+        article.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        article.breweryOrOrg.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        article.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        article.summary.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (article.badge && article.badge.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        article.tags.some((t) => t.toLowerCase().includes(searchQuery.toLowerCase()));
+
+      return matchesCategory && matchesSearch;
+    })
+    .sort((a, b) => getArticleTimestamp(b) - getArticleTimestamp(a));
 
   const getCategoryBadgeClass = (cat: BeerNewsCategory) => {
     switch (cat) {
+      case 'Awards & Contests':
+        return 'bg-[#F59E0B]/20 text-[#FBBF24] border-[#F59E0B]/50';
       case 'New Launch':
         return 'bg-[#D97706]/20 text-[#F59E0B] border-[#D97706]/50';
       case 'Hops & Breeding':
         return 'bg-[#58A72F]/20 text-[#7DD748] border-[#58A72F]/50';
       case 'Festival':
         return 'bg-[#8B5CF6]/20 text-[#C4B5FD] border-[#8B5CF6]/50';
+      case 'New Brewery':
+        return 'bg-[#0891B2]/20 text-[#38BDF8] border-[#0891B2]/50';
       case 'Conference':
         return 'bg-[#0EA5E9]/20 text-[#7DD3FC] border-[#0EA5E9]/50';
       case 'Craft Trends':
@@ -102,8 +128,8 @@ export const BeerNewsPage: React.FC<BeerNewsPageProps> = ({ onStartPlanning }) =
     }
   };
 
-  const featuredArticle = filteredArticles.length > 0 ? filteredArticles[0] : null;
-  const remainingArticles = filteredArticles.length > 1 ? filteredArticles.slice(1) : [];
+  const featuredArticle = filteredAndSortedArticles.length > 0 ? filteredAndSortedArticles[0] : null;
+  const remainingArticles = filteredAndSortedArticles.length > 1 ? filteredAndSortedArticles.slice(1) : [];
 
   return (
     <div id="beer-news-page" className="w-full text-white bg-black py-8 sm:py-14 px-4 sm:px-6 lg:px-8 animate-in fade-in duration-200">
@@ -149,58 +175,84 @@ export const BeerNewsPage: React.FC<BeerNewsPageProps> = ({ onStartPlanning }) =
         </div>
 
         {/* Filter bar & search */}
-        <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4">
-          {/* Category Chips */}
-          <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
-            {categories.map((cat) => {
-              const isSelected = selectedCategory === cat;
-              return (
+        <div className="space-y-4">
+          <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4">
+            {/* Category Chips */}
+            <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
+              {categoryFilters.map((filter) => {
+                const isSelected = selectedCategory === filter.value;
+                return (
+                  <button
+                    key={filter.value}
+                    type="button"
+                    onClick={() => setSelectedCategory(filter.value)}
+                    className={`px-3.5 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all cursor-pointer border ${
+                      isSelected
+                        ? 'bg-[#D97706] text-white border-[#F59E0B] shadow-md scale-102'
+                        : 'bg-[#142312] hover:bg-[#1E361B] text-[#9CB394] hover:text-white border-[#243F21]'
+                    }`}
+                  >
+                    {filter.label}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Search box */}
+            <div className="relative min-w-[280px]">
+              <Search className="w-4 h-4 text-[#8EAD84] absolute left-3.5 top-1/2 -translate-y-1/2" />
+              <input
+                type="text"
+                id="news-search-input"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search hops, awards, contests, breweries..."
+                className="w-full pl-10 pr-9 py-2.5 rounded-xl bg-[#142312] border border-[#243F21] text-xs text-white placeholder-[#6D8A68] focus:outline-hidden focus:border-[#58A72F] transition-colors"
+              />
+              {searchQuery && (
                 <button
-                  key={cat}
                   type="button"
-                  onClick={() => setSelectedCategory(cat)}
-                  className={`px-3.5 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all cursor-pointer border ${
-                    isSelected
-                      ? 'bg-[#D97706] text-white border-[#F59E0B] shadow-md'
-                      : 'bg-[#142312] hover:bg-[#1E361B] text-[#9CB394] hover:text-white border-[#243F21]'
-                  }`}
+                  onClick={() => setSearchQuery('')}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#8EAD84] hover:text-white"
                 >
-                  {cat}
+                  <X className="w-3.5 h-3.5" />
                 </button>
-              );
-            })}
+              )}
+            </div>
           </div>
 
-          {/* Search box */}
-          <div className="relative min-w-[260px]">
-            <Search className="w-4 h-4 text-[#8EAD84] absolute left-3.5 top-1/2 -translate-y-1/2" />
-            <input
-              type="text"
-              id="news-search-input"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search news, hops, breweries, festivals..."
-              className="w-full pl-10 pr-9 py-2 rounded-xl bg-[#142312] border border-[#243F21] text-xs text-white placeholder-[#6D8A68] focus:outline-hidden focus:border-[#58A72F] transition-colors"
-            />
-            {searchQuery && (
+          {/* Sub-bar: Sort order indicator & count */}
+          <div className="flex flex-wrap items-center justify-between gap-3 pt-2 text-xs border-t border-[#1C2E1A]">
+            <div className="flex items-center gap-2 text-[#9CB394]">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-[#142613] border border-[#284924] text-[#A6E88B] font-bold text-[11px] font-brand tracking-wider">
+                <Clock className="w-3.5 h-3.5 text-[#F59E0B]" />
+                SORTED: MOST RECENT FIRST
+              </span>
+              <span className="text-[#6D8A68]">•</span>
+              <span className="text-[#8EAD84]">
+                Showing {filteredAndSortedArticles.length} {filteredAndSortedArticles.length === 1 ? 'dispatch' : 'dispatches'}
+              </span>
+            </div>
+
+            {selectedCategory !== 'All' && (
               <button
                 type="button"
-                onClick={() => setSearchQuery('')}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-[#8EAD84] hover:text-white"
+                onClick={() => setSelectedCategory('All')}
+                className="text-[11px] text-[#F59E0B] hover:underline font-semibold"
               >
-                <X className="w-3.5 h-3.5" />
+                Clear category filter ({selectedCategory})
               </button>
             )}
           </div>
         </div>
 
         {/* Empty state */}
-        {filteredArticles.length === 0 && (
+        {filteredAndSortedArticles.length === 0 && (
           <div className="py-16 text-center rounded-3xl bg-[#111C10] border border-[#1E331B] space-y-3">
             <Newspaper className="w-10 h-10 text-[#6D8A68] mx-auto" />
-            <h3 className="text-lg font-bold text-white">No dispatches match your search</h3>
+            <h3 className="text-lg font-bold text-white">No dispatches match your filter</h3>
             <p className="text-xs text-[#9CB394] max-w-sm mx-auto">
-              Try adjusting your category filter or search query to see other global beer updates.
+              Try resetting your category or clearing search terms to explore all recent craft beer dispatches.
             </p>
             <button
               type="button"
@@ -215,7 +267,7 @@ export const BeerNewsPage: React.FC<BeerNewsPageProps> = ({ onStartPlanning }) =
           </div>
         )}
 
-        {/* Featured Top Article */}
+        {/* Featured Top Article (Latest Dispatch) */}
         {featuredArticle && (
           <div
             id="featured-beer-article"
@@ -228,16 +280,21 @@ export const BeerNewsPage: React.FC<BeerNewsPageProps> = ({ onStartPlanning }) =
                   <span className={`text-[11px] font-black px-3 py-1 rounded-full border uppercase tracking-wider font-brand ${getCategoryBadgeClass(featuredArticle.category)}`}>
                     {featuredArticle.category}
                   </span>
-                  <span className="text-xs text-[#9CB394] flex items-center gap-1.5">
-                    <Calendar className="w-3.5 h-3.5" />
+                  {featuredArticle.badge && (
+                    <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-[#1E331B] text-[#A6E88B] border border-[#3E6B37] font-brand uppercase tracking-wider">
+                      {featuredArticle.badge}
+                    </span>
+                  )}
+                  <span className="text-xs text-[#9CB394] flex items-center gap-1.5 font-medium">
+                    <Calendar className="w-3.5 h-3.5 text-[#F59E0B]" />
                     {featuredArticle.publishDate}
                   </span>
                   <span className="text-xs text-[#9CB394] flex items-center gap-1.5">
                     <Clock className="w-3.5 h-3.5" />
                     {featuredArticle.readTimeMin} min read
                   </span>
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#D97706] text-white font-brand uppercase tracking-wider">
-                    FEATURED
+                  <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-[#D97706] text-white font-brand uppercase tracking-wider">
+                    LATEST DISPATCH
                   </span>
                 </div>
 
@@ -284,12 +341,18 @@ export const BeerNewsPage: React.FC<BeerNewsPageProps> = ({ onStartPlanning }) =
           </div>
         )}
 
-        {/* Grid of Remaining Articles (5 to 10 articles) */}
+        {/* Grid of Remaining Articles (Chronologically sorted, newest first) */}
         {remainingArticles.length > 0 && (
           <div className="space-y-4">
-            <h3 className="text-sm font-black text-[#A6D496] uppercase tracking-wider font-brand">
-              Latest Dispatches ({remainingArticles.length})
-            </h3>
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-black text-[#A6D496] uppercase tracking-wider font-brand flex items-center gap-2">
+                <span>Recent Dispatches</span>
+                <span className="text-xs px-2 py-0.5 rounded-full bg-[#1A2E17] text-[#7DD748] border border-[#2E5528]">
+                  {remainingArticles.length}
+                </span>
+              </h3>
+              <span className="text-xs text-[#718E6B]">Chronologically ordered by publication date</span>
+            </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
               {remainingArticles.map((article) => (
@@ -299,10 +362,17 @@ export const BeerNewsPage: React.FC<BeerNewsPageProps> = ({ onStartPlanning }) =
                   className="p-5 rounded-3xl bg-[#131F12] border border-[#223820] hover:border-[#D97706]/70 transition-all flex flex-col justify-between group cursor-pointer shadow-md hover:shadow-[#D97706]/10"
                 >
                   <div className="space-y-3">
-                    <div className="flex items-center justify-between gap-2">
-                      <span className={`text-[10px] font-black px-2.5 py-0.5 rounded-full border uppercase tracking-wider font-brand ${getCategoryBadgeClass(article.category)}`}>
-                        {article.category}
-                      </span>
+                    <div className="flex flex-wrap items-center justify-between gap-1.5">
+                      <div className="flex items-center gap-1.5">
+                        <span className={`text-[10px] font-black px-2.5 py-0.5 rounded-full border uppercase tracking-wider font-brand ${getCategoryBadgeClass(article.category)}`}>
+                          {article.category}
+                        </span>
+                        {article.badge && (
+                          <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-[#182B16] text-[#A6E88B] border border-[#2C4D26] font-brand uppercase">
+                            {article.badge}
+                          </span>
+                        )}
+                      </div>
                       <span className="text-[11px] text-[#8EAD84]">
                         {article.readTimeMin} min read
                       </span>
@@ -315,6 +385,8 @@ export const BeerNewsPage: React.FC<BeerNewsPageProps> = ({ onStartPlanning }) =
                     <div className="flex items-center gap-1.5 text-[11px] text-[#A6D496] font-medium">
                       <MapPin className="w-3.5 h-3.5 text-[#F59E0B] shrink-0" />
                       <span className="truncate">{article.breweryOrOrg}</span>
+                      <span className="text-[#557750]">•</span>
+                      <span className="text-[#8EAD84] truncate">{article.location}</span>
                     </div>
 
                     <p className="text-xs text-[#9CB394] leading-relaxed line-clamp-3">
@@ -323,7 +395,10 @@ export const BeerNewsPage: React.FC<BeerNewsPageProps> = ({ onStartPlanning }) =
                   </div>
 
                   <div className="pt-4 mt-4 border-t border-[#1C2F1A] flex items-center justify-between text-xs">
-                    <span className="text-[11px] text-[#718E6B]">{article.publishDate}</span>
+                    <span className="text-[11px] font-medium text-[#718E6B] flex items-center gap-1">
+                      <Calendar className="w-3 h-3 text-[#F59E0B]" />
+                      {article.publishDate}
+                    </span>
                     <span className="font-bold text-[#66DE37] group-hover:text-[#F59E0B] group-hover:translate-x-0.5 transition-all flex items-center gap-1 font-brand">
                       READ <ChevronRight className="w-3.5 h-3.5" />
                     </span>
@@ -372,9 +447,16 @@ export const BeerNewsPage: React.FC<BeerNewsPageProps> = ({ onStartPlanning }) =
             {/* Modal Header */}
             <div className="p-5 sm:p-6 border-b border-[#213B1E] flex items-start justify-between gap-4 bg-[#162D15]/80">
               <div className="space-y-1.5">
-                <span className={`text-[10px] font-black px-2.5 py-0.5 rounded-full border uppercase tracking-wider font-brand ${getCategoryBadgeClass(activeArticleModal.category)}`}>
-                  {activeArticleModal.category}
-                </span>
+                <div className="flex items-center gap-2">
+                  <span className={`text-[10px] font-black px-2.5 py-0.5 rounded-full border uppercase tracking-wider font-brand ${getCategoryBadgeClass(activeArticleModal.category)}`}>
+                    {activeArticleModal.category}
+                  </span>
+                  {activeArticleModal.badge && (
+                    <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-[#1A2E17] text-[#A6E88B] border border-[#2E5528] font-brand uppercase tracking-wider">
+                      {activeArticleModal.badge}
+                    </span>
+                  )}
+                </div>
                 <h3 className="text-lg sm:text-xl font-black text-white font-display uppercase tracking-tight leading-snug">
                   {activeArticleModal.title}
                 </h3>

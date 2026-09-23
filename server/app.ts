@@ -71,24 +71,28 @@ apiRouter.get('/beer-news', async (req, res) => {
   }
 
   try {
-    const prompt = `You are an expert international craft beer journalist and editor for BeerHop.
-Search and synthesize 7 to 9 fresh, authentic, real-world craft beer news updates from independent microbreweries, hop breeding organizations, festivals, and conferences around the world.
+    const prompt = `You are an expert international craft beer journalist and managing editor for BeerHop.
+Search and synthesize 8 to 10 fresh, authentic, real-world craft beer news updates from independent microbreweries, hop breeding organizations, festivals, contests, awards, and conferences around the world.
 
-Include updates across these distinct categories:
-1. "New Launch" (e.g. notable independent breweries like Hill Farmstead, Cantillon, Monkish, Tree House, Trillium, Other Half, Russian River, Cloudwater, Omnipollo, Garage Project)
-2. "Hops & Breeding" (e.g., Krush/HBC 586, Superdelic, Vista, Elani, Pink Boots Blend, experimental varieties from Yakima Chief Hops, NZ Hops, BarthHaas)
-3. "Festival" (e.g. Great American Beer Festival, Mikkeller Beer Celebration, Great British Beer Festival, Firestone Walker Invitational, Cantillon Quintessence)
-4. "Conference" (e.g. Craft Brewers Conference CBC, World Beer Cup, European Beer Congress, Craft Brewers Association symposiums)
-5. "Craft Trends" (e.g. Cold IPAs, thiolized yeast strains, heritage malt kilning, low-intervention barrel aging)
+Include updates across these key categories requested by beer travelers:
+1. "Awards & Contests" (e.g. World Beer Cup, Great American Beer Festival medals, European Beer Star, Brussels Beer Challenge, upcoming contest registrations, newly awarded prizes)
+2. "New Launch" (notable independent breweries like Hill Farmstead, Cantillon, Monkish, Tree House, Trillium, Other Half, Russian River, Cloudwater, Omnipollo, Garage Project, Messorem)
+3. "Hops & Breeding" (e.g., Krush/HBC 586, Superdelic, Vista, Elani, Peacharine, Pink Boots Blend, experimental varieties from Yakima Chief Hops, NZ Hops, BarthHaas, fresh hop harvests)
+4. "Festival" (upcoming festivals, ticket drops, rare pour rosters: GABF Denver, Mikkeller Beer Celebration MBCC, Great British Beer Festival, Firestone Walker Invitational, Cantillon Quintessence)
+5. "New Brewery" (exciting new craft brewery openings, farmstead taprooms, maritime barrelhouses)
+6. "Craft Trends" (Cold IPAs, lager yeast innovations, thiolized yeast strains, heritage malt kilning, low-intervention barrel aging)
 
-Format strictly as a JSON object with an "articles" array of 7-9 items.
+Format strictly as a JSON object with an "articles" array of 8-10 items.
+Ensure articles have recent dates in September 2026 and are sorted with the most recent first.
 Each item must have:
-- id: unique string slug (e.g. "news-hops-krush-586")
+- id: unique string slug (e.g. "news-contest-world-beer-cup-2027")
 - title: engaging, informative headline
-- category: strictly one of ["New Launch", "Hops & Breeding", "Festival", "Conference", "Craft Trends"]
+- category: strictly one of ["Awards & Contests", "New Launch", "Hops & Breeding", "Festival", "New Brewery", "Craft Trends", "Conference"]
 - breweryOrOrg: name of brewery, breeding cooperative, or organization
 - location: City, State/Region, Country (e.g. "Yakima Valley, Washington, USA" or "Brussels, Belgium")
-- publishDate: string (e.g. "September 2026")
+- publishDate: readable string (e.g. "September 18, 2026")
+- isoDate: string in YYYY-MM-DD format (e.g. "2026-09-18")
+- badge: short contextual badge (e.g. "Upcoming Contest", "New Beer Prize", "Fresh Harvest", "Rare Launch", "Upcoming Festival", "New Brewery")
 - readTimeMin: integer number of minutes (e.g. 3 or 4)
 - summary: 2-3 sentence punchy summary of what happened and why it matters
 - content: 2-3 paragraphs of detailed journalistic prose with specific brewing techniques, hop oils, tasting notes, and industry context
@@ -123,7 +127,9 @@ Each item must have:
         category: a.category || 'Craft Trends',
         breweryOrOrg: a.breweryOrOrg || 'Craft Brewing Collective',
         location: a.location || 'Global Craft Scene',
-        publishDate: a.publishDate || 'Recent Dispatch',
+        publishDate: a.publishDate || 'September 2026',
+        isoDate: a.isoDate || new Date().toISOString().split('T')[0],
+        badge: a.badge || undefined,
         readTimeMin: typeof a.readTimeMin === 'number' ? a.readTimeMin : 3,
         summary: a.summary || '',
         content: a.content || a.summary || '',
@@ -131,6 +137,13 @@ Each item must have:
         sourceName: a.sourceName || 'Craft Beer Wire',
         highlightFact: a.highlightFact || undefined,
       }));
+
+      // Sort strictly with most recent date first
+      sanitized.sort((a, b) => {
+        const timeA = new Date(a.isoDate || a.publishDate).getTime() || 0;
+        const timeB = new Date(b.isoDate || b.publishDate).getTime() || 0;
+        return timeB - timeA;
+      });
 
       newsCache = { articles: sanitized, cachedAt: now };
       return res.json({
