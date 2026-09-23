@@ -2,6 +2,153 @@ import { BeerNewsArticle } from '../types';
 
 export const CURATED_BEER_NEWS: BeerNewsArticle[] = [
   {
+    id: 'news-contest-alpha-king-2026',
+    title: 'Alpha King Challenge 2026 Crowns Most Balanced Double IPA Champion in Denver',
+    category: 'Awards & Contests',
+    breweryOrOrg: 'Yakima Chief Hops & 3 Floyds Brewing Co.',
+    location: 'Denver, Colorado, USA',
+    publishDate: 'September 23, 2026',
+    isoDate: '2026-09-23',
+    readTimeMin: 4,
+    badge: 'New Beer Prize',
+    summary:
+      'The prestigious Alpha King Challenge, evaluating the cleanest, most hop-saturated Double IPAs with minimum 60 IBUs, has awarded its coveted warrior crown to a Pacific Northwest microbrewery showcasing fresh Krush™ and Citra Cryo.',
+    content: `Now in its 28th annual showdown, the Alpha King Challenge gathered 150 of North America's most elite hop-forward brewers in Denver to crown the master of high-gravity lupulin balance. Unlike blind competitions that reward restraint, Alpha King specifically demands fierce bitterness harmonized with intense aroma saturation.
+
+Judges from 3 Floyds, Russian River, and Yakima Chief evaluated entries blind across four rounds. The 2026 crown was awarded to Seattle's Cloudburst Brewing for "King of the Kilns," an 8.2% ABV Imperial IPA featuring concentrated Krush™ pellets, Nelson Sauvin, and second-stage whirlpool Simcoe Cryo.
+
+The judges noted the winning pour possessed zero vegetal astringency or diacetyl, demonstrating exceptional late-fermentation dry-hop timing and clean cold-crash centrifuge separation that allowed vibrant notes of candied peach, passionfruit pulp, and spruce tips to shine.`,
+    tags: ['#AlphaKing', '#DoubleIPA', '#BeerAwards', '#HopSaturation', '#DenverBeer'],
+    sourceName: 'The New Brewer & Alpha King Directorate',
+    highlightFact: 'Every entry in the Alpha King Challenge must register at least 60 measured IBUs and an original gravity above 1.070.',
+  },
+  {
+    id: 'news-hops-pink-boots-2026',
+    title: 'Pink Boots Society & Yakima Chief Hops Unveil 9th Annual Harvest Blend Featuring HBC 1019',
+    category: 'Hops & Breeding',
+    breweryOrOrg: 'Pink Boots Society & Yakima Chief Hops',
+    location: 'Yakima Valley, Washington, USA',
+    publishDate: 'September 23, 2026',
+    isoDate: '2026-09-23',
+    readTimeMin: 3,
+    badge: 'Fresh Harvest',
+    summary:
+      'The global non-profit supporting women and non-binary brewing professionals has finalized its 2026 hop formulation: an aromatic blend of HBC 1019, Citra®, Mosaic®, and Ahtanum® delivering stone-fruit, Valencia orange, and honeydew aromatics.',
+    content: `The Pink Boots Society, in partnership with Yakima Chief Hops (YCH), has officially released the commercial specification for the 9th Annual Pink Boots Collaboration Blend. Selected through sensory roundtables hosted across chapters in the United States, Australia, Europe, and Latin America, this year's harvest lot centers around the experimental darling HBC 1019.
+
+HBC 1019 brings distinctive sensory attributes of candied coconut, Valencia orange blossom, and ripe honeydew melon, which are bolstered by the resinous citrus backbone of Citra and Mosaic. A portion of sales proceeds from every pound purchased goes directly to educational scholarships and technical brewing certifications for underrepresented brewing professionals.
+
+Breweries worldwide will brew dedicated collaboration batches on International Women's Collaboration Brew Day, producing specialty hazy pale ales, cold lagers, and fruited sours to support brewing education.`,
+    tags: ['#PinkBootsSociety', '#YCH', '#HBC1019', '#HopHarvest', '#WomenInBeer'],
+    sourceName: 'Brewers Association Industry News',
+    highlightFact: 'Over $750,000 in brewing scholarships and technical seminars have been funded through the Pink Boots Blend since its inception.',
+  },
+  {
+    id: 'news-launch-tree-house-native',
+    title: 'Tree House Brewing Debuts "Native Terroir" Spontaneous Coolship Ale Aged in Spent Bourbon-Oak Puncheons',
+    category: 'New Launch',
+    breweryOrOrg: 'Tree House Brewing Company',
+    location: 'Charlton, Massachusetts, USA',
+    publishDate: 'September 22, 2026',
+    isoDate: '2026-09-22',
+    readTimeMin: 4,
+    badge: 'Rare Release',
+    summary:
+      'New England icon Tree House Brewing reveals its first multi-year wild fermentation bottle project from their estate coolship cellar, matured in charred oak and conditioned on wild Rhode Island elderberries.',
+    content: `Widely revered as pioneers of the New England Hazy IPA, Tree House Brewing Company has quietly nurtured an ambitious wild fermentation program at their Charlton orchard campus. The brewery has now unveiled "Native Terroir: Assemblage No. 1," a spontaneous coolship ale three years in the making.
+
+Brewed during cold November nights using 100% estate-grown heritage barley and aged whole-leaf Saaz hops, the boiling wort was pumped into Tree House’s rooftop copper coolship to cool overnight beneath the ambient orchard breeze. Fermentation occurred exclusively via airborne wild yeasts and cellar microflora inside 500-liter spent bourbon-oak puncheons.
+
+Before bottle conditioning with local orchard wildflower honey, the cellar masters conditioned the blend on native wild Rhode Island elderberries. The resulting pour is a ruby-tinted, complex wild ale boasting notes of tart cassis, wet slate, cedar tannin, and subtle brettanomyces barnyard funk.`,
+    tags: ['#TreeHouseBrewing', '#SpontaneousFermentation', '#CoolshipAle', '#RareBeer', '#NewEnglandCraft'],
+    sourceName: 'Hop Culture Magazine',
+    highlightFact: 'The wort cooled overnight in an open-air copper coolship exposed to the pine and wild apple orchards of central Massachusetts.',
+  },
+  {
+    id: 'news-fest-firestone-invitational-2027',
+    title: 'Firestone Walker Invitational Announces 2027 Roster & Rare Cellar Tap Takeover in Paso Robles',
+    category: 'Festival',
+    breweryOrOrg: 'Firestone Walker Brewing Company',
+    location: 'Paso Robles, California, USA',
+    publishDate: 'September 22, 2026',
+    isoDate: '2026-09-22',
+    readTimeMin: 4,
+    badge: 'Upcoming Festival',
+    summary:
+      'The premier invitational beer festival in North America confirms dates for its 2027 showcase, uniting 65 peer-invited artisanal breweries from 14 nations for a day of wood-aged stouts and spontaneous sours.',
+    content: `Brewmaster Matt Brynildson and the Firestone Walker team have officially announced the return of the Firestone Walker Invitational Beer Fest (FWIBF) at the Paso Robles Event Center. Known in craft brewing circles as the "brewers' festival," invitations are extended strictly to microbreweries by peer recommendation.
+
+The 2027 edition will feature 65 hand-picked breweries from Belgium, Germany, Japan, New Zealand, the UK, Canada, and the United States. Participating masters must pour their rarest cellar reserves, with barrel-aged imperial stouts, multi-year foeder wild ales, and experimental cold-fermented pilsners dominating the tap list.
+
+Alongside the tasting sessions, Paso Robles will host local culinary artisans pairing wood-fired tri-tip barbecue and artisanal farm cheeses with vintage Firestone Walker Parabola and Sucaba vintages. Tickets consistently sell out within seconds of release.`,
+    tags: ['#FWIBF', '#FirestoneWalker', '#BeerFestival', '#PasoRobles', '#BarrelAgedBeer'],
+    sourceName: 'Craft Beer & Brewing Magazine',
+    highlightFact: 'All 65 participating head brewers attend the festival in person to pour their beers directly for attendees.',
+  },
+  {
+    id: 'news-brewery-caldera-bend',
+    title: 'Caldera Coast Brewhouse Launches Ocean-Aged Foeder Project on the Oregon Shore',
+    category: 'New Brewery',
+    breweryOrOrg: 'Caldera Coast Brewhouse',
+    location: 'Cannon Beach, Oregon, USA',
+    publishDate: 'September 21, 2026',
+    isoDate: '2026-09-21',
+    readTimeMin: 3,
+    badge: 'New Brewery',
+    summary:
+      'A new coastal production brewhouse and sea-facing taproom debuts on Oregon’s north coast, pairing maritime-aged wild ales with native spruce tip lagers and coastal smoked seafood.',
+    content: `Cannon Beach has gained a captivating new brewing sanctuary with the official launch of Caldera Coast Brewhouse. Founded by coastal ecologist Maya Lin and former De Garde head brewer Christian Rossi, the brewery harnesses the Pacific Northwest’s rugged coastal climate for unique cellar conditioning.
+
+The cellar features six 30-hectoliter Austrian oak foeders situated inside a humidity-controlled oceanfront warehouse. Daily maritime fog and salty ocean breezes maintain ambient cellar humidity, subtly accelerating wood extraction and micro-oxygenation.
+
+Flagship pours include a Sitka Spruce Tip Grisette brewed with locally foraged conifer needles and an estate wild saison aged in Willamette Valley Pinot Noir barrels. The taproom features an expansive cedar patio looking out onto the Pacific surf, serving local Dungeness crab boils and wood-fired flatbreads.`,
+    tags: ['#NewBrewery', '#OregonBeer', '#CoastalBrewing', '#FoederBeer', '#PacificNorthwest'],
+    sourceName: 'Oregon Craft Beer Journal',
+    highlightFact: 'Foeder barrels are seasoned with coastal sea spray carried by daily marine onshore fog layers.',
+  },
+  {
+    id: 'news-trend-phantasm-thiol',
+    title: 'Thiol Precursors & Phantasm Powder: How Modern Brewers Unlock Giant Tropical Passionfruit Notes Naturally',
+    category: 'Craft Trends',
+    breweryOrOrg: 'Phantasm Brewing Innovations & Brewing Research Institute',
+    location: 'Marlborough, New Zealand & Denver, USA',
+    publishDate: 'September 21, 2026',
+    isoDate: '2026-09-21',
+    readTimeMin: 4,
+    badge: 'Brewing Trend',
+    summary:
+      'Brewers are combining Sauvignon Blanc grape skin extracts (Phantasm) with genetically diverse thiolized yeast strains to unleash intense 3SH passionfruit and guava aromatics without fruit puree additions.',
+    content: `A scientific revolution is transforming aromatic beer production. Known as biotransformation and thiol liberation, craft brewers are achieving previously unimaginable intensities of passionfruit, guava, and pink grapefruit aromatics using natural precursors rather than artificial flavorings.
+
+Developed from freeze-dried Marlborough Sauvignon Blanc grape skins by Jos Ruffell of Garage Project, Phantasm contains high concentrations of bound thiol precursors (such as Glut-3SH and Cys-3SH). When pitched alongside specially selected yeast strains possessing active IRC7 beta-lyase enzyme activity, these bound compounds cleave into free volatile thiols.
+
+The resulting sensory threshold of 3-sulfanylhexan-1-ol (3SH) is so potent that parts-per-trillion concentrations fill taprooms with tropical aromas. Microbreweries across North America and Europe are combining Phantasm additions in the whirlpool with modest dry-hopping, cutting hop usage by 30% while amplifying juicy fruit character.`,
+    tags: ['#Thiols', '#Phantasm', '#Biotransformation', '#BrewingScience', '#HazyIPA'],
+    sourceName: 'Master Brewers Association Technical Quarterly',
+    highlightFact: 'Free aromatic thiols have sensory detection thresholds as low as 0.5 to 1.5 parts per trillion in finished beer.',
+  },
+  {
+    id: 'news-awards-brussels-challenge-2026',
+    title: 'Brussels Beer Challenge 2026 Opens International Submissions with 1,800 Entrants Expected',
+    category: 'Awards & Contests',
+    breweryOrOrg: 'Brussels Beer Challenge Organizers & Flemish Brewers Guild',
+    location: 'Mechelen & Brussels, Belgium',
+    publishDate: 'September 20, 2026',
+    isoDate: '2026-09-20',
+    readTimeMin: 3,
+    badge: 'Upcoming Contest',
+    summary:
+      'Belgium’s premier international competition announces registration dates and expanded style guidelines for barrel-aged sours, table saisons, and low-ABV dry-hopped lagers.',
+    content: `The Brussels Beer Challenge (BBC), internationally celebrated as one of the world's most exacting blind sensory competitions, has officially commenced entry submissions for its 2026 championship. Hosted this autumn in Mechelen, Belgium, the competition anticipates more than 1,800 entries from over 40 brewing countries.
+
+A panel of 85 globally recognized beer judges, cicerones, and master brewers will conduct three days of blind tastings. Medals (Gold, Silver, and Bronze) will be awarded across 80 beer style classifications, with the top overall entry receiving the coveted "Best Beer of the Competition" crystal trophy.
+
+The organizing committee highlighted major style updates for 2026, establishing new sensory scorecards for Grisette / Table Saison (under 4.5% ABV) and Italian Grape Ale (fermented with native grape must). The contest serves as a critical commercial launchpad for independent microbreweries seeking European distribution.`,
+    tags: ['#BrusselsBeerChallenge', '#BeerAwards', '#BelgianBeer', '#BrewingCompetition', '#Cicerone'],
+    sourceName: 'Flanders Beer Today & BBC Press',
+    highlightFact: 'Judges taste strictly blind with zero knowledge of brewery name, packaging, or country of origin.',
+  },
+  {
     id: 'news-contest-world-beer-cup-2027',
     title: 'World Beer Cup Registration Opens with New Cold IPA & Hop Water Medal Categories',
     category: 'Awards & Contests',

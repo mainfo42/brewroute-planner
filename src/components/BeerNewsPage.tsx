@@ -32,6 +32,7 @@ export const BeerNewsPage: React.FC<BeerNewsPageProps> = ({ onStartPlanning }) =
   const [feedSource, setFeedSource] = useState<'live' | 'cache' | 'curated'>('curated');
   const [lastUpdated, setLastUpdated] = useState<string>('Today');
   const [activeArticleModal, setActiveArticleModal] = useState<BeerNewsArticle | null>(null);
+  const [refreshNotification, setRefreshNotification] = useState<string | null>(null);
 
   // Fetch news on mount
   useEffect(() => {
@@ -41,7 +42,8 @@ export const BeerNewsPage: React.FC<BeerNewsPageProps> = ({ onStartPlanning }) =
   const fetchNews = async (forceRefresh = false) => {
     setIsLoading(true);
     try {
-      const res = await fetch(`/api/beer-news${forceRefresh ? '?refresh=true' : ''}`);
+      const url = `/api/beer-news${forceRefresh ? `?refresh=true&t=${Date.now()}` : ''}`;
+      const res = await fetch(url);
       if (res.ok) {
         const data = await res.json();
         if (data.articles && Array.isArray(data.articles) && data.articles.length > 0) {
@@ -51,17 +53,21 @@ export const BeerNewsPage: React.FC<BeerNewsPageProps> = ({ onStartPlanning }) =
             const date = new Date(data.updatedAt);
             setLastUpdated(date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
           }
+          if (forceRefresh) {
+            setRefreshNotification(`Fresh Brew News Loaded! Refreshed ${data.articles.length} stories.`);
+            setTimeout(() => setRefreshNotification(null), 4000);
+          }
         }
       }
     } catch (err) {
-      console.warn('Using curated news data as fallback:', err);
+      console.warn('Using fallback news data:', err);
     } finally {
       setIsLoading(false);
     }
   };
 
   const categoryFilters: { label: string; value: string; icon?: React.ReactNode }[] = [
-    { label: 'All Dispatches', value: 'All' },
+    { label: 'ALL NEWS', value: 'All' },
     { label: 'Awards & Contests', value: 'Awards & Contests' },
     { label: 'New Beers & Launches', value: 'New Launch' },
     { label: 'New Hops & Breeding', value: 'Hops & Breeding' },
@@ -139,7 +145,7 @@ export const BeerNewsPage: React.FC<BeerNewsPageProps> = ({ onStartPlanning }) =
           <div className="space-y-3 max-w-2xl">
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#1A2E17] border border-[#58A72F]/40 text-[#A6E88B] text-xs font-bold font-brand tracking-wider">
               <Newspaper className="w-4 h-4 text-[#F59E0B]" />
-              <span>GLOBAL CRAFT DISPATCHES</span>
+              <span>GLOBAL BREW NEWS</span>
             </div>
             <h1 className="text-3xl sm:text-5xl font-black tracking-tight text-white font-display uppercase leading-tight">
               Worldwide Beer Updates
@@ -156,7 +162,7 @@ export const BeerNewsPage: React.FC<BeerNewsPageProps> = ({ onStartPlanning }) =
             <div className="text-xs text-[#8EAD84] flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-[#66DE37] animate-pulse" />
               <span>
-                {feedSource === 'live' ? 'Live Web Feed' : 'Curated Dispatch'} • Updated {lastUpdated}
+                {feedSource === 'live' ? 'Live Web Feed' : 'Curated Brew News'} • Updated {lastUpdated}
               </span>
             </div>
 
@@ -166,13 +172,30 @@ export const BeerNewsPage: React.FC<BeerNewsPageProps> = ({ onStartPlanning }) =
               onClick={() => fetchNews(true)}
               disabled={isLoading}
               className="px-4 py-2.5 rounded-xl bg-[#1B2F18] hover:bg-[#254221] text-[#DDF1D2] text-xs font-bold font-brand tracking-wider flex items-center gap-2 transition-all cursor-pointer border border-[#376332] active:scale-95 disabled:opacity-50"
-              title="Refresh latest updates across the web"
+              title="Refresh latest craft beer news updates"
             >
               <RotateCw className={`w-3.5 h-3.5 text-[#F59E0B] ${isLoading ? 'animate-spin' : ''}`} />
-              <span>{isLoading ? 'FETCHING...' : 'REFRESH WEB UPDATES'}</span>
+              <span>{isLoading ? 'FETCHING FRESH NEWS...' : 'REFRESH NEWS UPDATES'}</span>
             </button>
           </div>
         </div>
+
+        {/* Live Refresh Notification Banner */}
+        {refreshNotification && (
+          <div className="p-3.5 rounded-2xl bg-[#152B14] border border-[#58A72F]/70 text-[#E0F3D7] text-xs font-bold font-brand flex items-center justify-between shadow-lg animate-in fade-in slide-in-from-top-2 duration-200">
+            <div className="flex items-center gap-2.5">
+              <span className="w-2 h-2 rounded-full bg-[#66DE37] animate-ping" />
+              <span>{refreshNotification}</span>
+            </div>
+            <button
+              type="button"
+              onClick={() => setRefreshNotification(null)}
+              className="text-[#9CB394] hover:text-white cursor-pointer"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        )}
 
         {/* Filter bar & search */}
         <div className="space-y-4">
@@ -230,7 +253,7 @@ export const BeerNewsPage: React.FC<BeerNewsPageProps> = ({ onStartPlanning }) =
               </span>
               <span className="text-[#6D8A68]">•</span>
               <span className="text-[#8EAD84]">
-                Showing {filteredAndSortedArticles.length} {filteredAndSortedArticles.length === 1 ? 'dispatch' : 'dispatches'}
+                Showing {filteredAndSortedArticles.length} {filteredAndSortedArticles.length === 1 ? 'article' : 'news stories'}
               </span>
             </div>
 
@@ -250,9 +273,9 @@ export const BeerNewsPage: React.FC<BeerNewsPageProps> = ({ onStartPlanning }) =
         {filteredAndSortedArticles.length === 0 && (
           <div className="py-16 text-center rounded-3xl bg-[#111C10] border border-[#1E331B] space-y-3">
             <Newspaper className="w-10 h-10 text-[#6D8A68] mx-auto" />
-            <h3 className="text-lg font-bold text-white">No dispatches match your filter</h3>
+            <h3 className="text-lg font-bold text-white">No brew news matches your filter</h3>
             <p className="text-xs text-[#9CB394] max-w-sm mx-auto">
-              Try resetting your category or clearing search terms to explore all recent craft beer dispatches.
+              Try resetting your category or clearing search terms to explore all recent craft beer news.
             </p>
             <button
               type="button"
@@ -267,7 +290,7 @@ export const BeerNewsPage: React.FC<BeerNewsPageProps> = ({ onStartPlanning }) =
           </div>
         )}
 
-        {/* Featured Top Article (Latest Dispatch) */}
+        {/* Featured Top Article (Latest Brew News) */}
         {featuredArticle && (
           <div
             id="featured-beer-article"
@@ -293,8 +316,8 @@ export const BeerNewsPage: React.FC<BeerNewsPageProps> = ({ onStartPlanning }) =
                     <Clock className="w-3.5 h-3.5" />
                     {featuredArticle.readTimeMin} min read
                   </span>
-                  <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-[#D97706] text-white font-brand uppercase tracking-wider">
-                    LATEST DISPATCH
+                  <span className="text-[10px] font-black px-2.5 py-0.5 rounded-full bg-[#D97706] text-white font-brand uppercase tracking-wider">
+                    LATEST BREW NEWS
                   </span>
                 </div>
 
@@ -333,7 +356,7 @@ export const BeerNewsPage: React.FC<BeerNewsPageProps> = ({ onStartPlanning }) =
                   </div>
 
                   <span className="inline-flex items-center gap-1.5 text-xs font-bold text-[#F59E0B] group-hover:translate-x-1 transition-transform font-brand">
-                    READ FULL DISPATCH <ChevronRight className="w-4 h-4" />
+                    READ FULL STORY <ChevronRight className="w-4 h-4" />
                   </span>
                 </div>
               </div>
@@ -346,7 +369,7 @@ export const BeerNewsPage: React.FC<BeerNewsPageProps> = ({ onStartPlanning }) =
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-black text-[#A6D496] uppercase tracking-wider font-brand flex items-center gap-2">
-                <span>Recent Dispatches</span>
+                <span>Latest Brew News</span>
                 <span className="text-xs px-2 py-0.5 rounded-full bg-[#1A2E17] text-[#7DD748] border border-[#2E5528]">
                   {remainingArticles.length}
                 </span>
