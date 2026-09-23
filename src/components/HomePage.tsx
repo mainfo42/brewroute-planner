@@ -62,8 +62,8 @@ export const HomePage: React.FC<HomePageProps> = ({
             verified ratings, seamless round-trip Google Maps navigation, and boutique overnight stays.
           </p>
 
-          {/* Primary Action Buttons */}
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3.5 pt-4">
+          {/* Primary Action Button */}
+          <div className="flex items-center justify-center pt-4">
             <button
               type="button"
               id="home-cta-plan-trail"
@@ -73,16 +73,6 @@ export const HomePage: React.FC<HomePageProps> = ({
               <Sparkles className="w-5 h-5 text-white" />
               <span>PLAN YOUR BEER TRAIL NOW</span>
               <ChevronRight className="w-5 h-5" />
-            </button>
-
-            <button
-              type="button"
-              id="home-cta-view-news"
-              onClick={() => onNavigate('news')}
-              className="w-full sm:w-auto px-6 py-4 rounded-2xl bg-[#172615] hover:bg-[#20361E] text-[#DDF1D2] font-bold text-sm sm:text-base tracking-normal transition-all cursor-pointer flex items-center justify-center gap-2.5 border border-[#30522B] active:scale-[0.98]"
-            >
-              <Newspaper className="w-5 h-5 text-[#F59E0B]" />
-              <span>Global Beer Updates & Trends</span>
             </button>
           </div>
 
@@ -306,12 +296,8 @@ export const HomePage: React.FC<HomePageProps> = ({
       <section className="py-12 bg-gradient-to-r from-[#172B15] via-[#1E2014] to-[#2B1B10] border-t border-[#294225] px-4 sm:px-6 lg:px-8">
         <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="space-y-2 text-center md:text-left">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#D97706]/20 border border-[#F59E0B]/40 text-[#F59E0B] text-xs font-bold font-brand">
-              <Newspaper className="w-3.5 h-3.5" />
-              <span>FRESH DISPATCHES</span>
-            </div>
             <h3 className="text-2xl sm:text-3xl font-black text-white font-display uppercase tracking-tight">
-              Global Beer Updates & New Hops
+              GLOBAL BEER NEWS UPDATES & EVENTS
             </h3>
             <p className="text-xs sm:text-sm text-[#C3D9BF] max-w-xl">
               Stay ahead of the international craft beer scene. Read dynamic articles covering new beer launches, 
@@ -324,7 +310,7 @@ export const HomePage: React.FC<HomePageProps> = ({
             onClick={() => onNavigate('news')}
             className="px-6 py-3.5 rounded-2xl bg-[#D97706] hover:bg-[#B45309] text-white font-bold text-sm tracking-wider font-brand shrink-0 cursor-pointer shadow-lg border border-[#F59E0B] transition-all flex items-center gap-2"
           >
-            <span>EXPLORE BEER BLOG</span>
+            <span>LATEST UPDATES</span>
             <ChevronRight className="w-4 h-4" />
           </button>
         </div>

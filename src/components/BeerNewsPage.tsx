@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import {
   Newspaper,
   RotateCw,
-  Search,
   MapPin,
   Calendar,
   Clock,
@@ -27,7 +26,6 @@ interface BeerNewsPageProps {
 export const BeerNewsPage: React.FC<BeerNewsPageProps> = ({ onStartPlanning }) => {
   const [articles, setArticles] = useState<BeerNewsArticle[]>(CURATED_BEER_NEWS);
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
-  const [searchQuery, setSearchQuery] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [feedSource, setFeedSource] = useState<'live' | 'cache' | 'curated'>('curated');
   const [lastUpdated, setLastUpdated] = useState<string>('Today');
@@ -100,16 +98,7 @@ export const BeerNewsPage: React.FC<BeerNewsPageProps> = ({ onStartPlanning }) =
         (selectedCategory === 'New Brewery' && article.category === 'New Brewery') ||
         (selectedCategory === 'Craft Trends' && article.category === 'Craft Trends');
 
-      const matchesSearch =
-        searchQuery.trim() === '' ||
-        article.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        article.breweryOrOrg.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        article.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        article.summary.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (article.badge && article.badge.toLowerCase().includes(searchQuery.toLowerCase())) ||
-        article.tags.some((t) => t.toLowerCase().includes(searchQuery.toLowerCase()));
-
-      return matchesCategory && matchesSearch;
+      return matchesCategory;
     })
     .sort((a, b) => getArticleTimestamp(b) - getArticleTimestamp(a));
 
@@ -197,11 +186,11 @@ export const BeerNewsPage: React.FC<BeerNewsPageProps> = ({ onStartPlanning }) =
           </div>
         )}
 
-        {/* Filter bar & search */}
+        {/* Filter bar */}
         <div className="space-y-4">
-          <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4">
+          <div className="flex items-center justify-between gap-4">
             {/* Category Chips */}
-            <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
+            <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none w-full">
               {categoryFilters.map((filter) => {
                 const isSelected = selectedCategory === filter.value;
                 return (
@@ -220,53 +209,20 @@ export const BeerNewsPage: React.FC<BeerNewsPageProps> = ({ onStartPlanning }) =
                 );
               })}
             </div>
-
-            {/* Search box */}
-            <div className="relative min-w-[280px]">
-              <Search className="w-4 h-4 text-[#8EAD84] absolute left-3.5 top-1/2 -translate-y-1/2" />
-              <input
-                type="text"
-                id="news-search-input"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search hops, awards, contests, breweries..."
-                className="w-full pl-10 pr-9 py-2.5 rounded-xl bg-[#142312] border border-[#243F21] text-xs text-white placeholder-[#6D8A68] focus:outline-hidden focus:border-[#58A72F] transition-colors"
-              />
-              {searchQuery && (
-                <button
-                  type="button"
-                  onClick={() => setSearchQuery('')}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#8EAD84] hover:text-white"
-                >
-                  <X className="w-3.5 h-3.5" />
-                </button>
-              )}
-            </div>
           </div>
 
-          {/* Sub-bar: Sort order indicator & count */}
-          <div className="flex flex-wrap items-center justify-between gap-3 pt-2 text-xs border-t border-[#1C2E1A]">
-            <div className="flex items-center gap-2 text-[#9CB394]">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-[#142613] border border-[#284924] text-[#A6E88B] font-bold text-[11px] font-brand tracking-wider">
-                <Clock className="w-3.5 h-3.5 text-[#F59E0B]" />
-                SORTED: MOST RECENT FIRST
-              </span>
-              <span className="text-[#6D8A68]">•</span>
-              <span className="text-[#8EAD84]">
-                Showing {filteredAndSortedArticles.length} {filteredAndSortedArticles.length === 1 ? 'article' : 'news stories'}
-              </span>
-            </div>
-
-            {selectedCategory !== 'All' && (
+          {/* Clear category filter option if active */}
+          {selectedCategory !== 'All' && (
+            <div className="flex items-center justify-end pt-2 text-xs border-t border-[#1C2E1A]">
               <button
                 type="button"
                 onClick={() => setSelectedCategory('All')}
-                className="text-[11px] text-[#F59E0B] hover:underline font-semibold"
+                className="text-[11px] text-[#F59E0B] hover:underline font-semibold cursor-pointer"
               >
                 Clear category filter ({selectedCategory})
               </button>
-            )}
-          </div>
+            </div>
+          )}
         </div>
 
         {/* Empty state */}
@@ -275,17 +231,14 @@ export const BeerNewsPage: React.FC<BeerNewsPageProps> = ({ onStartPlanning }) =
             <Newspaper className="w-10 h-10 text-[#6D8A68] mx-auto" />
             <h3 className="text-lg font-bold text-white">No brew news matches your filter</h3>
             <p className="text-xs text-[#9CB394] max-w-sm mx-auto">
-              Try resetting your category or clearing search terms to explore all recent craft beer news.
+              Try resetting your category to explore all recent craft beer news.
             </p>
             <button
               type="button"
-              onClick={() => {
-                setSelectedCategory('All');
-                setSearchQuery('');
-              }}
+              onClick={() => setSelectedCategory('All')}
               className="px-4 py-2 rounded-xl bg-[#58A72F] text-white text-xs font-bold font-brand tracking-wider mt-2 cursor-pointer"
             >
-              RESET FILTERS
+              RESET TO ALL NEWS
             </button>
           </div>
         )}
