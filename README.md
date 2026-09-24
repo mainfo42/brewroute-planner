@@ -30,15 +30,19 @@ Click **Deploy Site**!
 
 ## 📬 Contact Form with Netlify Forms (No SMTP Needed)
 
-The contact form uses **Netlify Forms** built directly into the platform:
-- **No SMTP credentials or external mail servers required**: Netlify automatically intercepts and processes submissions.
-- **Bot Protection**: Includes a honeypot field (`bot-field`) and encrypted transmission.
-- **Receive submissions via email**:
-  1. Go to your site in the [Netlify Dashboard](https://app.netlify.com).
+The contact form is configured strictly according to the [Official Netlify Forms Documentation](https://docs.netlify.com/manage/forms/setup/):
+- **Built-in Serverless Processing**: Netlify automatically intercepts POST submissions at `/` with `application/x-www-form-urlencoded` data. No SMTP credentials or backend mailing libraries required.
+- **Dual HTML Discovery**:
+  - `index.html` and `public/__forms.html` provide static mirror forms with `method="POST"`, `data-netlify="true"`, and `netlify-honeypot="bot-field"` so Netlify's build bots register the form automatically during deployment.
+- **React SPA Submission**:
+  - Uses `URLSearchParams` with `form-name: contact` and anti-spam honeypot verification.
+- **Bot Protection**: Includes a honeypot field (`bot-field`) and automated Akismet spam filtering.
+- **Email Notifications**:
+  1. Open your project in the [Netlify Dashboard](https://app.netlify.com).
   2. Navigate to **Site configuration** > **Forms** > **Form notifications**.
   3. Click **Add notification** > **Email notification**.
-  4. Enter your email address to receive all contact submissions directly in your inbox.
-- Submissions can also be reviewed at any time directly in the Netlify Dashboard under the **Forms** tab.
+  4. Select `contact` form and enter your destination email address (e.g. `mainfo42@gmail.com`).
+- **Submission History**: All entries are permanently stored and viewable under the **Forms** tab in Netlify.
 
 ---
 

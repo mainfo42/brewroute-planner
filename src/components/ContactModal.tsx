@@ -14,12 +14,6 @@ interface ContactModalProps {
   onClose: () => void;
 }
 
-const encode = (data: Record<string, string>) => {
-  return Object.keys(data)
-    .map((key) => encodeURIComponent(key) + '=' + encodeURIComponent(data[key]))
-    .join('&');
-};
-
 export const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose }) => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -53,8 +47,9 @@ export const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose }) =
     setIsSubmitting(true);
 
     try {
-      // Netlify Forms standard submission (No SMTP credentials required)
-      const formPayload = {
+      // Netlify Forms AJAX submission per official docs:
+      // https://docs.netlify.com/manage/forms/setup/
+      const formPayload: Record<string, string> = {
         'form-name': 'contact',
         'bot-field': honeypot.trim(),
         name: name.trim(),
@@ -68,7 +63,7 @@ export const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose }) =
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
         },
-        body: encode(formPayload),
+        body: new URLSearchParams(formPayload).toString(),
       });
 
       if (!response.ok) {
@@ -192,6 +187,7 @@ export const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose }) =
             <form
               name="contact"
               method="POST"
+              action="/"
               data-netlify="true"
               data-netlify-honeypot="bot-field"
               onSubmit={handleSubmit}
