@@ -641,17 +641,7 @@ export const RouteForm: React.FC<RouteFormProps> = ({
             </div>
           )}
 
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div className="flex items-center gap-2 text-xs text-[#A3B899]">
-              <span
-                className="w-2.5 h-2.5 rounded-full inline-block shrink-0 shadow-xs"
-                style={{ backgroundColor: activeThemeConfig.primaryColor }}
-              />
-              <span className="text-[11px] sm:text-xs font-semibold">
-                Max 3 breweries/day • Spaced ≤ 25 min • Certified ratings
-              </span>
-            </div>
-
+          <div className="flex flex-col items-center justify-center gap-3 pt-2">
             <button
               type="submit"
               id="generate-route-submit-btn"
@@ -661,14 +651,14 @@ export const RouteForm: React.FC<RouteFormProps> = ({
                 boxShadow: `0 10px 25px -5px ${activeThemeConfig.primaryColor}55, 0 4px 12px -2px ${activeThemeConfig.accentColor}44`,
                 borderColor: `${activeThemeConfig.accentColor}99`,
               }}
-              className="w-full sm:w-auto px-8 py-4 rounded-full text-white font-black text-sm shadow-xl flex items-center justify-center gap-3 transition-all cursor-pointer hover:brightness-110 active:scale-[0.98] disabled:opacity-75 disabled:cursor-not-allowed min-h-[52px] font-brand tracking-wider border-2"
+              className="w-full sm:w-auto px-10 sm:px-14 py-4 sm:py-5 rounded-full text-white font-black text-base sm:text-lg shadow-xl flex items-center justify-center gap-3.5 transition-all cursor-pointer hover:brightness-110 active:scale-[0.98] disabled:opacity-75 disabled:cursor-not-allowed min-h-[58px] font-brand tracking-wider border-2"
             >
               {isLoading ? (
                 <>
                   <div className="relative flex items-center justify-center">
                     <div className="w-5 h-5 border-2 border-white/30 border-t-white border-r-white rounded-full animate-spin" />
                   </div>
-                  <span>
+                  <span className="text-base sm:text-lg">
                     {loadingSeconds >= 15
                       ? 'ROUTE IS BREWING.... JUST A MOMENT'
                       : 'CRAFTING YOUR ROUTE...'}
@@ -676,12 +666,22 @@ export const RouteForm: React.FC<RouteFormProps> = ({
                 </>
               ) : (
                 <>
-                  <HopIcon className="w-5 h-5 text-white drop-shadow-xs" filled />
-                  <span className="drop-shadow-xs">GENERATE BREWHOP ITINERARY</span>
-                  <ChevronRight className="w-4 h-4 text-white/90" />
+                  <HopIcon className="w-6 h-6 text-white drop-shadow-xs shrink-0" filled />
+                  <span className="drop-shadow-xs tracking-wider">GENERATE BREWHOP ITINERARY</span>
+                  <ChevronRight className="w-5 h-5 text-white/90 shrink-0" />
                 </>
               )}
             </button>
+
+            <div className="flex items-center justify-center gap-2 text-xs sm:text-sm text-[#A3B899] text-center">
+              <span
+                className="w-2.5 h-2.5 rounded-full inline-block shrink-0 shadow-xs"
+                style={{ backgroundColor: activeThemeConfig.primaryColor }}
+              />
+              <span className="font-semibold">
+                Max 3 breweries/day • Spaced ≤ 25 min • Certified ratings
+              </span>
+            </div>
           </div>
         </div>
       </form>
