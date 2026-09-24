@@ -3,15 +3,143 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-    <title>BrewHop — Microbrewery Trail Planner</title>
-    <meta name="description" content="Microbrewery travel routes and Google Maps itineraries based on your favorite beer styles, certified ratings, and stays." />
+    
+    <!-- Primary Page Title & Search Metadata -->
+    <title>BrewHop — Microbrewery Trail & Craft Beer Route Planner</title>
+    <meta name="description" content="Mobile-optimized microbrewery travel route and Google Maps itinerary planner with craft beer style curation, top review ratings, and stay recommendations." />
+    <meta name="keywords" content="microbrewery trail, craft brewery road trip, beer route planner, craft beer itinerary, brewpub map, local breweries, craft beer travel, brewery finder, taproom road trips" />
+    <meta name="author" content="BrewHop" />
+    <meta name="application-name" content="BrewHop" />
     <meta name="theme-color" content="#183317" />
+    <link rel="canonical" href="https://brewhop.app/" />
+
+    <!-- Crawlers, Indexing & Discoverability -->
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    <meta name="googlebot" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
+    <meta name="bingbot" content="index, follow" />
+
+    <!-- OpenGraph Social Sharing Metadata (AGO / Social Cards) -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="BrewHop" />
+    <meta property="og:title" content="BrewHop — Microbrewery Trail & Craft Beer Route Planner" />
+    <meta property="og:description" content="Mobile-optimized microbrewery travel route and Google Maps itinerary planner with craft beer style curation, top review ratings, and stay recommendations." />
+    <meta property="og:url" content="https://brewhop.app/" />
+    <meta property="og:image" content="/og-image.jpg" />
+    <meta property="og:image:secure_url" content="/og-image.jpg" />
+    <meta property="og:image:type" content="image/jpeg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="675" />
+    <meta property="og:image:alt" content="BrewHop - Craft Microbrewery Trail and Route Planner" />
+    <meta property="og:locale" content="en_US" />
+
+    <!-- Twitter / X Card Tags -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@BrewHopApp" />
+    <meta name="twitter:creator" content="@BrewHopApp" />
+    <meta name="twitter:title" content="BrewHop — Microbrewery Trail & Craft Beer Route Planner" />
+    <meta name="twitter:description" content="Mobile-optimized microbrewery travel route and Google Maps itinerary planner with craft beer style curation, top review ratings, and stay recommendations." />
+    <meta name="twitter:image" content="/og-image.jpg" />
+    <meta name="twitter:image:alt" content="BrewHop - Craft Microbrewery Trail and Route Planner" />
+
+    <!-- Mobile Web App & PWA Capabilities -->
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="BrewHop" />
+
+    <!-- Icons & Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/favicon.svg" />
+
+    <!-- Fonts & Leaflet Styling -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:ital,wght@0,600;0,700;0,800;0,900;1,700;1,800&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,600&family=Syne:wght@700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+    <!-- Google AdSense -->
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8821168386123284"
      crossorigin="anonymous"></script>
+
+    <!-- Schema.org JSON-LD Structured Data: WebApplication, Organization, & Answer Engine (AGO/AEO) FAQ -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "WebApplication",
+          "@id": "https://brewhop.app/#webapp",
+          "name": "BrewHop",
+          "alternateName": ["BeerHop", "BrewHop Trail Planner"],
+          "url": "https://brewhop.app/",
+          "description": "Mobile-optimized microbrewery travel route and Google Maps itinerary planner with craft beer style curation, top review ratings, and stay recommendations.",
+          "applicationCategory": "TravelApplication",
+          "operatingSystem": "All",
+          "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD"
+          },
+          "featureList": [
+            "Interactive microbrewery road trip itinerary builder",
+            "Craft beer style curation (IPA, Hazy, Sour, Stout, Lager, Wild Ale)",
+            "Turn-by-turn Google Maps & Apple Maps route export",
+            "Certified brewery ratings, reviews, and taproom amenities",
+            "Nearby stays, dog-friendly patios, and local food truck discovery"
+          ],
+          "screenshot": "https://brewhop.app/og-image.jpg"
+        },
+        {
+          "@type": "Organization",
+          "@id": "https://brewhop.app/#organization",
+          "name": "BrewHop",
+          "url": "https://brewhop.app/",
+          "logo": {
+            "@type": "ImageObject",
+            "url": "https://brewhop.app/favicon.svg"
+          }
+        },
+        {
+          "@type": "FAQPage",
+          "@id": "https://brewhop.app/#faq",
+          "mainEntity": [
+            {
+              "@type": "Question",
+              "name": "How does BrewHop plan a microbrewery road trip?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "BrewHop allows travelers to search by city or destination, select their favorite craft beer styles (such as IPAs, Stouts, Sours, or Lagers), and automatically builds an optimized multi-stop brewery trail with distances, drive times, and direct Google Maps navigation."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Can I export brewery itineraries directly to Google Maps?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Yes. Every generated beer trail can be exported with a single tap to Google Maps or Apple Maps, preserving all waypoint stops in order for hands-free navigation."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "What information is provided for each craft brewery?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Each brewery card provides community ratings, top poured beer styles, operating hours, outdoor and dog-friendly seating availability, food options, and direct links to directions."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Is BrewHop free to use?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Yes, BrewHop is completely free to use with no subscription required for planning brewery road trips and discovering independent taprooms."
+              }
+            }
+          ]
+        }
+      ]
+    }
+    </script>
   </head>
   <body class="bg-[#F2F8F0] text-[#122610] font-sans antialiased min-h-full selection:bg-[#D9EECF] selection:text-[#122610]">
     <!-- Netlify Forms detection form for React Single Page App (hidden mirror form per https://docs.netlify.com/manage/forms/setup/) -->

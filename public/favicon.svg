@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <rect width="64" height="64" rx="16" fill="#142612"/>
+  <!-- Foam / Head -->
+  <path d="M18 25C18 20.5817 21.5817 17 26 17H38C42.4183 17 46 20.5817 46 25V28H18V25Z" fill="#F8FAFC"/>
+  <!-- Mug Body -->
+  <path d="M18 28H46V45C46 48.3137 43.3137 51 40 51H24C20.6863 51 18 48.3137 18 45V28Z" fill="#D97706"/>
+  <!-- Mug Highlights -->
+  <path d="M22 30V47" stroke="#FBBF24" stroke-width="2" stroke-linecap="round"/>
+  <path d="M28 30V47" stroke="#FBBF24" stroke-width="2" stroke-linecap="round"/>
+  <!-- Handle -->
+  <path d="M46 31H49C51.2091 31 53 32.7909 53 35V41C53 43.2091 51.2091 45 49 45H46" stroke="#D97706" stroke-width="3" stroke-linecap="round"/>
+  <!-- Hop leaf accent -->
+  <path d="M32 11C28 13 28 17 32 19C36 17 36 13 32 11Z" fill="#66DE37"/>
+  <path d="M32 11V19" stroke="#3A7D1F" stroke-width="1"/>
+</svg>

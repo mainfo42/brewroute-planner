@@ -1,0 +1,27 @@
+# Robots.txt for BrewHop (Microbrewery Trail Planner)
+User-agent: *
+Allow: /
+
+# AI Answer Engines & Search Crawlers
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: Applebot
+Allow: /
+
+User-agent: GPTBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+Sitemap: https://brewhop.app/sitemap.xml
