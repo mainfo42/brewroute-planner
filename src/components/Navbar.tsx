@@ -28,6 +28,7 @@ interface NavbarProps {
   onLogout: () => void;
   hasActiveRoute: boolean;
   onReset: () => void;
+  onOpenContact?: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -42,6 +43,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   onLogout,
   hasActiveRoute,
   onReset,
+  onOpenContact,
 }) => {
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
@@ -89,7 +91,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             <div className="flex flex-col justify-center">
               <div className="flex items-baseline gap-2">
                 <span className="font-black text-xl sm:text-2xl tracking-wide text-white drop-shadow-xs font-brand leading-none">
-                  BEERHOP
+                  BREWHOP
                 </span>
               </div>
               <p className="text-[10px] sm:text-xs text-[#C6E2BD] font-semibold tracking-normal mt-0.5 leading-tight">
@@ -158,6 +160,17 @@ export const Navbar: React.FC<NavbarProps> = ({
           >
             About
           </button>
+
+          {onOpenContact && (
+            <button
+              type="button"
+              id="desktop-nav-contact"
+              onClick={onOpenContact}
+              className="px-4 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer text-[#C6E2BD] hover:text-white hover:bg-white/5"
+            >
+              Contact
+            </button>
+          )}
         </nav>
 
         {/* Right: Action Buttons & User Auth */}

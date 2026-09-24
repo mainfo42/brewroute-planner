@@ -1,4 +1,4 @@
-# BrewRoute 🍺
+# BrewHop 🍺
 
 A smart, AI-powered craft beer itinerary and microbrewery road-trip planner.
 
@@ -6,7 +6,7 @@ A smart, AI-powered craft beer itinerary and microbrewery road-trip planner.
 
 ## 🚀 Deploying to Netlify
 
-This project is pre-configured for **Netlify** with automatic serverless functions for the Gemini API backend and Single Page Application (SPA) routing.
+This project is pre-configured for **Netlify** with automatic serverless functions for the Gemini API backend, built-in **Netlify Forms**, and Single Page Application (SPA) routing.
 
 ### Step 1: Connect your Repository to Netlify
 1. Export this project to **GitHub** via AI Studio's settings menu (or push your repository to GitHub/GitLab).
@@ -25,6 +25,20 @@ Go to **Site Configuration** > **Environment variables** > **Add a variable**:
 - `NODE_VERSION`: `20`
 
 Click **Deploy Site**!
+
+---
+
+## 📬 Contact Form with Netlify Forms (No SMTP Needed)
+
+The contact form uses **Netlify Forms** built directly into the platform:
+- **No SMTP credentials or external mail servers required**: Netlify automatically intercepts and processes submissions.
+- **Bot Protection**: Includes a honeypot field (`bot-field`) and encrypted transmission.
+- **Receive submissions via email**:
+  1. Go to your site in the [Netlify Dashboard](https://app.netlify.com).
+  2. Navigate to **Site configuration** > **Forms** > **Form notifications**.
+  3. Click **Add notification** > **Email notification**.
+  4. Enter your email address to receive all contact submissions directly in your inbox.
+- Submissions can also be reviewed at any time directly in the Netlify Dashboard under the **Forms** tab.
 
 ---
 

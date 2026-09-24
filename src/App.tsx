@@ -12,6 +12,7 @@ import { HomePage } from './components/HomePage';
 import { AboutPage } from './components/AboutPage';
 import { BeerNewsPage } from './components/BeerNewsPage';
 import { HamburgerMenu } from './components/HamburgerMenu';
+import { ContactModal } from './components/ContactModal';
 import {
   BrewTravelRoute,
   RouteParameters,
@@ -33,7 +34,7 @@ import {
   saveItinerary,
   deleteSavedItinerary,
 } from './utils/authStorage';
-import { AlertCircle, Beer, Sparkles, CheckCircle2 } from 'lucide-react';
+import { AlertCircle, Beer, Sparkles, CheckCircle2, Mail } from 'lucide-react';
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState<AppPageView>('home');
@@ -70,6 +71,7 @@ export default function App() {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authModalMode, setAuthModalMode] = useState<'login' | 'signup' | 'forgot'>('login');
   const [isSavedItinerariesModalOpen, setIsSavedItinerariesModalOpen] = useState(false);
+  const [isContactModalOpen, setIsContactModalOpen] = useState(false);
 
   // Reload saved itineraries when current user changes
   useEffect(() => {
@@ -139,7 +141,7 @@ export default function App() {
       console.error('Failed to generate route from API:', err);
       // Fallback: Synthesize high-quality verified real itinerary strictly conforming to user constraints
       setErrorMessage(
-        'BeerHop Engine: Route synthesized with certified ratings and top local breweries.'
+        'BrewHop Engine: Route synthesized with certified ratings and top local breweries.'
       );
       const fallbackRoute = generateClientFallbackRoute(params);
       setCurrentRoute(fallbackRoute);
@@ -242,7 +244,7 @@ export default function App() {
       setCurrentUser(res.user);
       setSavedItineraries(getSavedItineraries(res.user.id));
       setIsAuthModalOpen(false);
-      setSuccessToast(`Account created! Welcome to BeerHop, ${res.user.displayName || res.user.email}!`);
+      setSuccessToast(`Account created! Welcome to BrewHop, ${res.user.displayName || res.user.email}!`);
       return { success: true, user: res.user };
     }
     return { success: false, error: res.error };
@@ -372,6 +374,7 @@ export default function App() {
           setCurrentPage('plan');
           setActiveMobileTab('plan');
         }}
+        onOpenContact={() => setIsContactModalOpen(true)}
       />
 
       {/* Success Notification Toast */}
@@ -392,7 +395,7 @@ export default function App() {
 
       {/* Error alert toast if present */}
       {errorMessage && (
-        <div className={`max-w-4xl mx-auto mt-4 px-4 sm:px-6 w-full ${errorMessage.includes('BeerHop Engine') ? 'hidden sm:block' : ''}`}>
+        <div className={`max-w-4xl mx-auto mt-4 px-4 sm:px-6 w-full ${errorMessage.includes('BrewHop Engine') ? 'hidden sm:block' : ''}`}>
           <div className="p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-900 text-xs font-medium flex items-center justify-between shadow-2xs">
             <div className="flex items-center gap-2">
               <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
@@ -538,6 +541,7 @@ export default function App() {
         onOpenAuth={handleOpenAuth}
         onLogout={handleLogout}
         hasActiveRoute={!!currentRoute}
+        onOpenContact={() => setIsContactModalOpen(true)}
       />
 
       {/* Curated Pre-Crafted Routes Modal */}
@@ -594,21 +598,98 @@ export default function App() {
         onDeleteItinerary={handleDeleteSaved}
       />
 
-      {/* Footer */}
+      {/* Masked Secure Contact Us Modal */}
+      <ContactModal
+        isOpen={isContactModalOpen}
+        onClose={() => setIsContactModalOpen(false)}
+      />
+
+      {/* Footer with 2026 Copyright & Contact Us */}
       <footer
-        className={`py-6 px-4 border-t text-center text-xs no-print hidden md:block transition-colors ${
+        className={`pt-8 pb-24 md:pb-8 px-4 sm:px-6 lg:px-8 border-t text-xs no-print transition-colors ${
           currentPage === 'plan' && currentRoute
-            ? 'border-[#C6E2BD] text-[#4D6D47] bg-white/80 backdrop-blur-xs'
-            : 'border-[#222222] text-[#888888] bg-[#0A0A0A]'
+            ? 'border-[#C6E2BD] text-[#4D6D47] bg-white/95 backdrop-blur-xs'
+            : 'border-[#1E301B] text-[#9CB394] bg-[#0A1009]'
         }`}
       >
-        <div className="max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2 font-normal">
-          <div className={`flex items-center gap-1.5 font-bold ${currentPage === 'plan' && currentRoute ? 'text-[#122610]' : 'text-white'}`}>
-            <span className="w-2 h-2 rounded-full bg-[#58A72F]" />
-            <span>BeerHop Planner • Drink Responsibly</span>
+        <div className="max-w-6xl mx-auto space-y-6">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+            {/* Brand & Purpose */}
+            <div className="flex items-center gap-2.5">
+              <span className="w-2.5 h-2.5 rounded-full bg-[#58A72F] shadow-[0_0_8px_#58A72F]" />
+              <span className={`font-black tracking-wide text-sm font-brand ${currentPage === 'plan' && currentRoute ? 'text-[#122610]' : 'text-white'}`}>
+                BREWHOP
+              </span>
+              <span className="text-[#58A72F]">•</span>
+              <span className={`text-xs ${currentPage === 'plan' && currentRoute ? 'text-[#3E5C38]' : 'text-[#A6D496]'}`}>
+                Craft Beer Road Trip Planner
+              </span>
+            </div>
+
+            {/* Navigation & Contact Us Action */}
+            <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4 text-xs font-semibold">
+              <button
+                type="button"
+                id="footer-nav-home"
+                onClick={() => {
+                  setCurrentPage('home');
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
+                className={`hover:underline cursor-pointer transition-colors ${
+                  currentPage === 'plan' && currentRoute ? 'text-[#122610] hover:text-[#58A72F]' : 'text-[#C6E2BD] hover:text-[#66DE37]'
+                }`}
+              >
+                Home
+              </button>
+              <span className="text-[#3A5634]">•</span>
+              <button
+                type="button"
+                id="footer-nav-about"
+                onClick={() => {
+                  setCurrentPage('about');
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
+                className={`hover:underline cursor-pointer transition-colors ${
+                  currentPage === 'plan' && currentRoute ? 'text-[#122610] hover:text-[#58A72F]' : 'text-[#C6E2BD] hover:text-[#66DE37]'
+                }`}
+              >
+                About Us
+              </button>
+              <span className="text-[#3A5634]">•</span>
+              <button
+                type="button"
+                id="footer-nav-news"
+                onClick={() => {
+                  setCurrentPage('news');
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
+                className={`hover:underline cursor-pointer transition-colors ${
+                  currentPage === 'plan' && currentRoute ? 'text-[#122610] hover:text-[#58A72F]' : 'text-[#C6E2BD] hover:text-[#66DE37]'
+                }`}
+              >
+                Beer News
+              </button>
+              <span className="text-[#3A5634]">•</span>
+              <button
+                type="button"
+                id="footer-contact-us-btn"
+                onClick={() => setIsContactModalOpen(true)}
+                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#1A2E17] hover:bg-[#254221] border border-[#58A72F]/50 text-[#66DE37] hover:text-[#8BE052] transition-colors cursor-pointer shadow-2xs active:scale-95"
+              >
+                <Mail className="w-3.5 h-3.5" />
+                <span>Contact Us</span>
+              </button>
+            </div>
           </div>
-          <div className={`text-[11px] ${currentPage === 'plan' && currentRoute ? 'text-[#6D9364]' : 'text-[#8EAD84]'}`}>
-            ≤ 3 microbreweries/day • Spaced ≤ 25 min drive • Certified Untappd & Google Reviews
+
+          <div className="pt-4 border-t border-[#1C2C19] flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px] text-[#7E9E74]">
+            {/* Copyright with 2026 Year */}
+            <p className="font-medium text-center sm:text-left">
+              © 2026 BrewHop. All rights reserved. Drink responsibly.
+            </p>
+            <p className="text-center sm:text-right">
+              ≤ 3 microbreweries/day • Spaced ≤ 25 min drives • 4-Platform Verified Ratings
+            </p>
           </div>
         </div>
       </footer>

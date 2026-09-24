@@ -132,10 +132,6 @@ export const BeerNewsPage: React.FC<BeerNewsPageProps> = ({ onStartPlanning }) =
         {/* Header section */}
         <div className="flex flex-col md:flex-row items-start md:items-end justify-between gap-6 border-b border-[#1E331B] pb-8">
           <div className="space-y-3 max-w-2xl">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#1A2E17] border border-[#58A72F]/40 text-[#A6E88B] text-xs font-bold font-brand tracking-wider">
-              <Newspaper className="w-4 h-4 text-[#F59E0B]" />
-              <span>GLOBAL BREW NEWS</span>
-            </div>
             <h1 className="text-3xl sm:text-5xl font-black tracking-tight text-white font-display uppercase leading-tight">
               Worldwide Beer Updates
             </h1>
@@ -256,11 +252,6 @@ export const BeerNewsPage: React.FC<BeerNewsPageProps> = ({ onStartPlanning }) =
                   <span className={`text-[11px] font-black px-3 py-1 rounded-full border uppercase tracking-wider font-brand ${getCategoryBadgeClass(featuredArticle.category)}`}>
                     {featuredArticle.category}
                   </span>
-                  {featuredArticle.badge && (
-                    <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-[#1E331B] text-[#A6E88B] border border-[#3E6B37] font-brand uppercase tracking-wider">
-                      {featuredArticle.badge}
-                    </span>
-                  )}
                   <span className="text-xs text-[#9CB394] flex items-center gap-1.5 font-medium">
                     <Calendar className="w-3.5 h-3.5 text-[#F59E0B]" />
                     {featuredArticle.publishDate}
@@ -268,9 +259,6 @@ export const BeerNewsPage: React.FC<BeerNewsPageProps> = ({ onStartPlanning }) =
                   <span className="text-xs text-[#9CB394] flex items-center gap-1.5">
                     <Clock className="w-3.5 h-3.5" />
                     {featuredArticle.readTimeMin} min read
-                  </span>
-                  <span className="text-[10px] font-black px-2.5 py-0.5 rounded-full bg-[#D97706] text-white font-brand uppercase tracking-wider">
-                    LATEST BREW NEWS
                   </span>
                 </div>
 
@@ -297,16 +285,12 @@ export const BeerNewsPage: React.FC<BeerNewsPageProps> = ({ onStartPlanning }) =
                 )}
 
                 <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
-                  <div className="flex flex-wrap gap-1.5">
-                    {featuredArticle.tags.map((tag) => (
-                      <span
-                        key={tag}
-                        className="text-[11px] font-medium px-2.5 py-1 rounded-lg bg-[#111E10] text-[#9CB394] border border-[#1E331B]"
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
+                  {featuredArticle.tags.length > 0 && (
+                    <span className="text-[11px] font-semibold px-2.5 py-1 rounded-lg bg-[#111E10] text-[#9CB394] border border-[#1E331B] inline-flex items-center gap-1.5">
+                      <Tag className="w-3.5 h-3.5 text-[#F59E0B]" />
+                      {featuredArticle.tags[0]}
+                    </span>
+                  )}
 
                   <span className="inline-flex items-center gap-1.5 text-xs font-bold text-[#F59E0B] group-hover:translate-x-1 transition-transform font-brand">
                     READ FULL STORY <ChevronRight className="w-4 h-4" />
@@ -339,16 +323,9 @@ export const BeerNewsPage: React.FC<BeerNewsPageProps> = ({ onStartPlanning }) =
                 >
                   <div className="space-y-3">
                     <div className="flex flex-wrap items-center justify-between gap-1.5">
-                      <div className="flex items-center gap-1.5">
-                        <span className={`text-[10px] font-black px-2.5 py-0.5 rounded-full border uppercase tracking-wider font-brand ${getCategoryBadgeClass(article.category)}`}>
-                          {article.category}
-                        </span>
-                        {article.badge && (
-                          <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-[#182B16] text-[#A6E88B] border border-[#2C4D26] font-brand uppercase">
-                            {article.badge}
-                          </span>
-                        )}
-                      </div>
+                      <span className={`text-[10px] font-black px-2.5 py-0.5 rounded-full border uppercase tracking-wider font-brand ${getCategoryBadgeClass(article.category)}`}>
+                        {article.category}
+                      </span>
                       <span className="text-[11px] text-[#8EAD84]">
                         {article.readTimeMin} min read
                       </span>
@@ -368,6 +345,15 @@ export const BeerNewsPage: React.FC<BeerNewsPageProps> = ({ onStartPlanning }) =
                     <p className="text-xs text-[#9CB394] leading-relaxed line-clamp-3">
                       {article.summary}
                     </p>
+
+                    {article.tags.length > 0 && (
+                      <div className="pt-1">
+                        <span className="inline-flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded-lg bg-[#101A0F] text-[#8EAD84] border border-[#1E331B]">
+                          <Tag className="w-3 h-3 text-[#D97706]" />
+                          {article.tags[0]}
+                        </span>
+                      </div>
+                    )}
                   </div>
 
                   <div className="pt-4 mt-4 border-t border-[#1C2F1A] flex items-center justify-between text-xs">
@@ -394,7 +380,7 @@ export const BeerNewsPage: React.FC<BeerNewsPageProps> = ({ onStartPlanning }) =
             Inspired to Taste These Fresh Pours in Person?
           </h3>
           <p className="text-xs sm:text-sm text-[#9CB394] max-w-lg mx-auto">
-            Use BeerHop’s smart route engine to design a personalized craft trail to legendary taprooms, 
+            Use BrewHop’s smart route engine to design a personalized craft trail to legendary taprooms, 
             complete with turn-by-turn navigation and overnight stays.
           </p>
           <button
@@ -423,15 +409,10 @@ export const BeerNewsPage: React.FC<BeerNewsPageProps> = ({ onStartPlanning }) =
             {/* Modal Header */}
             <div className="p-5 sm:p-6 border-b border-[#213B1E] flex items-start justify-between gap-4 bg-[#162D15]/80">
               <div className="space-y-1.5">
-                <div className="flex items-center gap-2">
+                <div>
                   <span className={`text-[10px] font-black px-2.5 py-0.5 rounded-full border uppercase tracking-wider font-brand ${getCategoryBadgeClass(activeArticleModal.category)}`}>
                     {activeArticleModal.category}
                   </span>
-                  {activeArticleModal.badge && (
-                    <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-[#1A2E17] text-[#A6E88B] border border-[#2E5528] font-brand uppercase tracking-wider">
-                      {activeArticleModal.badge}
-                    </span>
-                  )}
                 </div>
                 <h3 className="text-lg sm:text-xl font-black text-white font-display uppercase tracking-tight leading-snug">
                   {activeArticleModal.title}
@@ -474,16 +455,14 @@ export const BeerNewsPage: React.FC<BeerNewsPageProps> = ({ onStartPlanning }) =
               ))}
 
               <div className="pt-4 border-t border-[#213B1E] space-y-3">
-                <div className="flex flex-wrap gap-1.5">
-                  {activeArticleModal.tags.map((tag) => (
-                    <span
-                      key={tag}
-                      className="text-xs font-semibold px-2.5 py-1 rounded-lg bg-[#182C16] text-[#A6D496] border border-[#254622]"
-                    >
-                      {tag}
+                {activeArticleModal.tags.length > 0 && (
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-xs font-semibold px-2.5 py-1 rounded-lg bg-[#182C16] text-[#A6D496] border border-[#254622] inline-flex items-center gap-1.5">
+                      <Tag className="w-3.5 h-3.5 text-[#F59E0B]" />
+                      {activeArticleModal.tags[0]}
                     </span>
-                  ))}
-                </div>
+                  </div>
+                )}
 
                 {activeArticleModal.sourceName && (
                   <p className="text-xs text-[#7A9E74] italic">

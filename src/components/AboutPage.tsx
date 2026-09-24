@@ -27,18 +27,18 @@ export const AboutPage: React.FC<AboutPageProps> = ({
   onNavigate,
 }) => {
   return (
-    <div id="beerhop-about-page" className="w-full text-white bg-black py-10 sm:py-16 px-4 sm:px-6 lg:px-8 animate-in fade-in duration-200">
+    <div id="brewhop-about-page" className="w-full text-white bg-black py-10 sm:py-16 px-4 sm:px-6 lg:px-8 animate-in fade-in duration-200">
       <div className="max-w-4xl mx-auto space-y-12">
         {/* Header Breadcrumb & Title */}
         <div className="text-center space-y-4">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#182B16] border border-[#58A72F]/40 text-[#A6E88B] text-xs font-bold font-brand tracking-wider">
             <Info className="w-4 h-4 text-[#66DE37]" />
-            <span>ABOUT BEERHOP</span>
+            <span>ABOUT BREWHOP</span>
           </div>
 
           <h1 className="text-3xl sm:text-5xl font-black tracking-tight text-white font-display uppercase leading-tight">
             The Purpose Behind <br />
-            <span className="text-[#66DE37]">BeerHop</span>
+            <span className="text-[#66DE37]">BrewHop</span>
           </h1>
 
           <p className="text-base sm:text-lg text-[#C3D9BF] max-w-2xl mx-auto leading-relaxed">
@@ -54,7 +54,7 @@ export const AboutPage: React.FC<AboutPageProps> = ({
               <Heart className="w-5 h-5" />
             </div>
             <h2 className="text-xl sm:text-2xl font-black text-white font-display uppercase tracking-tight">
-              Why We Created BeerHop
+              Why We Created BrewHop
             </h2>
           </div>
 
@@ -66,7 +66,7 @@ export const AboutPage: React.FC<AboutPageProps> = ({
               didn't pour the styles we loved, or zigzagging across busy highways instead of enjoying peaceful scenic backroads.
             </p>
             <p>
-              <strong className="text-white">BeerHop exists to solve this completely.</strong> Our purpose is to serve 
+              <strong className="text-white">BrewHop exists to solve this completely.</strong> Our purpose is to serve 
               as an intelligent travel architect for beer lovers, road trippers, and weekend adventurers. We automate 
               the complex logistics of brewery touring so you can spend your time where it belongs: in sunny beer gardens, 
               chatting with passionate brewmasters, and discovering fresh local pints.
@@ -103,7 +103,7 @@ export const AboutPage: React.FC<AboutPageProps> = ({
                 <h3 className="font-bold text-white text-base uppercase font-display">Composite Quality Screening</h3>
               </div>
               <p className="text-xs sm:text-sm text-[#9CB394] leading-relaxed">
-                Rather than relying on a single biased review score, BeerHop cross-references verified data from 
+                Rather than relying on a single biased review score, BrewHop cross-references verified data from 
                 Untappd, Google Reviews, RateBeer, and TripAdvisor to highlight truly exceptional craft producers.
               </p>
             </div>
@@ -144,7 +144,7 @@ export const AboutPage: React.FC<AboutPageProps> = ({
           </div>
 
           <p className="text-sm text-[#A9C4A2] leading-relaxed">
-            BeerHop is dedicated to responsible appreciation of craft beer. We encourage our community to:
+            BrewHop is dedicated to responsible appreciation of craft beer. We encourage our community to:
           </p>
 
           <ul className="space-y-2 text-xs sm:text-sm text-[#C3D9BF]">

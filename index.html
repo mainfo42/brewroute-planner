@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-    <title>BeerHop — Microbrewery Trail Planner</title>
+    <title>BrewHop — Microbrewery Trail Planner</title>
     <meta name="description" content="Microbrewery travel routes and Google Maps itineraries based on your favorite beer styles, certified ratings, and stays." />
     <meta name="theme-color" content="#183317" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -14,6 +14,16 @@
      crossorigin="anonymous"></script>
   </head>
   <body class="bg-[#F2F8F0] text-[#122610] font-sans antialiased min-h-full selection:bg-[#D9EECF] selection:text-[#122610]">
+    <!-- Netlify Forms detection form for React Single Page App (hidden mirror form) -->
+    <form name="contact" netlify data-netlify="true" netlify-honeypot="bot-field" hidden>
+      <input type="hidden" name="form-name" value="contact" />
+      <input type="text" name="name" />
+      <input type="email" name="email" />
+      <input type="text" name="subject" />
+      <textarea name="message"></textarea>
+      <input type="text" name="bot-field" />
+    </form>
+
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

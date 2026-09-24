@@ -1,5 +1,5 @@
 /**
- * Server-side Geocoding & Distance Matrix Engine for BeerHop
+ * Server-side Geocoding & Distance Matrix Engine for BrewHop
  */
 
 export interface LatLng {

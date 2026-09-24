@@ -1,20 +1,14 @@
 import React from 'react';
 import {
   Sparkles,
-  MapPin,
   Clock,
   Compass,
-  Award,
   Bed,
   Route as RouteIcon,
   ShieldCheck,
   ChevronRight,
   Beer,
-  Star,
-  Newspaper,
-  CheckCircle,
 } from 'lucide-react';
-import { HopIcon } from './HopIcon';
 import { AppPageView } from '../types';
 import { POPULAR_DESTINATIONS } from '../data/curatedRoutes';
 
@@ -32,7 +26,7 @@ export const HomePage: React.FC<HomePageProps> = ({
   onOpenCuratedModal,
 }) => {
   return (
-    <div id="beerhop-home-page" className="w-full text-white bg-black animate-in fade-in duration-200">
+    <div id="brewhop-home-page" className="w-full text-white bg-black animate-in fade-in duration-200">
       {/* Hero Section */}
       <section className="relative overflow-hidden pt-8 sm:pt-14 pb-14 sm:pb-20 px-4 sm:px-6 lg:px-8 border-b border-[#1E301B]">
         {/* Subtle decorative glow */}
@@ -40,12 +34,6 @@ export const HomePage: React.FC<HomePageProps> = ({
         <div className="absolute top-1/3 right-1/4 w-[350px] h-[250px] bg-[#D97706]/10 rounded-full blur-3xl pointer-events-none -z-10" />
 
         <div className="max-w-5xl mx-auto text-center space-y-6">
-          {/* Brand Eyebrow Badge */}
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#182B16] border border-[#58A72F]/40 text-[#A6E88B] text-xs font-bold font-brand tracking-wider shadow-xs">
-            <HopIcon className="w-4 h-4 text-[#66DE37]" filled />
-            <span>THE MICROBREWERY TRAIL ARCHITECT</span>
-          </div>
-
           {/* Main Hero Headline */}
           <h1 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black tracking-tight text-white font-display uppercase leading-[1.08] max-w-4xl mx-auto">
             Curate Your Perfect <br className="hidden sm:inline" />
@@ -56,7 +44,7 @@ export const HomePage: React.FC<HomePageProps> = ({
 
           {/* Purpose & Mission Statement */}
           <p className="text-base sm:text-xl text-[#C3D9BF] max-w-3xl mx-auto font-normal leading-relaxed">
-            BeerHop is engineered to eliminate the stress and guesswork from brewery touring. 
+            BrewHop is engineered to eliminate the stress and guesswork from brewery touring. 
             We automatically craft custom itineraries tailored to your favorite beer styles, 
             spacing every stop strictly within scenic 25-minute drives, backed by 4-platform 
             verified ratings, seamless round-trip Google Maps navigation, and boutique overnight stays.
@@ -98,7 +86,7 @@ export const HomePage: React.FC<HomePageProps> = ({
         </div>
       </section>
 
-      {/* The BeerHop Purpose: Why We Built This */}
+      {/* The BrewHop Purpose: Why We Built This */}
       <section className="py-14 sm:py-20 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto">
         <div className="text-center max-w-3xl mx-auto mb-12 space-y-3">
           <span className="text-xs font-black text-[#D97706] tracking-widest uppercase font-brand">
@@ -110,11 +98,11 @@ export const HomePage: React.FC<HomePageProps> = ({
           <p className="text-sm sm:text-base text-[#9CB394] leading-relaxed">
             Planning a microbrewery trip usually means wrestling with open browser tabs, inaccurate taproom hours, 
             disappointing beer menus that don't fit your taste, and zig-zagging highway drives that waste precious weekend hours. 
-            BeerHop replaces all of that with intelligent, palate-first craft travel curation.
+            BrewHop replaces all of that with intelligent, palate-first craft travel curation.
           </p>
         </div>
 
-        {/* 4 Pillars of BeerHop */}
+        {/* 4 Pillars of BrewHop */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           {/* Pillar 1 */}
           <div className="p-6 sm:p-7 rounded-3xl bg-[#131F12] border border-[#223920] hover:border-[#58A72F]/50 transition-all space-y-3.5">
@@ -126,7 +114,7 @@ export const HomePage: React.FC<HomePageProps> = ({
             </h3>
             <p className="text-sm text-[#A9C4A2] leading-relaxed">
               Whether you crave pillowy Double Dry-Hopped Hazy IPAs, funky spontaneous wild ales, 
-              rich imperial pastry stouts, or crisp German pilsners, BeerHop prioritizes breweries 
+              rich imperial pastry stouts, or crisp German pilsners, BrewHop prioritizes breweries 
               that specialize in your selected styles so every tasting flight hits the mark.
             </p>
           </div>
@@ -155,7 +143,7 @@ export const HomePage: React.FC<HomePageProps> = ({
               3. Door-to-Door Round-Trip Navigation
             </h3>
             <p className="text-sm text-[#A9C4A2] leading-relaxed">
-              Input where you start—your home, hotel, or airport—and BeerHop models the entire drive: 
+              Input where you start—your home, hotel, or airport—and BrewHop models the entire drive: 
               from departure to Stop 1, between each brewery in logical succession, and back to your starting 
               point with a one-click Google Maps multi-stop export.
             </p>
@@ -170,7 +158,7 @@ export const HomePage: React.FC<HomePageProps> = ({
               4. Curated Overnight Lodging
             </h3>
             <p className="text-sm text-[#A9C4A2] leading-relaxed">
-              For 2-day and 3-day weekend road trips, safe travel is paramount. BeerHop automatically 
+              For 2-day and 3-day weekend road trips, safe travel is paramount. BrewHop automatically 
               locates vetted boutique hotels, historic inns, or cozy Airbnbs located within 30 minutes 
               of each day’s final brewery stop, matching your preferred lodging budget.
             </p>
@@ -269,11 +257,8 @@ export const HomePage: React.FC<HomePageProps> = ({
               className="p-5 rounded-3xl bg-[#131F12] border border-[#223920] hover:border-[#D97706] transition-all cursor-pointer group space-y-3 flex flex-col justify-between shadow-sm hover:shadow-md"
             >
               <div>
-                <div className="flex items-center justify-between text-xs text-[#8EAD84] mb-2">
-                  <span className="font-semibold truncate pr-2">{dest.region}</span>
-                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#1E331B] text-[#A6D496] font-bold shrink-0">
-                    {dest.suggestedStyles.length} Styles
-                  </span>
+                <div className="text-xs text-[#8EAD84] mb-2">
+                  <span className="font-semibold">{dest.region}</span>
                 </div>
                 <h4 className="text-base font-black text-white font-display group-hover:text-[#F59E0B] transition-colors leading-snug">
                   {dest.name}
@@ -325,7 +310,7 @@ export const HomePage: React.FC<HomePageProps> = ({
           Our Commitment to Responsible Craft Tasting
         </h3>
         <p className="text-xs sm:text-sm text-[#9CB394] leading-relaxed max-w-2xl mx-auto">
-          Craft beer is about savoring flavor, artistry, and terroir. BeerHop encourages choosing a designated driver, 
+          Craft beer is about savoring flavor, artistry, and terroir. BrewHop encourages choosing a designated driver, 
           using rideshare services, ordering tasting flights (4 oz pours), spacing visits with wholesome meals, and 
           staying hydrated with water at every stop.
         </p>

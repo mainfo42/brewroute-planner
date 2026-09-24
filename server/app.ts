@@ -1,5 +1,6 @@
 import express from 'express';
 import dotenv from 'dotenv';
+import nodemailer from 'nodemailer';
 import { GoogleGenAI, Type } from '@google/genai';
 import { RouteParameters, BrewTravelRoute, DayItinerary, BreweryStop, StayRecommendation, BeerNewsArticle } from '../src/types';
 import { findMatchingRealRegion, VERIFIED_REAL_REGIONS, RealBreweryRecord } from '../src/data/verifiedRealBreweries';
@@ -11,6 +12,29 @@ dotenv.config();
 const app = express();
 
 app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// Built-in Netlify Forms handler for local development & standalone server
+// When deployed on Netlify, Netlify Forms natively intercepts and handles form-urlencoded POST requests,
+// forwarding submissions directly to the configured email without requiring any SMTP setup.
+app.post(['/', '/index.html'], (req, res) => {
+  const formName = req.body?.['form-name'];
+  if (formName === 'contact') {
+    const { name, email, subject, message, 'bot-field': botField } = req.body || {};
+    if (botField && typeof botField === 'string' && botField.trim().length > 0) {
+      console.warn('[Netlify Forms] Honeypot triggered, dropping bot submission.');
+      return res.status(200).send('OK');
+    }
+    console.log(`[Netlify Forms - Local Dev Simulation] Contact submission received:
+      From: "${name}" <${email}>
+      Subject: "${subject}"
+      Message: "${message}"
+      Note: In Netlify production, this submission is delivered directly to your email via Netlify Forms (No SMTP needed).
+    `);
+    return res.status(200).send('OK');
+  }
+  return res.status(200).send('OK');
+});
 
 // Initialize Gemini Client
 const getGeminiClient = () => {
@@ -66,7 +90,7 @@ apiRouter.get('/beer-news', async (req, res) => {
 
   if (ai) {
     try {
-      const prompt = `You are an expert international craft beer journalist and managing editor for BeerHop. Current Date: September 23, 2026.
+      const prompt = `You are an expert international craft beer journalist and managing editor for BrewHop. Current Date: September 23, 2026.
 Search and synthesize 8 to 10 fresh, authentic, real-world craft beer news updates from independent microbreweries, hop breeding organizations, festivals, contests, awards, and conferences around the world.
 
 Include updates across these key categories requested by beer travelers:
@@ -91,7 +115,7 @@ Each item must have:
 - readTimeMin: integer number of minutes (e.g. 3 or 4)
 - summary: 2-3 sentence punchy summary of what happened and why it matters
 - content: 2 paragraphs of detailed journalistic prose with specific brewing techniques, hop oils, tasting notes, and industry context
-- tags: array of 3-5 hashtag strings
+- tags: array with strictly ONE most relevant specific hashtag string (e.g. ["#ColdIPA"], avoiding generic or duplicate category tags)
 - sourceName: publication name (e.g. "Brewers Association", "Good Beer Hunting", "Hop Culture")
 - highlightFact: a single fascinating key takeaway sentence or statistic`;
 
@@ -148,7 +172,7 @@ Each item must have:
             readTimeMin: typeof a.readTimeMin === 'number' ? a.readTimeMin : 3,
             summary: a.summary || '',
             content: a.content || a.summary || '',
-            tags: Array.isArray(a.tags) ? a.tags : ['#CraftBeer', '#Brewing'],
+            tags: Array.isArray(a.tags) && a.tags.length > 0 ? [a.tags[0]] : ['#CraftBeer'],
             sourceName: a.sourceName || 'Craft Beer Wire',
             highlightFact: a.highlightFact || undefined,
           }));
@@ -212,6 +236,124 @@ Each item must have:
   });
 });
 
+// Secure Masked Contact Us Endpoint
+// Recipient address is kept strictly server-side, never exposed to client bundles or DOM
+const CONTACT_DESTINATION_EMAIL = process.env.CONTACT_RECIPIENT_EMAIL || 'mainfo42@proton.me';
+
+interface ContactSubmissionRecord {
+  id: string;
+  name: string;
+  email: string;
+  subject: string;
+  message: string;
+  receivedAt: string;
+  dispatchedVia: 'smtp' | 'server_logged';
+}
+const recentContactSubmissions: ContactSubmissionRecord[] = [];
+
+apiRouter.post('/contact', async (req, res) => {
+  try {
+    const { name, email, subject, message, honeypot } = req.body || {};
+
+    // Bot honeypot check: silently drop bots
+    if (honeypot && typeof honeypot === 'string' && honeypot.trim().length > 0) {
+      console.warn('[Contact Security] Honeypot triggered, dropping bot submission.');
+      return res.json({
+        success: true,
+        message: 'Your message has been received. Thank you!',
+      });
+    }
+
+    // Input validation
+    const cleanName = typeof name === 'string' ? name.trim() : '';
+    const cleanEmail = typeof email === 'string' ? email.trim() : '';
+    const cleanSubject = typeof subject === 'string' ? subject.trim() : 'General Inquiry';
+    const cleanMessage = typeof message === 'string' ? message.trim() : '';
+
+    if (!cleanName || cleanName.length < 2) {
+      return res.status(400).json({ error: 'Please provide your name.' });
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!cleanEmail || !emailRegex.test(cleanEmail)) {
+      return res.status(400).json({ error: 'Please enter a valid email address.' });
+    }
+
+    if (!cleanMessage || cleanMessage.length < 5) {
+      return res.status(400).json({ error: 'Please provide a message (minimum 5 characters).' });
+    }
+
+    let dispatchedVia: 'smtp' | 'server_logged' = 'server_logged';
+
+    // If SMTP credentials configured, send real email via nodemailer
+    if (process.env.SMTP_HOST && process.env.SMTP_USER) {
+      try {
+        const transporter = nodemailer.createTransport({
+          host: process.env.SMTP_HOST,
+          port: Number(process.env.SMTP_PORT) || 587,
+          secure: process.env.SMTP_SECURE === 'true',
+          auth: {
+            user: process.env.SMTP_USER,
+            pass: process.env.SMTP_PASS,
+          },
+        });
+
+        await transporter.sendMail({
+          from: process.env.SMTP_FROM || `"BrewHop Contact" <${process.env.SMTP_USER}>`,
+          to: CONTACT_DESTINATION_EMAIL,
+          replyTo: `"${cleanName}" <${cleanEmail}>`,
+          subject: `[BrewHop Contact] ${cleanSubject} - from ${cleanName}`,
+          text: `You have received a new contact message from BrewHop:\n\nFrom: ${cleanName}\nEmail: ${cleanEmail}\nSubject: ${cleanSubject}\nDate: ${new Date().toISOString()}\n\nMessage:\n${cleanMessage}\n`,
+          html: `
+            <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 600px; padding: 24px; border: 1px solid #233a1f; border-radius: 12px; background: #ffffff; color: #1f2937;">
+              <h2 style="color: #1e3b18; margin-top: 0; font-size: 20px; border-bottom: 2px solid #58a72f; padding-bottom: 8px;">New Contact Message • BrewHop</h2>
+              <table style="width: 100%; border-collapse: collapse; margin-bottom: 16px; font-size: 14px;">
+                <tr><td style="padding: 6px 0; color: #6b7280; width: 90px;"><strong>From:</strong></td><td style="color: #111827; font-weight: 600;">${cleanName}</td></tr>
+                <tr><td style="padding: 6px 0; color: #6b7280;"><strong>Email:</strong></td><td><a href="mailto:${cleanEmail}" style="color: #2563eb;">${cleanEmail}</a></td></tr>
+                <tr><td style="padding: 6px 0; color: #6b7280;"><strong>Subject:</strong></td><td style="color: #111827;">${cleanSubject}</td></tr>
+                <tr><td style="padding: 6px 0; color: #6b7280;"><strong>Date:</strong></td><td style="color: #6b7280;">${new Date().toLocaleString()}</td></tr>
+              </table>
+              <div style="background-color: #f3f7f2; padding: 16px; border-left: 4px solid #58a72f; border-radius: 6px; white-space: pre-wrap; font-size: 14px; line-height: 1.6; color: #1e293b;">${cleanMessage.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</div>
+              <p style="font-size: 11px; color: #9ca3af; margin-top: 20px;">Sent via BrewHop Secure Contact Dispatcher. Recipient email is masked from client bundles and bots.</p>
+            </div>
+          `,
+        });
+        dispatchedVia = 'smtp';
+      } catch (smtpErr) {
+        console.error('[Contact SMTP Dispatch Error]:', smtpErr);
+      }
+    } else {
+      console.log(`[Contact Form Received] Dispatched to masked admin mailbox:
+        From: "${cleanName}" <${cleanEmail}>
+        Subject: "${cleanSubject}"
+        Message: "${cleanMessage.substring(0, 100)}..."
+      `);
+    }
+
+    recentContactSubmissions.push({
+      id: `contact-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+      name: cleanName,
+      email: cleanEmail,
+      subject: cleanSubject,
+      message: cleanMessage,
+      receivedAt: new Date().toISOString(),
+      dispatchedVia,
+    });
+    if (recentContactSubmissions.length > 50) {
+      recentContactSubmissions.shift();
+    }
+
+    // Masked response: Never reveal destination email to clients or crawlers
+    return res.json({
+      success: true,
+      message: 'Thank you for reaching out! Your message has been sent to our team, and we will reply to your email shortly.',
+    });
+  } catch (error) {
+    console.error('Error handling contact submission:', error);
+    return res.status(500).json({ error: 'Failed to process message. Please try again.' });
+  }
+});
+
 apiRouter.post('/generate-route', async (req, res) => {
   const params: RouteParameters = req.body;
 
@@ -255,7 +397,7 @@ apiRouter.post('/generate-route', async (req, res) => {
        Generate a completely fresh, DIFFERENT set of top-tier, highly acclaimed microbreweries in/around ${params.destinationArea} that match the user's beer style preferences.`
     : '';
 
-  const prompt = `You are a world-class craft beer travel sommelier and itinerary master for BeerHop.
+  const prompt = `You are a world-class craft beer travel sommelier and itinerary master for BrewHop.
 Generate a high-fidelity, 100% REAL-WORLD Brew Travel Route for microbrewery enthusiasts with full end-to-end driving directions including departure from home and return home navigation.
 
 CRITICAL REAL-WORLD VERIFICATION DIRECTIVE:

@@ -190,7 +190,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 {mode === 'forgot'
                   ? 'Reset Password'
                   : mode === 'login'
-                  ? 'Log In to BeerHop'
+                  ? 'Log In to BrewHop'
                   : 'Create an Account'}
               </h2>
               <p className="text-xs text-[#52705B]">

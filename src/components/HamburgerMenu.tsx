@@ -14,6 +14,7 @@ import {
   Beer,
   LogIn,
   LogOut,
+  Mail,
 } from 'lucide-react';
 import { HopIcon } from './HopIcon';
 import { AppPageView, AuthUser } from '../types';
@@ -30,6 +31,7 @@ interface HamburgerMenuProps {
   onOpenAuth: (mode?: 'login' | 'signup' | 'forgot') => void;
   onLogout: () => void;
   hasActiveRoute: boolean;
+  onOpenContact?: () => void;
 }
 
 export const HamburgerMenu: React.FC<HamburgerMenuProps> = ({
@@ -44,6 +46,7 @@ export const HamburgerMenu: React.FC<HamburgerMenuProps> = ({
   onOpenAuth,
   onLogout,
   hasActiveRoute,
+  onOpenContact,
 }) => {
   // Close on Escape key press
   useEffect(() => {
@@ -94,7 +97,7 @@ export const HamburgerMenu: React.FC<HamburgerMenuProps> = ({
             </div>
             <div>
               <span className="font-black text-xl tracking-wider font-brand text-white block leading-tight">
-                BEERHOP
+                BREWHOP
               </span>
               <span className="text-[11px] text-[#A6D496] font-medium block">
                 Microbrewery Trail Architect
@@ -246,7 +249,7 @@ export const HamburgerMenu: React.FC<HamburgerMenuProps> = ({
                 <Info className="w-4 h-4" />
               </div>
               <div>
-                <span className="font-bold text-sm block">About BeerHop</span>
+                <span className="font-bold text-sm block">About BrewHop</span>
                 <span className={`text-[11px] ${currentPage === 'about' ? 'text-white/80' : 'text-[#8EAD84]'}`}>
                   Mission, Purpose & Routing Science
                 </span>
@@ -254,6 +257,32 @@ export const HamburgerMenu: React.FC<HamburgerMenuProps> = ({
             </div>
             <ChevronRight className={`w-4 h-4 ${currentPage === 'about' ? 'text-white' : 'text-[#628B59]'}`} />
           </button>
+
+          {/* Contact Us */}
+          {onOpenContact && (
+            <button
+              type="button"
+              id="menu-nav-contact"
+              onClick={() => {
+                onClose();
+                onOpenContact();
+              }}
+              className="w-full flex items-center justify-between p-3.5 rounded-2xl transition-all text-left cursor-pointer border bg-[#182816] hover:bg-[#20361E] text-[#E5F3E1] border-transparent hover:border-[#385E32]"
+            >
+              <div className="flex items-center gap-3.5">
+                <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-[#223B1E] text-[#66DE37]">
+                  <Mail className="w-4 h-4" />
+                </div>
+                <div>
+                  <span className="font-bold text-sm block">Contact Us</span>
+                  <span className="text-[11px] text-[#8EAD84]">
+                    Feedback, Suggestions & Inquiries
+                  </span>
+                </div>
+              </div>
+              <ChevronRight className="w-4 h-4 text-[#628B59]" />
+            </button>
+          )}
 
           <div className="pt-3 pb-1">
             <p className="px-3 text-[11px] font-bold text-[#7AA86F] uppercase tracking-wider font-brand">
@@ -370,8 +399,8 @@ export const HamburgerMenu: React.FC<HamburgerMenuProps> = ({
             <span>Always taste responsibly. Arrange a designated driver or rideshare on craft beer trails.</span>
           </div>
           <div className="flex items-center justify-between text-[10px] text-[#63835D] pt-1">
-            <span>BeerHop Craft Engine</span>
-            <span>≤25 min transit rules</span>
+            <span>© 2026 BrewHop. All rights reserved.</span>
+            <span>≤ 25 min transit rules</span>
           </div>
         </div>
       </div>

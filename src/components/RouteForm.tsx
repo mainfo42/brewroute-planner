@@ -677,7 +677,7 @@ export const RouteForm: React.FC<RouteFormProps> = ({
               ) : (
                 <>
                   <HopIcon className="w-5 h-5 text-white drop-shadow-xs" filled />
-                  <span className="drop-shadow-xs">GENERATE BEERHOP ITINERARY</span>
+                  <span className="drop-shadow-xs">GENERATE BREWHOP ITINERARY</span>
                   <ChevronRight className="w-4 h-4 text-white/90" />
                 </>
               )}

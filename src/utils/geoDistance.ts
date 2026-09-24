@@ -1,5 +1,5 @@
 /**
- * Comprehensive Geocoding, Distance Matrix & Routing Engine for BeerHop
+ * Comprehensive Geocoding, Distance Matrix & Routing Engine for BrewHop
  * Accurately calculates real-world geodesic and road-driving distances and drive times.
  */
 

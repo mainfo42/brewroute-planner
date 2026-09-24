@@ -89,11 +89,11 @@ export const THEME_VARIANTS: Record<ColorThemeVariant, ThemeConfig> = {
   },
 };
 
-const THEME_STORAGE_KEY = 'beerhop_color_theme_variant';
+const THEME_STORAGE_KEY = 'brewhop_color_theme_variant';
 
 export function getSavedThemeVariant(): ColorThemeVariant {
   try {
-    const saved = localStorage.getItem(THEME_STORAGE_KEY) as ColorThemeVariant;
+    const saved = (localStorage.getItem(THEME_STORAGE_KEY) || localStorage.getItem('beerhop_color_theme_variant')) as ColorThemeVariant;
     if (saved && saved !== 'bourbon_oak' && THEME_VARIANTS[saved]) {
       return saved;
     }
