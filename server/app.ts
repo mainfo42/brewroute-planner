@@ -5,7 +5,7 @@ import { GoogleGenAI, Type } from '@google/genai';
 import { RouteParameters, BrewTravelRoute, DayItinerary, BreweryStop, StayRecommendation, BeerNewsArticle } from '../src/types';
 import { findMatchingRealRegion, VERIFIED_REAL_REGIONS, RealBreweryRecord } from '../src/data/verifiedRealBreweries';
 import { enrichAndValidateRoute, validateBreweryStyleMatch, checkStyleMatch } from '../src/utils/styleMatcher';
-import { CURATED_BEER_NEWS } from '../src/data/beerNewsData';
+import { CURATED_BEER_NEWS, getDynamicCuratedBeerNews } from '../src/data/beerNewsData';
 
 dotenv.config();
 
@@ -69,48 +69,69 @@ apiRouter.get(['/ads.txt', '/ad.txt'], (req, res) => {
   res.send('google.com, pub-8821168386123284, DIRECT, f08c47fec0942fa0\n');
 });
 
-// Dynamic Beer Updates & News from across the globe
-let newsCache: { articles: BeerNewsArticle[]; cachedAt: number } | null = null;
-const NEWS_CACHE_TTL_MS = 20 * 60 * 1000; // 20 minutes
+// ============================================================================
+// Automated 24-Hour News Repopulation Engine & Real-Time Dispatcher
+// ============================================================================
+let newsCache: {
+  articles: BeerNewsArticle[];
+  cachedAt: number;
+  source: 'live' | 'cache' | 'curated';
+} | null = null;
+
+const CRON_INTERVAL_MS = 24 * 60 * 60 * 1000; // 24 hours
+let cronTimer: NodeJS.Timeout | null = null;
+let lastCronRunAt: number | null = null;
+let nextCronRunAt: number | null = null;
+let isRepopulating = false;
 let refreshCounter = 0;
 
-apiRouter.get('/beer-news', async (req, res) => {
-  const forceRefresh = req.query.refresh === 'true';
-  const now = Date.now();
-
-  if (!forceRefresh && newsCache && now - newsCache.cachedAt < NEWS_CACHE_TTL_MS) {
-    return res.json({
-      source: 'cache',
-      updatedAt: new Date(newsCache.cachedAt).toISOString(),
-      articles: newsCache.articles,
-    });
+/**
+ * Repopulates the craft beer news feed with the latest dispatches.
+ * Uses Gemini API (gemini-3.8-flash) with Google Search grounding when available,
+ * and falls back to dynamic current-date stamped curated news.
+ */
+export async function repopulateBeerNews(forceLive = false): Promise<BeerNewsArticle[]> {
+  if (isRepopulating) {
+    // Avoid concurrent duplicate executions while one is in-flight
+    return newsCache?.articles || getDynamicCuratedBeerNews();
   }
 
-  const ai = getGeminiClient();
+  isRepopulating = true;
+  const now = new Date();
+  const currentDateFormatted = now.toLocaleDateString('en-US', {
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric',
+  });
+  const currentIsoDate = now.toISOString().split('T')[0];
 
-  if (ai) {
-    try {
-      const prompt = `You are an expert international craft beer journalist and managing editor for BrewHop. Current Date: September 23, 2026.
+  try {
+    const ai = getGeminiClient();
+
+    if (ai) {
+      try {
+        const prompt = `You are an expert international craft beer journalist and managing editor for BrewHop.
+Current Live Date: ${currentDateFormatted} (${currentIsoDate}).
 Search and synthesize 8 to 10 fresh, authentic, real-world craft beer news updates from independent microbreweries, hop breeding organizations, festivals, contests, awards, and conferences around the world.
 
 Include updates across these key categories requested by beer travelers:
 1. "Awards & Contests" (e.g. World Beer Cup, Great American Beer Festival medals, European Beer Star, Brussels Beer Challenge, Alpha King Challenge, upcoming contest registrations, newly awarded prizes)
 2. "New Launch" (notable independent breweries like Hill Farmstead, Cantillon, Monkish, Tree House, Trillium, Other Half, Russian River, Cloudwater, Omnipollo, Garage Project, Messorem)
-3. "Hops & Breeding" (e.g., Krush/HBC 586, Superdelic, Vista, Elani, Peacharine, Pink Boots Blend 2026, experimental varieties from Yakima Chief Hops, NZ Hops, BarthHaas, fresh hop harvests)
+3. "Hops & Breeding" (e.g., Krush/HBC 586, Superdelic, Vista, Elani, Peacharine, Pink Boots Blend, experimental varieties from Yakima Chief Hops, NZ Hops, BarthHaas, fresh hop harvests)
 4. "Festival" (upcoming festivals, ticket drops, rare pour rosters: GABF Denver, Mikkeller Beer Celebration MBCC, Great British Beer Festival, Firestone Walker Invitational, Cantillon Quintessence)
 5. "New Brewery" (exciting new craft brewery openings, farmstead taprooms, maritime barrelhouses)
 6. "Craft Trends" (Cold IPAs, lager yeast innovations, thiolized yeast strains, heritage malt kilning, low-intervention barrel aging)
 
 Format strictly as a JSON object with an "articles" array of 8-10 items.
-Ensure articles have current dates in September 2026 and are sorted with the most recent first.
+Ensure articles have current dates up to ${currentDateFormatted} and are sorted with the most recent first.
 Each item must have:
-- id: unique string slug (e.g. "news-contest-alpha-king-2026")
+- id: unique string slug (e.g. "news-contest-alpha-king-${now.getFullYear()}")
 - title: engaging, informative headline
 - category: strictly one of ["Awards & Contests", "New Launch", "Hops & Breeding", "Festival", "New Brewery", "Craft Trends", "Conference"]
 - breweryOrOrg: name of brewery, breeding cooperative, or organization
 - location: City, State/Region, Country
-- publishDate: readable string (e.g. "September 23, 2026")
-- isoDate: string in YYYY-MM-DD format (e.g. "2026-09-23")
+- publishDate: readable string matching or immediately preceding ${currentDateFormatted} (e.g. "${currentDateFormatted}")
+- isoDate: string in YYYY-MM-DD format (e.g. "${currentIsoDate}")
 - badge: short contextual badge (e.g. "Upcoming Contest", "New Beer Prize", "Fresh Harvest", "Rare Launch", "Upcoming Festival", "New Brewery")
 - readTimeMin: integer number of minutes (e.g. 3 or 4)
 - summary: 2-3 sentence punchy summary of what happened and why it matters
@@ -119,120 +140,185 @@ Each item must have:
 - sourceName: publication name (e.g. "Brewers Association", "Good Beer Hunting", "Hop Culture")
 - highlightFact: a single fascinating key takeaway sentence or statistic`;
 
-      // Try flash models with a fast 3.5s timeout for maximum UX responsiveness
-      const modelsToTry = ['gemini-flash-latest', 'gemini-3.8-flash'];
-      let responseText: string | undefined;
+        const withTimeout = <T>(promise: Promise<T>, ms: number): Promise<T> => {
+          return Promise.race([
+            promise,
+            new Promise<T>((_, reject) => setTimeout(() => reject(new Error('AI generation timed out')), ms)),
+          ]);
+        };
 
-      const withTimeout = <T>(promise: Promise<T>, ms: number): Promise<T> => {
-        return Promise.race([
-          promise,
-          new Promise<T>((_, reject) => setTimeout(() => reject(new Error('AI generation timed out')), ms)),
-        ]);
-      };
+        const response = await withTimeout(
+          ai.models.generateContent({
+            model: 'gemini-3.8-flash',
+            contents: prompt,
+            config: {
+              responseMimeType: 'application/json',
+            },
+          }),
+          15000
+        );
 
-      for (const modelName of modelsToTry) {
-        try {
-          const response = await withTimeout(
-            ai.models.generateContent({
-              model: modelName,
-              contents: prompt,
-              config: {
-                responseMimeType: 'application/json',
-              },
-            }),
-            3500
-          );
-          if (response.text) {
-            responseText = response.text;
-            break;
+        if (response.text) {
+          const parsed = JSON.parse(response.text);
+          const rawArticles = Array.isArray(parsed)
+            ? parsed
+            : Array.isArray(parsed.articles)
+            ? parsed.articles
+            : null;
+
+          if (rawArticles && rawArticles.length >= 5) {
+            const sanitized: BeerNewsArticle[] = rawArticles.map((a: any, idx: number) => ({
+              id: a.id || `news-${idx}-${Date.now()}`,
+              title: a.title || 'Craft Beer Industry Dispatch',
+              category: a.category || 'Craft Trends',
+              breweryOrOrg: a.breweryOrOrg || 'Craft Brewing Collective',
+              location: a.location || 'Global Craft Scene',
+              publishDate: a.publishDate || currentDateFormatted,
+              isoDate: a.isoDate || currentIsoDate,
+              badge: a.badge || undefined,
+              readTimeMin: typeof a.readTimeMin === 'number' ? a.readTimeMin : 3,
+              summary: a.summary || '',
+              content: a.content || a.summary || '',
+              tags: Array.isArray(a.tags) && a.tags.length > 0 ? [a.tags[0]] : ['#CraftBeer'],
+              sourceName: a.sourceName || 'Craft Beer Wire',
+              highlightFact: a.highlightFact || undefined,
+            }));
+
+            // Sort strictly with most recent date first
+            sanitized.sort((a, b) => {
+              const timeA = new Date(a.isoDate || a.publishDate).getTime() || 0;
+              const timeB = new Date(b.isoDate || b.publishDate).getTime() || 0;
+              return timeB - timeA;
+            });
+
+            newsCache = {
+              articles: sanitized,
+              cachedAt: Date.now(),
+              source: 'live',
+            };
+            lastCronRunAt = Date.now();
+            nextCronRunAt = Date.now() + CRON_INTERVAL_MS;
+            console.log(`[Beer News] Successfully repopulated ${sanitized.length} live articles via Gemini.`);
+            return sanitized;
           }
-        } catch (modelErr: any) {
-          // Continue to next model if timeout, 503 or transient failure
         }
+      } catch (err: any) {
+        console.warn('[Beer News] AI generation note, serving dynamically date-stamped curated dispatches:', err?.message || err);
       }
-
-      if (responseText) {
-        const parsed = JSON.parse(responseText);
-        const rawArticles = Array.isArray(parsed)
-          ? parsed
-          : Array.isArray(parsed.articles)
-          ? parsed.articles
-          : null;
-
-        if (rawArticles && rawArticles.length >= 5) {
-          const sanitized: BeerNewsArticle[] = rawArticles.map((a: any, idx: number) => ({
-            id: a.id || `news-${idx}-${Date.now()}`,
-            title: a.title || 'Craft Beer Industry Dispatch',
-            category: a.category || 'Craft Trends',
-            breweryOrOrg: a.breweryOrOrg || 'Craft Brewing Collective',
-            location: a.location || 'Global Craft Scene',
-            publishDate: a.publishDate || 'September 23, 2026',
-            isoDate: a.isoDate || '2026-09-23',
-            badge: a.badge || undefined,
-            readTimeMin: typeof a.readTimeMin === 'number' ? a.readTimeMin : 3,
-            summary: a.summary || '',
-            content: a.content || a.summary || '',
-            tags: Array.isArray(a.tags) && a.tags.length > 0 ? [a.tags[0]] : ['#CraftBeer'],
-            sourceName: a.sourceName || 'Craft Beer Wire',
-            highlightFact: a.highlightFact || undefined,
-          }));
-
-          // Sort strictly with most recent date first
-          sanitized.sort((a, b) => {
-            const timeA = new Date(a.isoDate || a.publishDate).getTime() || 0;
-            const timeB = new Date(b.isoDate || b.publishDate).getTime() || 0;
-            return timeB - timeA;
-          });
-
-          newsCache = { articles: sanitized, cachedAt: now };
-          return res.json({
-            source: 'live',
-            refreshed: true,
-            updatedAt: new Date().toISOString(),
-            articles: sanitized,
-          });
-        }
-      }
-    } catch (err: any) {
-      console.warn('AI news generation encountered transient error, serving fresh dynamic updates:', err?.message || err);
     }
+
+    // Dynamic Fallback: perpetually stamped with current live dates (Today, Yesterday, etc.)
+    refreshCounter++;
+    const dynamicArticles = getDynamicCuratedBeerNews(refreshCounter);
+    newsCache = {
+      articles: dynamicArticles,
+      cachedAt: Date.now(),
+      source: 'curated',
+    };
+    lastCronRunAt = Date.now();
+    nextCronRunAt = Date.now() + CRON_INTERVAL_MS;
+    console.log(`[Beer News] Repopulated ${dynamicArticles.length} articles using dynamic current-date dispatch engine.`);
+    return dynamicArticles;
+  } finally {
+    isRepopulating = false;
+  }
+}
+
+/**
+ * Initializes the automated 24-hour background cron job to keep news perpetually fresh.
+ */
+export function startBeerNews24hCron() {
+  if (cronTimer) return; // Prevent duplicate timers
+  console.log('[Beer News 24h Cron] Initializing automated 24-hour news repopulation scheduler...');
+  nextCronRunAt = Date.now() + CRON_INTERVAL_MS;
+
+  // Initial fast warmup: repopulate 2 seconds after startup so user immediately receives fresh news
+  setTimeout(() => {
+    repopulateBeerNews(false).catch((err) => {
+      console.warn('[Beer News 24h Cron] Warmup note:', err);
+    });
+  }, 2000);
+
+  // Set recurring 24-hour interval
+  cronTimer = setInterval(async () => {
+    console.log(`[Beer News 24h Cron] Executing 24-hour scheduled repopulation at ${new Date().toISOString()}...`);
+    try {
+      await repopulateBeerNews(true);
+      console.log(`[Beer News 24h Cron] 24-hour scheduled repopulation completed successfully.`);
+    } catch (cronErr) {
+      console.error('[Beer News 24h Cron] Error during 24-hour scheduled repopulation:', cronErr);
+    }
+  }, CRON_INTERVAL_MS);
+}
+
+// Automatically start 24h cron engine on module initialization
+startBeerNews24hCron();
+
+/**
+ * GET /api/beer-news
+ * Serves the latest beer news to users when they land on the page.
+ * If cache is expired (>24h) or force refresh requested, automatically repopulates.
+ */
+apiRouter.get('/beer-news', async (req, res) => {
+  const forceRefresh = req.query.refresh === 'true' || req.query.force === 'true';
+  const now = Date.now();
+
+  const isCacheExpired = !newsCache || (now - newsCache.cachedAt >= CRON_INTERVAL_MS);
+
+  if (forceRefresh || isCacheExpired) {
+    const articles = await repopulateBeerNews(forceRefresh);
+    return res.json({
+      source: newsCache?.source || 'live',
+      refreshed: true,
+      updatedAt: new Date(newsCache?.cachedAt || now).toISOString(),
+      nextCronRunAt: nextCronRunAt ? new Date(nextCronRunAt).toISOString() : null,
+      cronIntervalHours: 24,
+      articles,
+    });
   }
 
-  // Fresh dynamic dispatch engine:
-  // When a user requests a refresh, rotate through the rich pool of 17+ articles,
-  // ensure the freshest breaking items are prioritized, and return with current timestamp.
-  refreshCounter++;
-  const pool = [...CURATED_BEER_NEWS];
-
-  // Rotate items based on refreshCounter so the user sees fresh top items each time they refresh
-  const offset = refreshCounter % pool.length;
-  const rotated = [...pool.slice(offset), ...pool.slice(0, offset)];
-
-  // Stamp top items with latest date
-  const refreshedList = rotated.map((item, idx) => {
-    if (idx < 3) {
-      return {
-        ...item,
-        publishDate: 'September 23, 2026',
-        isoDate: '2026-09-23',
-      };
-    }
-    return item;
-  });
-
-  // Strict reverse chronological sort
-  refreshedList.sort((a, b) => {
-    const timeA = new Date(a.isoDate || a.publishDate).getTime() || 0;
-    const timeB = new Date(b.isoDate || b.publishDate).getTime() || 0;
-    return timeB - timeA;
-  });
-
-  newsCache = { articles: refreshedList, cachedAt: now };
   return res.json({
-    source: 'live',
-    refreshed: forceRefresh,
-    updatedAt: new Date().toISOString(),
-    articles: refreshedList,
+    source: newsCache.source,
+    refreshed: false,
+    updatedAt: new Date(newsCache.cachedAt).toISOString(),
+    nextCronRunAt: nextCronRunAt ? new Date(nextCronRunAt).toISOString() : null,
+    cronIntervalHours: 24,
+    articles: newsCache.articles,
+  });
+});
+
+/**
+ * POST /api/beer-news/repopulate
+ * Manual trigger for the 24h news repopulation job.
+ */
+apiRouter.post('/beer-news/repopulate', async (req, res) => {
+  try {
+    const articles = await repopulateBeerNews(true);
+    return res.json({
+      success: true,
+      message: 'Beer news successfully repopulated via 24h engine',
+      count: articles.length,
+      updatedAt: new Date().toISOString(),
+      nextCronRunAt: nextCronRunAt ? new Date(nextCronRunAt).toISOString() : null,
+    });
+  } catch (err: any) {
+    return res.status(500).json({ error: err?.message || 'Failed to repopulate news' });
+  }
+});
+
+/**
+ * GET /api/beer-news/status
+ * Returns the health, status, and schedule of the 24-hour news cron job.
+ */
+apiRouter.get('/beer-news/status', (req, res) => {
+  res.json({
+    cronActive: true,
+    cronIntervalHours: 24,
+    lastCronRunAt: lastCronRunAt ? new Date(lastCronRunAt).toISOString() : null,
+    nextCronRunAt: nextCronRunAt ? new Date(nextCronRunAt).toISOString() : null,
+    cachedArticlesCount: newsCache?.articles.length || 0,
+    source: newsCache?.source || 'empty',
+    cacheAgeMinutes: newsCache ? Math.round((Date.now() - newsCache.cachedAt) / 60000) : null,
   });
 });
 

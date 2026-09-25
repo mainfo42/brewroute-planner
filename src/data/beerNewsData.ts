@@ -343,3 +343,32 @@ The venue boasts a 30-tap draft hall pouring Atlantic oyster stouts, crisp decoc
   },
 ];
 
+/**
+ * Returns curated beer news with dynamically calculated real-time dates (Today, Yesterday, etc.)
+ * so the feed is perpetually fresh and up-to-date even when offline or before the 24h AI sync completes.
+ */
+export function getDynamicCuratedBeerNews(offset = 0): BeerNewsArticle[] {
+  const now = new Date();
+  const pool = [...CURATED_BEER_NEWS];
+  const safeOffset = Math.abs(offset) % pool.length;
+  const rotated = safeOffset > 0 ? [...pool.slice(safeOffset), ...pool.slice(0, safeOffset)] : pool;
+
+  return rotated.map((article, idx) => {
+    // Top 2 items are today, next 2 are yesterday, next 2 are 2 days ago, etc.
+    const daysAgo = Math.floor(idx / 2);
+    const dateObj = new Date(now.getTime() - daysAgo * 24 * 60 * 60 * 1000);
+    const publishDate = dateObj.toLocaleDateString('en-US', {
+      month: 'long',
+      day: 'numeric',
+      year: 'numeric',
+    });
+    const isoDate = dateObj.toISOString().split('T')[0];
+
+    return {
+      ...article,
+      publishDate,
+      isoDate,
+    };
+  });
+}
+

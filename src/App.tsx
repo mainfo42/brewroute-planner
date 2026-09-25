@@ -457,6 +457,7 @@ export default function App() {
         {/* 3. Beer Updates / News Page: Dynamic Blog Format with Articles from across the Web */}
         {currentPage === 'news' && (
           <BeerNewsPage
+            isActive={currentPage === 'news'}
             onStartPlanning={() => {
               setCurrentPage('plan');
               setActiveMobileTab('plan');
