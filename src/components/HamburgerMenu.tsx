@@ -123,10 +123,13 @@ export const HamburgerMenu: React.FC<HamburgerMenuProps> = ({
           </p>
 
           {/* Home / Purpose */}
-          <button
-            type="button"
+          <a
+            href="/"
             id="menu-nav-home"
-            onClick={() => handleNavClick('home')}
+            onClick={(e) => {
+              e.preventDefault();
+              handleNavClick('home');
+            }}
             className={`w-full flex items-center justify-between p-3.5 rounded-2xl transition-all text-left cursor-pointer border ${
               currentPage === 'home'
                 ? 'bg-[#D97706] text-white border-[#F59E0B] shadow-md'
@@ -151,13 +154,16 @@ export const HamburgerMenu: React.FC<HamburgerMenuProps> = ({
               </div>
             </div>
             <ChevronRight className={`w-4 h-4 ${currentPage === 'home' ? 'text-white' : 'text-[#628B59]'}`} />
-          </button>
+          </a>
 
           {/* Plan a Trail */}
-          <button
-            type="button"
+          <a
+            href="/plan"
             id="menu-nav-plan"
-            onClick={() => handleNavClick('plan')}
+            onClick={(e) => {
+              e.preventDefault();
+              handleNavClick('plan');
+            }}
             className={`w-full flex items-center justify-between p-3.5 rounded-2xl transition-all text-left cursor-pointer border ${
               currentPage === 'plan'
                 ? 'bg-[#58A72F] text-white border-[#7DD748] shadow-md'
@@ -189,13 +195,16 @@ export const HamburgerMenu: React.FC<HamburgerMenuProps> = ({
               </div>
             </div>
             <ChevronRight className={`w-4 h-4 ${currentPage === 'plan' ? 'text-white' : 'text-[#628B59]'}`} />
-          </button>
+          </a>
 
           {/* Global Beer Updates / News */}
-          <button
-            type="button"
+          <a
+            href="/news"
             id="menu-nav-news"
-            onClick={() => handleNavClick('news')}
+            onClick={(e) => {
+              e.preventDefault();
+              handleNavClick('news');
+            }}
             className={`w-full flex items-center justify-between p-3.5 rounded-2xl transition-all text-left cursor-pointer border ${
               currentPage === 'news'
                 ? 'bg-[#D97706] text-white border-[#F59E0B] shadow-md'
@@ -225,13 +234,16 @@ export const HamburgerMenu: React.FC<HamburgerMenuProps> = ({
               </div>
             </div>
             <ChevronRight className={`w-4 h-4 ${currentPage === 'news' ? 'text-white' : 'text-[#628B59]'}`} />
-          </button>
+          </a>
 
           {/* About Page (Purpose of Website) */}
-          <button
-            type="button"
+          <a
+            href="/about"
             id="menu-nav-about"
-            onClick={() => handleNavClick('about')}
+            onClick={(e) => {
+              e.preventDefault();
+              handleNavClick('about');
+            }}
             className={`w-full flex items-center justify-between p-3.5 rounded-2xl transition-all text-left cursor-pointer border ${
               currentPage === 'about'
                 ? 'bg-[#D97706] text-white border-[#F59E0B] shadow-md'
@@ -256,7 +268,7 @@ export const HamburgerMenu: React.FC<HamburgerMenuProps> = ({
               </div>
             </div>
             <ChevronRight className={`w-4 h-4 ${currentPage === 'about' ? 'text-white' : 'text-[#628B59]'}`} />
-          </button>
+          </a>
 
           {/* Contact Us */}
           {onOpenContact && (

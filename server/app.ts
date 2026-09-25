@@ -17,7 +17,7 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 // Built-in Netlify Forms handler for local development & standalone server
 // When deployed on Netlify, Netlify Forms natively intercepts and handles form-urlencoded POST requests,
 // forwarding submissions directly to the configured email without requiring any SMTP setup.
-app.post(['/', '/index.html'], (req, res) => {
+app.post(['/', '/index.html', '/about', '/about.html', '/news', '/news.html', '/beer-news'], (req, res) => {
   const formName = req.body?.['form-name'];
   if (formName === 'contact') {
     const { name, email, subject, message, 'bot-field': botField } = req.body || {};

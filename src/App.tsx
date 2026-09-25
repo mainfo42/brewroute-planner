@@ -36,14 +36,95 @@ import {
 } from './utils/authStorage';
 import { AlertCircle, Beer, Sparkles, CheckCircle2, Mail } from 'lucide-react';
 
+// Helpers for multi-page URL routing, SEO and Google AdSense
+const getInitialPageFromUrl = (): AppPageView => {
+  if (typeof window === 'undefined') return 'home';
+  const pathname = window.location.pathname.toLowerCase();
+  if (pathname === '/about' || pathname === '/about.html') return 'about';
+  if (
+    pathname === '/news' ||
+    pathname === '/news.html' ||
+    pathname === '/beer-news' ||
+    pathname === '/beer-news.html'
+  ) {
+    return 'news';
+  }
+  if (pathname === '/plan' || pathname === '/plan.html') return 'plan';
+  return 'home';
+};
+
+const getPageTitle = (page: AppPageView): string => {
+  switch (page) {
+    case 'about':
+      return 'About BrewHop — Microbrewery Trail Mission, History & Safety';
+    case 'news':
+      return 'Beer News & Worldwide Craft Brewing Dispatches — BrewHop';
+    case 'plan':
+      return 'Plan a Trail — BrewHop Microbrewery Route Architect';
+    case 'home':
+    default:
+      return 'BrewHop — Microbrewery Trail & Craft Beer Route Planner';
+  }
+};
+
 export default function App() {
-  const [currentPage, setCurrentPage] = useState<AppPageView>('home');
+  const [currentPage, setCurrentPage] = useState<AppPageView>(() => getInitialPageFromUrl());
   const [isHamburgerOpen, setIsHamburgerOpen] = useState<boolean>(false);
   const [currentRoute, setCurrentRoute] = useState<BrewTravelRoute | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successToast, setSuccessToast] = useState<string | null>(null);
-  const [activeMobileTab, setActiveMobileTab] = useState<MobileTab>('home');
+  const [activeMobileTab, setActiveMobileTab] = useState<MobileTab>(() => {
+    const initial = getInitialPageFromUrl();
+    return initial === 'news' ? 'news' : initial === 'plan' ? 'plan' : 'home';
+  });
+
+  const navigateToPage = (page: AppPageView, replace = false) => {
+    setCurrentPage(page);
+    setActiveMobileTab(page === 'news' ? 'news' : page === 'home' ? 'home' : 'plan');
+
+    let targetPath = '/';
+    if (page === 'about') targetPath = '/about';
+    else if (page === 'news') targetPath = '/news';
+    else if (page === 'plan') targetPath = '/plan';
+
+    if (typeof window !== 'undefined' && window.location.pathname !== targetPath) {
+      if (replace) {
+        window.history.replaceState({ page }, '', targetPath);
+      } else {
+        window.history.pushState({ page }, '', targetPath);
+      }
+    }
+
+    if (typeof document !== 'undefined') {
+      document.title = getPageTitle(page);
+    }
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  // Synchronize browser back/forward buttons with HTML5 History
+  useEffect(() => {
+    const handlePopState = () => {
+      const page = getInitialPageFromUrl();
+      setCurrentPage(page);
+      setActiveMobileTab(page === 'news' ? 'news' : page === 'home' ? 'home' : 'plan');
+      if (typeof document !== 'undefined') {
+        document.title = getPageTitle(page);
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
+  // Ensure title is synchronized with the initial loaded HTML page
+  useEffect(() => {
+    const initial = getInitialPageFromUrl();
+    if (typeof document !== 'undefined') {
+      document.title = getPageTitle(initial);
+    }
+  }, []);
 
   // Color Palette Theme State
   const [colorTheme, setColorTheme] = useState<ColorThemeVariant>(() => getSavedThemeVariant());
@@ -116,8 +197,7 @@ export default function App() {
     setIsLoading(true);
     setErrorMessage(null);
     setRegenerationCount(0);
-    setCurrentPage('plan');
-    setActiveMobileTab('plan');
+    navigateToPage('plan');
 
     try {
       const response = await fetch('/api/generate-route', {
@@ -297,13 +377,11 @@ export default function App() {
   const handleMobileTabChange = (tab: MobileTab) => {
     setActiveMobileTab(tab);
     if (tab === 'home') {
-      setCurrentPage('home');
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      navigateToPage('home');
     } else if (tab === 'plan') {
-      setCurrentPage('plan');
+      navigateToPage('plan');
     } else if (tab === 'news') {
-      setCurrentPage('news');
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      navigateToPage('news');
     } else if (tab === 'curated') {
       setIsCuratedModalOpen(true);
     } else if (tab === 'menu') {
@@ -349,11 +427,7 @@ export default function App() {
       {/* Top App Bar with Hamburger Menu Trigger */}
       <Navbar
         currentPage={currentPage}
-        onNavigate={(page) => {
-          setCurrentPage(page);
-          setActiveMobileTab(page === 'news' ? 'news' : page === 'home' ? 'home' : 'plan');
-          window.scrollTo({ top: 0, behavior: 'smooth' });
-        }}
+        onNavigate={(page) => navigateToPage(page)}
         onOpenHamburger={() => setIsHamburgerOpen(true)}
         onOpenCurated={() => setIsCuratedModalOpen(true)}
         onOpenSavedItineraries={() => {
@@ -371,8 +445,7 @@ export default function App() {
         hasActiveRoute={!!currentRoute}
         onReset={() => {
           setCurrentRoute(null);
-          setCurrentPage('plan');
-          setActiveMobileTab('plan');
+          navigateToPage('plan');
         }}
         onOpenContact={() => setIsContactModalOpen(true)}
       />
@@ -416,21 +489,12 @@ export default function App() {
         {/* 1. Home Page: Explains Site Purpose, Value Proposition & Philosophy */}
         {currentPage === 'home' && (
           <HomePage
-            onStartPlanning={() => {
-              setCurrentPage('plan');
-              setActiveMobileTab('plan');
-              window.scrollTo({ top: 0, behavior: 'smooth' });
-            }}
-            onNavigate={(page) => {
-              setCurrentPage(page);
-              setActiveMobileTab(page === 'news' ? 'news' : page === 'home' ? 'home' : 'plan');
-              window.scrollTo({ top: 0, behavior: 'smooth' });
-            }}
+            onStartPlanning={() => navigateToPage('plan')}
+            onNavigate={(page) => navigateToPage(page)}
             onSelectCuratedDestination={(idx) => {
               const dest = POPULAR_DESTINATIONS[idx];
               if (dest) {
-                setCurrentPage('plan');
-                setActiveMobileTab('plan');
+                navigateToPage('plan');
                 handlePrefillParams(dest.startLoc, dest.name, dest.suggestedStyles);
               }
             }}
@@ -441,16 +505,8 @@ export default function App() {
         {/* 2. About Page: Detailed Mission, History, Routing Algorithm & Safety Charter */}
         {currentPage === 'about' && (
           <AboutPage
-            onStartPlanning={() => {
-              setCurrentPage('plan');
-              setActiveMobileTab('plan');
-              window.scrollTo({ top: 0, behavior: 'smooth' });
-            }}
-            onNavigate={(page) => {
-              setCurrentPage(page);
-              setActiveMobileTab(page === 'news' ? 'news' : page === 'home' ? 'home' : 'plan');
-              window.scrollTo({ top: 0, behavior: 'smooth' });
-            }}
+            onStartPlanning={() => navigateToPage('plan')}
+            onNavigate={(page) => navigateToPage(page)}
           />
         )}
 
@@ -458,11 +514,7 @@ export default function App() {
         {currentPage === 'news' && (
           <BeerNewsPage
             isActive={currentPage === 'news'}
-            onStartPlanning={() => {
-              setCurrentPage('plan');
-              setActiveMobileTab('plan');
-              window.scrollTo({ top: 0, behavior: 'smooth' });
-            }}
+            onStartPlanning={() => navigateToPage('plan')}
           />
         )}
 
@@ -476,7 +528,7 @@ export default function App() {
               visitedBreweries={visitedBreweries}
               onPlanNew={() => {
                 setCurrentRoute(null);
-                setActiveMobileTab('plan');
+                navigateToPage('plan');
               }}
               isSaved={isCurrentRouteSaved}
               onSaveItinerary={() => handleSaveItinerary()}
@@ -512,8 +564,7 @@ export default function App() {
         hasActiveRoute={!!currentRoute}
         onPlanNew={() => {
           setCurrentRoute(null);
-          setCurrentPage('plan');
-          setActiveMobileTab('plan');
+          navigateToPage('plan');
         }}
         onOpenHamburger={() => setIsHamburgerOpen(true)}
       />
@@ -523,11 +574,7 @@ export default function App() {
         isOpen={isHamburgerOpen}
         onClose={() => setIsHamburgerOpen(false)}
         currentPage={currentPage}
-        onNavigate={(page) => {
-          setCurrentPage(page);
-          setActiveMobileTab(page === 'news' ? 'news' : page === 'home' ? 'home' : 'plan');
-          window.scrollTo({ top: 0, behavior: 'smooth' });
-        }}
+        onNavigate={(page) => navigateToPage(page)}
         onOpenCurated={() => setIsCuratedModalOpen(true)}
         onOpenSavedItineraries={() => {
           if (!currentUser) {

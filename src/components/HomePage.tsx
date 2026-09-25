@@ -324,14 +324,17 @@ export const HomePage: React.FC<HomePageProps> = ({
             </p>
           </div>
 
-          <button
-            type="button"
-            onClick={() => onNavigate('news')}
+          <a
+            href="/news"
+            onClick={(e) => {
+              e.preventDefault();
+              onNavigate('news');
+            }}
             className="px-6 py-3.5 rounded-2xl bg-[#D97706] hover:bg-[#B45309] text-white font-bold text-sm tracking-wider font-brand shrink-0 cursor-pointer shadow-lg border border-[#F59E0B] transition-all flex items-center gap-2"
           >
             <span>LATEST UPDATES</span>
             <ChevronRight className="w-4 h-4" />
-          </button>
+          </a>
         </div>
       </section>
 

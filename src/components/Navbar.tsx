@@ -80,9 +80,13 @@ export const Navbar: React.FC<NavbarProps> = ({
           </button>
 
           {/* Brand Logo & Editorial Title */}
-          <div
+          <a
+            href="/"
             id="brand-header-link"
-            onClick={() => onNavigate('home')}
+            onClick={(e) => {
+              e.preventDefault();
+              onNavigate('home');
+            }}
             className="flex items-center gap-2 sm:gap-3 cursor-pointer group shrink-0 select-none py-1"
           >
             <div className="flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:rotate-6 transition-all duration-200">
@@ -98,15 +102,18 @@ export const Navbar: React.FC<NavbarProps> = ({
                 Fresh Hop Routes!
               </p>
             </div>
-          </div>
+          </a>
         </div>
 
         {/* Center: Desktop Navigation Links */}
         <nav className="hidden lg:flex items-center gap-1.5 bg-[#122611] p-1 rounded-full border border-[#22401E]">
-          <button
-            type="button"
+          <a
+            href="/"
             id="desktop-nav-home"
-            onClick={() => onNavigate('home')}
+            onClick={(e) => {
+              e.preventDefault();
+              onNavigate('home');
+            }}
             className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
               currentPage === 'home'
                 ? 'bg-[#D97706] text-white shadow-xs font-brand tracking-wider'
@@ -114,12 +121,15 @@ export const Navbar: React.FC<NavbarProps> = ({
             }`}
           >
             Home
-          </button>
+          </a>
 
-          <button
-            type="button"
+          <a
+            href="/plan"
             id="desktop-nav-plan"
-            onClick={() => onNavigate('plan')}
+            onClick={(e) => {
+              e.preventDefault();
+              onNavigate('plan');
+            }}
             className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
               currentPage === 'plan'
                 ? 'bg-[#58A72F] text-white shadow-xs font-brand tracking-wider'
@@ -130,12 +140,15 @@ export const Navbar: React.FC<NavbarProps> = ({
             {hasActiveRoute && (
               <span className="w-2 h-2 rounded-full bg-[#66DE37] animate-ping" />
             )}
-          </button>
+          </a>
 
-          <button
-            type="button"
+          <a
+            href="/news"
             id="desktop-nav-news"
-            onClick={() => onNavigate('news')}
+            onClick={(e) => {
+              e.preventDefault();
+              onNavigate('news');
+            }}
             className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
               currentPage === 'news'
                 ? 'bg-[#D97706] text-white shadow-xs font-brand tracking-wider'
@@ -146,12 +159,15 @@ export const Navbar: React.FC<NavbarProps> = ({
             <span className="text-[9px] font-black px-1.5 py-0.2 rounded-full bg-[#D97706] text-white">
               LIVE
             </span>
-          </button>
+          </a>
 
-          <button
-            type="button"
+          <a
+            href="/about"
             id="desktop-nav-about"
-            onClick={() => onNavigate('about')}
+            onClick={(e) => {
+              e.preventDefault();
+              onNavigate('about');
+            }}
             className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
               currentPage === 'about'
                 ? 'bg-[#D97706] text-white shadow-xs font-brand tracking-wider'
@@ -159,7 +175,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             }`}
           >
             About
-          </button>
+          </a>
 
           {onOpenContact && (
             <button

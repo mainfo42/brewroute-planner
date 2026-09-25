@@ -169,23 +169,29 @@ export const AboutPage: React.FC<AboutPageProps> = ({
 
         {/* Call to Actions */}
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
-          <button
-            type="button"
-            onClick={onStartPlanning}
+          <a
+            href="/plan"
+            onClick={(e) => {
+              e.preventDefault();
+              onStartPlanning();
+            }}
             className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-[#D97706] hover:bg-[#B45309] text-white font-black text-base tracking-wide font-brand shadow-xl border-2 border-[#F59E0B] transition-all cursor-pointer flex items-center justify-center gap-2"
           >
             <Sparkles className="w-5 h-5" />
             <span>START PLANNING YOUR ROUTE</span>
-          </button>
+          </a>
 
-          <button
-            type="button"
-            onClick={() => onNavigate('news')}
+          <a
+            href="/news"
+            onClick={(e) => {
+              e.preventDefault();
+              onNavigate('news');
+            }}
             className="w-full sm:w-auto px-6 py-4 rounded-2xl bg-[#172816] hover:bg-[#20361E] text-[#DDF1D2] font-bold text-sm tracking-normal transition-all cursor-pointer flex items-center justify-center gap-2 border border-[#30522B]"
           >
             <Newspaper className="w-4 h-4 text-[#F59E0B]" />
             <span>Read Global Beer Updates</span>
-          </button>
+          </a>
         </div>
       </div>
     </div>
