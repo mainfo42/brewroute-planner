@@ -29,14 +29,9 @@ export const BeerNewsPage: React.FC<BeerNewsPageProps> = ({ onStartPlanning, isA
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [feedSource, setFeedSource] = useState<'live' | 'cache' | 'curated'>('curated');
-  const [lastUpdated, setLastUpdated] = useState<string>('Just now');
   const [lastFetchTimestamp, setLastFetchTimestamp] = useState<number>(0);
   const [activeArticleModal, setActiveArticleModal] = useState<BeerNewsArticle | null>(null);
   const [refreshNotification, setRefreshNotification] = useState<string | null>(null);
-  const [cronSchedule, setCronSchedule] = useState<{
-    nextCronRunAt?: string;
-    cronIntervalHours?: number;
-  }>({ cronIntervalHours: 24 });
 
   // Fetch news whenever user lands on the page or when component mounts
   useEffect(() => {
@@ -75,21 +70,9 @@ export const BeerNewsPage: React.FC<BeerNewsPageProps> = ({ onStartPlanning, isA
           setArticles(data.articles);
           setFeedSource(data.source || 'live');
           setLastFetchTimestamp(Date.now());
-          if (data.nextCronRunAt) {
-            setCronSchedule({
-              nextCronRunAt: data.nextCronRunAt,
-              cronIntervalHours: data.cronIntervalHours || 24,
-            });
-          }
-          if (data.updatedAt) {
-            const date = new Date(data.updatedAt);
-            setLastUpdated(date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
-          } else {
-            setLastUpdated('Just now');
-          }
           if (forceRefresh) {
-            setRefreshNotification(`Fresh 24h News Repopulated! Refreshed ${data.articles.length} dispatches.`);
-            setTimeout(() => setRefreshNotification(null), 4500);
+            setRefreshNotification(`News updated! Refreshed ${data.articles.length} dispatches.`);
+            setTimeout(() => setRefreshNotification(null), 4000);
           }
         }
       }
@@ -179,33 +162,18 @@ export const BeerNewsPage: React.FC<BeerNewsPageProps> = ({ onStartPlanning, isA
             </p>
           </div>
 
-          {/* Refresh & status */}
-          <div className="flex flex-col items-start md:items-end gap-3 shrink-0">
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#112410] border border-[#58A72F]/50 text-[11px] font-bold text-[#7DD748] tracking-wider uppercase font-brand">
-                <span className="w-2 h-2 rounded-full bg-[#66DE37] animate-pulse" />
-                24H CRON ACTIVE • AUTO-SYNCED
-              </span>
-              <span className="text-xs text-[#8EAD84] flex items-center gap-1.5">
-                <span>Updated {lastUpdated}</span>
-                {cronSchedule.nextCronRunAt && (
-                  <span className="text-[#5F7A56] hidden sm:inline">
-                    • Next auto-repopulate: {new Date(cronSchedule.nextCronRunAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                  </span>
-                )}
-              </span>
-            </div>
-
+          {/* Refresh button */}
+          <div className="flex items-center shrink-0">
             <button
               type="button"
               id="refresh-news-btn"
               onClick={() => fetchNews(true)}
               disabled={isLoading}
               className="px-4 py-2.5 rounded-xl bg-[#1B2F18] hover:bg-[#254221] text-[#DDF1D2] text-xs font-bold font-brand tracking-wider flex items-center gap-2 transition-all cursor-pointer border border-[#376332] active:scale-95 disabled:opacity-50 shadow-md"
-              title="Manually trigger immediate news repopulation"
+              title="Refresh news"
             >
               <RotateCw className={`w-3.5 h-3.5 text-[#F59E0B] ${isLoading ? 'animate-spin' : ''}`} />
-              <span>{isLoading ? 'REPOPULATING NEWS...' : 'REFRESH NEWS NOW'}</span>
+              <span>{isLoading ? 'REFRESHING...' : 'REFRESH NEWS'}</span>
             </button>
           </div>
         </div>
