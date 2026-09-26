@@ -39,7 +39,7 @@ export const LocationAutocomplete: React.FC<LocationAutocompleteProps> = ({
   const inputRef = useRef<HTMLInputElement>(null);
 
   // Suggestions filtered based on current text input
-  const suggestions = getMatchingLocations(value, 8);
+  const suggestions = getMatchingLocations(value, 10);
 
   // Close dropdown on click outside
   useEffect(() => {

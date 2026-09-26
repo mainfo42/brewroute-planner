@@ -31,6 +31,7 @@ interface HamburgerMenuProps {
   onOpenAuth: (mode?: 'login' | 'signup' | 'forgot') => void;
   onLogout: () => void;
   hasActiveRoute: boolean;
+  onPlanTrip?: () => void;
   onOpenContact?: () => void;
 }
 
@@ -46,6 +47,7 @@ export const HamburgerMenu: React.FC<HamburgerMenuProps> = ({
   onOpenAuth,
   onLogout,
   hasActiveRoute,
+  onPlanTrip,
   onOpenContact,
 }) => {
   // Close on Escape key press
@@ -156,13 +158,18 @@ export const HamburgerMenu: React.FC<HamburgerMenuProps> = ({
             <ChevronRight className={`w-4 h-4 ${currentPage === 'home' ? 'text-white' : 'text-[#628B59]'}`} />
           </a>
 
-          {/* Plan a Trail */}
+          {/* Plan Trip */}
           <a
             href="/plan"
             id="menu-nav-plan"
             onClick={(e) => {
               e.preventDefault();
-              handleNavClick('plan');
+              onClose();
+              if (onPlanTrip) {
+                onPlanTrip();
+              } else {
+                handleNavClick('plan');
+              }
             }}
             className={`w-full flex items-center justify-between p-3.5 rounded-2xl transition-all text-left cursor-pointer border ${
               currentPage === 'plan'
@@ -182,7 +189,7 @@ export const HamburgerMenu: React.FC<HamburgerMenuProps> = ({
               </div>
               <div>
                 <div className="flex items-center gap-2">
-                  <span className="font-bold text-sm">Plan a Trail</span>
+                  <span className="font-bold text-sm">Plan Trip</span>
                   {hasActiveRoute && (
                     <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-[#181818] text-[#8BE052] border border-[#58A72F]/50">
                       Active

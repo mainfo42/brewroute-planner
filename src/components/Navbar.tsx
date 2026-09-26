@@ -28,6 +28,7 @@ interface NavbarProps {
   onLogout: () => void;
   hasActiveRoute: boolean;
   onReset: () => void;
+  onPlanTrip?: () => void;
   onOpenContact?: () => void;
 }
 
@@ -43,6 +44,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   onLogout,
   hasActiveRoute,
   onReset,
+  onPlanTrip,
   onOpenContact,
 }) => {
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
@@ -128,7 +130,11 @@ export const Navbar: React.FC<NavbarProps> = ({
             id="desktop-nav-plan"
             onClick={(e) => {
               e.preventDefault();
-              onNavigate('plan');
+              if (onPlanTrip) {
+                onPlanTrip();
+              } else {
+                onNavigate('plan');
+              }
             }}
             className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
               currentPage === 'plan'
@@ -136,7 +142,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 : 'text-[#C6E2BD] hover:text-white hover:bg-white/5'
             }`}
           >
-            <span>Plan Trail</span>
+            <span>Plan Trip</span>
             {hasActiveRoute && (
               <span className="w-2 h-2 rounded-full bg-[#66DE37] animate-ping" />
             )}
@@ -196,7 +202,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             <button
               type="button"
               id="nav-new-route-btn"
-              onClick={onReset}
+              onClick={onPlanTrip || onReset}
               className="flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-bold bg-[#58A72F] hover:bg-[#68BF38] text-white active:bg-[#489224] shadow-xs transition-all shrink-0 cursor-pointer border border-[#7CD749]"
             >
               <Plus className="w-4 h-4 text-white" />

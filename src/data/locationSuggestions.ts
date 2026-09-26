@@ -1,3 +1,5 @@
+import { ALL_MAJOR_CITIES } from './worldCitiesData';
+
 export interface LocationSuggestion {
   name: string;
   subtext: string;
@@ -6,6 +8,12 @@ export interface LocationSuggestion {
   code?: string;
   country: 'USA' | 'Canada' | 'International';
   craftBeerHubRank?: string;
+  cityName?: string;
+  asciiname?: string;
+  population?: number;
+  lat?: number;
+  lng?: number;
+  altNames?: string[];
 }
 
 export interface RegionData {
@@ -828,15 +836,29 @@ export const ALL_REGIONS: RegionData[] = [
 ];
 
 /**
- * Build the master suggestions array with states, provinces, and cities
+ * Helper to normalize string for diacritic-insensitive search
+ */
+function normalizeSearchText(str: string): string {
+  return str
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .trim();
+}
+
+/**
+ * Build the master suggestions array with states, provinces, and all major cities
+ * (every city > 50,000 in North America and > 200,000 in Europe)
  */
 export function buildAllSuggestions(): LocationSuggestion[] {
   const list: LocationSuggestion[] = [];
+  const addedLowerNames = new Set<string>();
 
+  // 1. Add States / Provinces & curated craft beer regions
   ALL_REGIONS.forEach((region) => {
-    // 1. Add the State / Province entry
+    const regionFullName = `${region.name}, ${region.country}`;
     list.push({
-      name: `${region.name}, ${region.country}`,
+      name: regionFullName,
       subtext: `${region.type === 'state' ? 'State' : 'Province'} in ${region.country} • ${region.description}`,
       type: region.type,
       stateOrProvince: region.name,
@@ -844,8 +866,9 @@ export function buildAllSuggestions(): LocationSuggestion[] {
       country: region.country,
       craftBeerHubRank: `${region.type === 'state' ? 'State' : 'Province'}: ${region.name}`,
     });
+    addedLowerNames.add(regionFullName.toLowerCase());
 
-    // 2. Add cities under this State / Province
+    // Curated craft beer hub cities in this region
     region.cities.forEach((city) => {
       list.push({
         name: city.name,
@@ -856,7 +879,31 @@ export function buildAllSuggestions(): LocationSuggestion[] {
         country: region.country,
         craftBeerHubRank: city.hubRank,
       });
+      addedLowerNames.add(city.name.toLowerCase());
     });
+  });
+
+  // 2. Add ALL major cities (every city > 50k in North America and > 200k in Europe)
+  ALL_MAJOR_CITIES.forEach((c) => {
+    const lowerName = c.name.toLowerCase();
+    if (!addedLowerNames.has(lowerName)) {
+      list.push({
+        name: c.name,
+        cityName: c.cityName,
+        asciiname: c.asciiname,
+        subtext: c.subtext,
+        type: 'city',
+        stateOrProvince: c.stateOrProvince,
+        code: c.code,
+        country: c.country,
+        population: c.population,
+        lat: c.lat,
+        lng: c.lng,
+        altNames: c.altNames,
+        craftBeerHubRank: c.craftBeerHubRank,
+      });
+      addedLowerNames.add(lowerName);
+    }
   });
 
   return list;
@@ -865,12 +912,14 @@ export function buildAllSuggestions(): LocationSuggestion[] {
 export const ALL_LOCATION_SUGGESTIONS: LocationSuggestion[] = buildAllSuggestions();
 
 /**
- * Filter matching suggestions for user query.
- * If user enters "Vermont" or "ver", it prioritizes "Vermont, USA" and Vermont cities.
- * If user enters "Ontario" or "ont", it prioritizes "Ontario, Canada" and Ontario cities.
- * If user enters "Denver", it finds "Denver, CO, USA".
+ * Filter matching suggestions for user query with intelligent ranking.
+ * Supports:
+ * - Every city of more than 50,000 people in North America (USA, Canada, Mexico)
+ * - Every city of more than 200,000 people in Europe
+ * - All US states, Canadian provinces, and major European regions
+ * - Multi-lingual & diacritic-agnostic matching (e.g. "Munchen" -> Munich, "Montreal" -> Montréal, "Wien" -> Vienna)
  */
-export function getMatchingLocations(query: string, maxResults: number = 8): LocationSuggestion[] {
+export function getMatchingLocations(query: string, maxResults: number = 10): LocationSuggestion[] {
   if (!query || query.trim().length === 0) {
     // Default top craft destinations
     const defaults = [
@@ -884,32 +933,31 @@ export function getMatchingLocations(query: string, maxResults: number = 8): Loc
       'Ontario, Canada',
       'Toronto, ON, Canada',
       'Brussels, Belgium',
-      'Wellington, New Zealand',
+      'Munich, Bavaria, Germany',
+      'London, England, UK',
     ];
     return ALL_LOCATION_SUGGESTIONS.filter((item) => defaults.includes(item.name)).slice(0, maxResults);
   }
 
-  const clean = query.trim().toLowerCase();
+  const rawClean = query.trim().toLowerCase();
+  const clean = normalizeSearchText(query);
 
-  // Find if there is a matching state / province by name, code, or query
+  // Check if query matches a state / province / region directly
   const matchedRegion = ALL_REGIONS.find((r) => {
-    const nameLower = r.name.toLowerCase();
-    const codeLower = r.code.toLowerCase();
+    const nameNorm = normalizeSearchText(r.name);
+    const codeNorm = normalizeSearchText(r.code);
     return (
-      nameLower === clean ||
-      codeLower === clean ||
-      nameLower.startsWith(clean) ||
-      clean.includes(nameLower) ||
-      (clean.length >= 2 && codeLower === clean)
+      nameNorm === clean ||
+      codeNorm === clean ||
+      nameNorm.startsWith(clean) ||
+      (clean.length >= 2 && codeNorm === clean)
     );
   });
 
   const exactStateMatches: LocationSuggestion[] = [];
   const regionalCityMatches: LocationSuggestion[] = [];
-  const generalMatches: LocationSuggestion[] = [];
 
   if (matchedRegion) {
-    // 1. Put the state/province itself at the very top! (e.g. "Vermont, USA" or "Ontario, Canada")
     const stateCard: LocationSuggestion = {
       name: `${matchedRegion.name}, ${matchedRegion.country}`,
       subtext: `${matchedRegion.type === 'state' ? 'State' : 'Province'} in ${matchedRegion.country} • ${matchedRegion.description}`,
@@ -921,7 +969,6 @@ export function getMatchingLocations(query: string, maxResults: number = 8): Loc
     };
     exactStateMatches.push(stateCard);
 
-    // 2. Put all cities in this state/province next
     matchedRegion.cities.forEach((c) => {
       regionalCityMatches.push({
         name: c.name,
@@ -935,31 +982,87 @@ export function getMatchingLocations(query: string, maxResults: number = 8): Loc
     });
   }
 
-  // 3. Search through all suggestions for general matches
-  ALL_LOCATION_SUGGESTIONS.forEach((item) => {
-    const nameLower = item.name.toLowerCase();
-    const subtextLower = item.subtext.toLowerCase();
-    const stateLower = item.stateOrProvince?.toLowerCase() || '';
-    const codeLower = item.code?.toLowerCase() || '';
+  // Score buckets for ranking cities
+  const exactCityMatches: LocationSuggestion[] = [];
+  const prefixCityMatches: LocationSuggestion[] = [];
+  const prefixAltMatches: LocationSuggestion[] = [];
+  const substringCityMatches: LocationSuggestion[] = [];
+  const generalMatches: LocationSuggestion[] = [];
 
-    const isMatch =
-      nameLower.includes(clean) ||
-      subtextLower.includes(clean) ||
-      stateLower.includes(clean) ||
-      codeLower === clean;
+  const seen = new Set<string>();
+  exactStateMatches.forEach((s) => seen.add(s.name.toLowerCase()));
+  regionalCityMatches.forEach((c) => seen.add(c.name.toLowerCase()));
 
-    const alreadyAdded =
-      exactStateMatches.some((e) => e.name === item.name) ||
-      regionalCityMatches.some((r) => r.name === item.name);
+  for (const item of ALL_LOCATION_SUGGESTIONS) {
+    const itemLowerName = item.name.toLowerCase();
+    if (seen.has(itemLowerName)) continue;
 
-    if (isMatch && !alreadyAdded) {
-      generalMatches.push(item);
+    const normName = normalizeSearchText(item.name);
+    const normCityName = normalizeSearchText(item.cityName || item.name.split(',')[0]);
+    const normSubtext = normalizeSearchText(item.subtext);
+    const normState = normalizeSearchText(item.stateOrProvince || '');
+    const normCode = normalizeSearchText(item.code || '');
+
+    // 1. Exact city name match
+    if (normCityName === clean || normName === clean) {
+      exactCityMatches.push(item);
+      seen.add(itemLowerName);
+      continue;
     }
-  });
+
+    // 2. City name starts with query (e.g. "Mun" -> Munich, "Aus" -> Austin, "San" -> San Diego)
+    if (normCityName.startsWith(clean) || normName.startsWith(clean)) {
+      prefixCityMatches.push(item);
+      seen.add(itemLowerName);
+      continue;
+    }
+
+    // 3. Alternate names starts with query (e.g. "Munchen" -> Munich, "Wien" -> Vienna, "Praha" -> Prague)
+    if (item.altNames && item.altNames.some((alt) => normalizeSearchText(alt).startsWith(clean))) {
+      prefixAltMatches.push(item);
+      seen.add(itemLowerName);
+      continue;
+    }
+
+    // 4. Substring in city name (e.g. "Diego" -> San Diego, "Angeles" -> Los Angeles)
+    if (normCityName.includes(clean)) {
+      substringCityMatches.push(item);
+      seen.add(itemLowerName);
+      continue;
+    }
+
+    // 5. Alternate names or state/code/subtext match
+    const isAltMatch = item.altNames?.some((alt) => normalizeSearchText(alt).includes(clean));
+    const isStateMatch = normState === clean || normCode === clean || normState.startsWith(clean);
+    const isGeneralMatch = normName.includes(clean) || normSubtext.includes(clean) || normName.includes(rawClean);
+
+    if (isAltMatch || isStateMatch || isGeneralMatch) {
+      generalMatches.push(item);
+      seen.add(itemLowerName);
+    }
+  }
+
+  // Sort each bucket by population descending (or craft beer hub)
+  const sortByProminence = (a: LocationSuggestion, b: LocationSuggestion) => {
+    if (a.craftBeerHubRank && !b.craftBeerHubRank) return -1;
+    if (!a.craftBeerHubRank && b.craftBeerHubRank) return 1;
+    const popA = a.population || 0;
+    const popB = b.population || 0;
+    return popB - popA;
+  };
+
+  prefixCityMatches.sort(sortByProminence);
+  prefixAltMatches.sort(sortByProminence);
+  substringCityMatches.sort(sortByProminence);
+  generalMatches.sort(sortByProminence);
 
   const combined = [
     ...exactStateMatches,
+    ...exactCityMatches,
+    ...prefixCityMatches,
+    ...prefixAltMatches,
     ...regionalCityMatches,
+    ...substringCityMatches,
     ...generalMatches,
   ];
 

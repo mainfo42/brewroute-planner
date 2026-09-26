@@ -71,6 +71,7 @@ export default function App() {
   const [currentPage, setCurrentPage] = useState<AppPageView>(() => getInitialPageFromUrl());
   const [isHamburgerOpen, setIsHamburgerOpen] = useState<boolean>(false);
   const [currentRoute, setCurrentRoute] = useState<BrewTravelRoute | null>(null);
+  const [routeFormKey, setRouteFormKey] = useState<number>(0);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successToast, setSuccessToast] = useState<string | null>(null);
@@ -101,6 +102,18 @@ export default function App() {
     }
 
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  // Dedicated handler to start a brand new empty Plan Route
+  const handleStartNewPlanTrip = () => {
+    setCurrentRoute(null);
+    setErrorMessage(null);
+    setIsLoading(false);
+    setRouteFormKey((prev) => prev + 1);
+    navigateToPage('plan');
+    if (typeof window !== 'undefined') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   };
 
   // Synchronize browser back/forward buttons with HTML5 History
@@ -443,10 +456,8 @@ export default function App() {
         onOpenAuth={handleOpenAuth}
         onLogout={handleLogout}
         hasActiveRoute={!!currentRoute}
-        onReset={() => {
-          setCurrentRoute(null);
-          navigateToPage('plan');
-        }}
+        onReset={handleStartNewPlanTrip}
+        onPlanTrip={handleStartNewPlanTrip}
         onOpenContact={() => setIsContactModalOpen(true)}
       />
 
@@ -489,7 +500,7 @@ export default function App() {
         {/* 1. Home Page: Explains Site Purpose, Value Proposition & Philosophy */}
         {currentPage === 'home' && (
           <HomePage
-            onStartPlanning={() => navigateToPage('plan')}
+            onStartPlanning={handleStartNewPlanTrip}
             onNavigate={(page) => navigateToPage(page)}
             onSelectCuratedDestination={(idx) => {
               const dest = POPULAR_DESTINATIONS[idx];
@@ -505,7 +516,7 @@ export default function App() {
         {/* 2. About Page: Detailed Mission, History, Routing Algorithm & Safety Charter */}
         {currentPage === 'about' && (
           <AboutPage
-            onStartPlanning={() => navigateToPage('plan')}
+            onStartPlanning={handleStartNewPlanTrip}
             onNavigate={(page) => navigateToPage(page)}
           />
         )}
@@ -514,7 +525,7 @@ export default function App() {
         {currentPage === 'news' && (
           <BeerNewsPage
             isActive={currentPage === 'news'}
-            onStartPlanning={() => navigateToPage('plan')}
+            onStartPlanning={handleStartNewPlanTrip}
           />
         )}
 
@@ -526,10 +537,7 @@ export default function App() {
               onOpenExport={() => setIsExportModalOpen(true)}
               onToggleVisited={handleToggleVisited}
               visitedBreweries={visitedBreweries}
-              onPlanNew={() => {
-                setCurrentRoute(null);
-                navigateToPage('plan');
-              }}
+              onPlanNew={handleStartNewPlanTrip}
               isSaved={isCurrentRouteSaved}
               onSaveItinerary={() => handleSaveItinerary()}
               isLoggedIn={!!currentUser}
@@ -539,6 +547,7 @@ export default function App() {
           ) : (
             <div className="space-y-6">
               <RouteForm
+                key={`route-form-${routeFormKey}`}
                 onSubmit={handleGenerateRoute}
                 isLoading={isLoading}
                 currentTheme={colorTheme}
@@ -562,10 +571,7 @@ export default function App() {
         savedCount={savedItineraries.length}
         user={currentUser}
         hasActiveRoute={!!currentRoute}
-        onPlanNew={() => {
-          setCurrentRoute(null);
-          navigateToPage('plan');
-        }}
+        onPlanNew={handleStartNewPlanTrip}
         onOpenHamburger={() => setIsHamburgerOpen(true)}
       />
 
@@ -575,6 +581,7 @@ export default function App() {
         onClose={() => setIsHamburgerOpen(false)}
         currentPage={currentPage}
         onNavigate={(page) => navigateToPage(page)}
+        onPlanTrip={handleStartNewPlanTrip}
         onOpenCurated={() => setIsCuratedModalOpen(true)}
         onOpenSavedItineraries={() => {
           if (!currentUser) {
