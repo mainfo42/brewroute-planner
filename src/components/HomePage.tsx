@@ -84,9 +84,11 @@ export const HomePage: React.FC<HomePageProps> = ({
               <span className="text-xl sm:text-2xl font-black text-[#66DE37] font-brand block">≤ 25 MIN</span>
               <span className="text-[11px] text-[#A8C4A2] font-medium">Drive Time Between Stops</span>
             </div>
-            <div className="p-3.5 rounded-2xl bg-[#0F1A0E]/90 backdrop-blur-md border border-[#233A1F] text-center shadow-lg">
+            <div className="p-3.5 rounded-2xl bg-[#0F1A0E]/90 backdrop-blur-md border border-[#233A1F] text-center shadow-lg flex flex-col justify-center">
               <span className="text-xl sm:text-2xl font-black text-[#F59E0B] font-brand block">5 PLATFORMS</span>
-              <span className="text-[11px] text-[#A8C4A2] font-medium">Untappd + Google + BeerAdvocate</span>
+              <span className="text-[10px] sm:text-[10.5px] text-[#A8C4A2] font-medium leading-tight mt-0.5">
+                Google, Untappd, BeerAdvocate, RateBeer & TripAdvisor
+              </span>
             </div>
             <div className="p-3.5 rounded-2xl bg-[#0F1A0E]/90 backdrop-blur-md border border-[#233A1F] text-center shadow-lg">
               <span className="text-xl sm:text-2xl font-black text-white font-brand block">ROUND-TRIP</span>

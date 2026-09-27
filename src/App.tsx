@@ -743,7 +743,7 @@ export default function App() {
               © 2026 BrewHop. All rights reserved. Drink responsibly.
             </p>
             <p className="text-center sm:text-right">
-              ≤ 3 microbreweries/day • Spaced ≤ 25 min drives • 4-Platform Verified Ratings
+              ≤ 3 microbreweries/day • Spaced ≤ 25 min drives • 5-Platform Verified Ratings
             </p>
           </div>
         </div>
