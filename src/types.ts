@@ -20,11 +20,12 @@ export interface RouteParameters {
 }
 
 export interface ReviewRatings {
-  google: { score: number; count?: string };
+  google: { score: number; count?: string; reviewCount?: string };
   untappd: { score: number; count?: string };
   rateBeer: { score: number; count?: string };
   tripAdvisor: { score: number; count?: string };
-  compositeAverage?: number; // Mathematical average across the 4 platforms
+  beerAdvocate?: { score: number; count?: string };
+  compositeAverage?: number; // Mathematical average across the 5 platforms
 }
 
 export interface BeerHighlight {
@@ -57,11 +58,13 @@ export interface BreweryStop {
   websiteUrl?: string;
   untappdUrl?: string;
   rateBeerUrl?: string;
+  beerAdvocateUrl?: string;
   taplistUrl?: string;
   styleVerificationSources?: {
     websiteVerified?: boolean;
     untappdVerified?: boolean;
     rateBeerVerified?: boolean;
+    beerAdvocateVerified?: boolean;
     details?: string;
   };
   googleMapsUrl?: string;
@@ -70,6 +73,9 @@ export interface BreweryStop {
   visited?: boolean;
   userNotes?: string;
   userRating?: number;
+  distanceFromCityCenterKm?: number;
+  withinCityRadius?: boolean;
+  firstBreweryRadiusKm?: number;
 }
 
 export interface StayRecommendation {

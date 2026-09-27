@@ -80,7 +80,9 @@ export const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose, route
       summary += `📅 DAY ${day.dayNumber}: ${day.dayTitle}\n`;
       day.breweries.forEach((b, idx) => {
         summary += `  ${idx + 1}. ${b.name} (${b.city}, ${b.state || ''})\n`;
-        summary += `     • Untappd: ${b.ratings.untappd.score.toFixed(2)} ★ | Google: ${b.ratings.google.score.toFixed(1)} ★\n`;
+        const baExport = b.ratings.beerAdvocate ? ` | BeerAdvocate: ${b.ratings.beerAdvocate.score.toFixed(2)} ★` : '';
+        const compExport = b.ratings.compositeAverage ? ` | 5-Platform Avg: ${b.ratings.compositeAverage.toFixed(2)} ★` : '';
+        summary += `     • Ratings: Untappd: ${b.ratings.untappd.score.toFixed(2)} ★ | Google: ${b.ratings.google.score.toFixed(1)} ★${baExport}${compExport}\n`;
         summary += `     • Renowned For: ${b.beerHighlights.map((bh) => bh.name).join(', ')}\n`;
         summary += `     • Food: ${b.foodHighlights}\n`;
       });

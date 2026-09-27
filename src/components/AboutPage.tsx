@@ -104,7 +104,7 @@ export const AboutPage: React.FC<AboutPageProps> = ({
               </div>
               <p className="text-xs sm:text-sm text-[#9CB394] leading-relaxed">
                 Rather than relying on a single biased review score, BrewHop cross-references verified data from 
-                Untappd, Google Reviews, RateBeer, and TripAdvisor to highlight truly exceptional craft producers.
+                Google Reviews, Untappd, RateBeer, TripAdvisor, and Beer Advocate to highlight truly exceptional craft producers.
               </p>
             </div>
 

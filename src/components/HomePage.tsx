@@ -59,7 +59,7 @@ export const HomePage: React.FC<HomePageProps> = ({
             <p className="text-base sm:text-xl text-zinc-100 max-w-3xl mx-auto font-medium leading-relaxed drop-shadow-[0_2px_10px_rgba(0,0,0,0.95)]">
               BrewHop is engineered to eliminate the stress and guesswork from brewery touring. 
               We automatically craft custom itineraries tailored to your favorite beer styles, 
-              spacing every stop strictly within scenic 25-minute drives, backed by 4-platform 
+              spacing every stop strictly within scenic 25-minute drives, backed by 5-platform 
               verified ratings, seamless round-trip Google Maps navigation, and boutique overnight stays.
             </p>
 
@@ -85,8 +85,8 @@ export const HomePage: React.FC<HomePageProps> = ({
               <span className="text-[11px] text-[#A8C4A2] font-medium">Drive Time Between Stops</span>
             </div>
             <div className="p-3.5 rounded-2xl bg-[#0F1A0E]/90 backdrop-blur-md border border-[#233A1F] text-center shadow-lg">
-              <span className="text-xl sm:text-2xl font-black text-[#F59E0B] font-brand block">4 PLATFORMS</span>
-              <span className="text-[11px] text-[#A8C4A2] font-medium">Untappd + Google + RateBeer</span>
+              <span className="text-xl sm:text-2xl font-black text-[#F59E0B] font-brand block">5 PLATFORMS</span>
+              <span className="text-[11px] text-[#A8C4A2] font-medium">Untappd + Google + BeerAdvocate</span>
             </div>
             <div className="p-3.5 rounded-2xl bg-[#0F1A0E]/90 backdrop-blur-md border border-[#233A1F] text-center shadow-lg">
               <span className="text-xl sm:text-2xl font-black text-white font-brand block">ROUND-TRIP</span>

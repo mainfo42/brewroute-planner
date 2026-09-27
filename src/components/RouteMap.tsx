@@ -172,10 +172,12 @@ export const RouteMap: React.FC<RouteMapProps> = ({
 
         const marker = L.marker(point, { icon: customIcon }).addTo(markersLayer);
 
+        const baTag = brewery.ratings.beerAdvocate ? `<span style="background:#FEF3C7;color:#92400E;padding:2px 8px;border-radius:9999px;">BA ${brewery.ratings.beerAdvocate.score.toFixed(2)} ★</span>` : '';
         const ratingSummary = `
-          <div style="display:flex;gap:6px;margin:6px 0;font-size:11px;font-weight:600;">
+          <div style="display:flex;flex-wrap:wrap;gap:4px;margin:6px 0;font-size:10px;font-weight:600;">
             <span style="background:#D1E7D6;color:#0D2818;padding:2px 8px;border-radius:9999px;">Untappd ${brewery.ratings.untappd.score.toFixed(2)} ★</span>
             <span style="background:#EBF2EC;color:#0D2818;padding:2px 8px;border-radius:9999px;">Google ${brewery.ratings.google.score.toFixed(1)} ★</span>
+            ${baTag}
           </div>
         `;
 

@@ -155,6 +155,8 @@ const rawCuratedRoute: BrewTravelRoute = {
             untappd: { score: 4.62, count: '450k+ check-ins' },
             rateBeer: { score: 4.5, count: 'Top 50 World' },
             tripAdvisor: { score: 4.7, count: '1,420 reviews' },
+            beerAdvocate: { score: 4.88, count: '6,500+ reviews' },
+            compositeAverage: 4.70,
           },
           beerHighlights: [
             {
@@ -199,6 +201,8 @@ const rawCuratedRoute: BrewTravelRoute = {
             untappd: { score: 4.25, count: '180k+ check-ins' },
             rateBeer: { score: 4.1, count: 'Top 100 Lagers' },
             tripAdvisor: { score: 4.6, count: '1,100 reviews' },
+            beerAdvocate: { score: 4.18, count: '1,200+ reviews' },
+            compositeAverage: 4.35,
           },
           beerHighlights: [
             {
@@ -243,6 +247,8 @@ const rawCuratedRoute: BrewTravelRoute = {
             untappd: { score: 4.05, count: '65k+ check-ins' },
             rateBeer: { score: 4.0, count: 'Regional Favorite' },
             tripAdvisor: { score: 4.5, count: '840 reviews' },
+            beerAdvocate: { score: 4.12, count: '520+ reviews' },
+            compositeAverage: 4.23,
           },
           beerHighlights: [
             {
@@ -322,6 +328,8 @@ const rawCuratedRoute: BrewTravelRoute = {
             untappd: { score: 4.38, count: '120k+ check-ins' },
             rateBeer: { score: 4.4, count: 'Top 50 Brewpub' },
             tripAdvisor: { score: 4.7, count: '2,100 reviews' },
+            beerAdvocate: { score: 4.42, count: '1,800+ reviews' },
+            compositeAverage: 4.52,
           },
           beerHighlights: [
             {
@@ -366,6 +374,8 @@ const rawCuratedRoute: BrewTravelRoute = {
             untappd: { score: 4.48, count: '45k+ check-ins' },
             rateBeer: { score: 4.6, count: 'Cult Favorite' },
             tripAdvisor: { score: 4.8, count: '220 reviews' },
+            beerAdvocate: { score: 4.52, count: '340+ reviews' },
+            compositeAverage: 4.66,
           },
           beerHighlights: [
             {
@@ -410,6 +420,8 @@ const rawCuratedRoute: BrewTravelRoute = {
             untappd: { score: 4.45, count: '320k+ check-ins' },
             rateBeer: { score: 4.4, count: 'Top 50 World' },
             tripAdvisor: { score: 4.8, count: '1,050 reviews' },
+            beerAdvocate: { score: 4.55, count: '4,200+ reviews' },
+            compositeAverage: 4.60,
           },
           beerHighlights: [
             {

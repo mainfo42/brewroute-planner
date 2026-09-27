@@ -631,6 +631,17 @@ export const RouteDisplay: React.FC<RouteDisplayProps> = ({
                                       <span className="text-xs sm:text-sm text-[#4D6D47] font-bold">
                                         ({brewery.city}, {brewery.state || route.region})
                                       </span>
+                                      {brewery.distanceFromCityCenterKm !== undefined && (
+                                        <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase font-brand tracking-wider ${
+                                          brewery.distanceFromCityCenterKm <= 50
+                                            ? 'bg-[#EAF4E6] text-[#2C5E24] border border-[#B2D8A6]'
+                                            : 'bg-[#FEF3C7] text-[#92400E] border border-[#FCD34D]'
+                                        }`}>
+                                          {brewery.distanceFromCityCenterKm <= 50
+                                            ? `≤ 50 km radius (${brewery.distanceFromCityCenterKm} km)`
+                                            : `≤ 75 km radius (${brewery.distanceFromCityCenterKm} km)`}
+                                        </span>
+                                      )}
                                     </div>
                                     <p className="text-xs text-[#4D6D47] mt-1 flex items-center gap-1.5 font-medium">
                                       <MapPin className="w-3.5 h-3.5 text-[#58A72F] shrink-0" />
@@ -658,6 +669,13 @@ export const RouteDisplay: React.FC<RouteDisplayProps> = ({
 
                               {/* Ratings, Recommended Tasting Time, and Matched Style Chips */}
                               <div className="flex flex-wrap items-center gap-2 pt-1">
+                                {brewery.ratings.compositeAverage && (
+                                  <span className="px-2.5 py-0.5 rounded-full bg-[#122610] text-[#DDF1D2] text-[11px] font-black flex items-center gap-1 font-brand">
+                                    <Star className="w-3 h-3 fill-[#F59E0B] text-[#F59E0B]" />
+                                    <span>{brewery.ratings.compositeAverage.toFixed(2)} ★ (5-Platform Avg)</span>
+                                  </span>
+                                )}
+
                                 <span className="px-2.5 py-0.5 rounded-full bg-[#FEF9EE] text-[#78350F] border border-[#FDE68A] text-[11px] font-bold flex items-center gap-1">
                                   <Star className="w-3 h-3 fill-[#D97706] text-[#D97706]" />
                                   <span>Untappd {brewery.ratings.untappd.score.toFixed(2)} ★</span>
@@ -665,13 +683,38 @@ export const RouteDisplay: React.FC<RouteDisplayProps> = ({
 
                                 <span className="px-2.5 py-0.5 rounded-full bg-[#FAFDF9] text-[#162D15] text-[11px] font-bold flex items-center gap-1 border border-[#C6E2BD]">
                                   <span>Google {brewery.ratings.google.score.toFixed(1)} ★</span>
-                                  <span className="text-[10px] text-[#6D9364]">({brewery.ratings.google.reviewCount})</span>
+                                  <span className="text-[10px] text-[#6D9364]">({brewery.ratings.google.reviewCount || brewery.ratings.google.count})</span>
                                 </span>
+
+                                {brewery.ratings.beerAdvocate?.score && (
+                                  <span className="px-2.5 py-0.5 rounded-full bg-[#FFFBEB] text-[#92400E] border border-[#FCD34D] text-[11px] font-bold flex items-center gap-1">
+                                    <Star className="w-3 h-3 fill-[#B45309] text-[#B45309]" />
+                                    <span>BeerAdvocate {brewery.ratings.beerAdvocate.score.toFixed(2)} ★</span>
+                                  </span>
+                                )}
+
+                                {brewery.ratings.rateBeer?.score && (
+                                  <span className="px-2.5 py-0.5 rounded-full bg-[#F5F3FF] text-[#5B21B6] border border-[#DDD6FE] text-[11px] font-bold flex items-center gap-1">
+                                    <span>RateBeer {brewery.ratings.rateBeer.score.toFixed(1)} ★</span>
+                                  </span>
+                                )}
+
+                                {brewery.ratings.tripAdvisor?.score && (
+                                  <span className="px-2.5 py-0.5 rounded-full bg-[#F0FDF4] text-[#166534] border border-[#BBF7D0] text-[11px] font-bold flex items-center gap-1">
+                                    <span>TripAdvisor {brewery.ratings.tripAdvisor.score.toFixed(1)} ★</span>
+                                  </span>
+                                )}
 
                                 <span className="px-2.5 py-0.5 rounded-full bg-[#FAFDF9] text-[#4D6D47] text-[11px] font-medium flex items-center gap-1 border border-[#EAF4E6]">
                                   <Clock className="w-3 h-3 text-[#58A72F]" />
                                   <span>~{brewery.suggestedDurationMin} min tasting</span>
                                 </span>
+
+                                {bIdx === 0 && day.dayNumber === 1 && brewery.distanceFromCityCenterKm !== undefined && (
+                                  <span className="px-2.5 py-0.5 rounded-full bg-[#E0F2FE] text-[#075985] border border-[#BAE6FD] text-[11px] font-bold flex items-center gap-1">
+                                    <span>📍 1st Stop: {brewery.distanceFromCityCenterKm} km from center (≤ {brewery.firstBreweryRadiusKm || 10} km)</span>
+                                  </span>
+                                )}
 
                                 {brewery.matchedStyles && brewery.matchedStyles.length > 0 && (
                                   <span className="px-2.5 py-0.5 rounded-full bg-[#DDF1D2] text-[#122B0F] border border-[#B2D8A6] text-[11px] font-black flex items-center gap-1 font-brand uppercase tracking-wider">
@@ -742,7 +785,7 @@ export const RouteDisplay: React.FC<RouteDisplayProps> = ({
                                     <span>Beer Style & Taplist Sources:</span>
                                   </div>
                                   <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-[#DDF1D2] text-[#122B0F] border border-[#B2D8A6] font-brand uppercase tracking-wider">
-                                    3-Way Verified
+                                    5-Platform Certified
                                   </span>
                                 </div>
 
@@ -781,6 +824,22 @@ export const RouteDisplay: React.FC<RouteDisplayProps> = ({
                                     >
                                       <HopIcon className="w-3 h-3 text-[#D97706]" filled />
                                       <span>Untappd Menu</span>
+                                      <ExternalLink className="w-2.5 h-2.5 opacity-50" />
+                                    </a>
+                                  )}
+
+                                  {/* BeerAdvocate Profile */}
+                                  {brewery.beerAdvocateUrl && (
+                                    <a
+                                      href={brewery.beerAdvocateUrl}
+                                      target="_blank"
+                                      rel="noreferrer"
+                                      id={`beeradvocate-link-${brewery.id || bIdx}`}
+                                      className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-[#FFFBEB] hover:bg-[#FEF3C7] text-[#92400E] text-[11px] font-bold border border-[#FCD34D] transition-colors shadow-2xs cursor-pointer"
+                                      title="Open BeerAdvocate brewery profile, beer reviews & score"
+                                    >
+                                      <Star className="w-3 h-3 text-[#B45309]" />
+                                      <span>BeerAdvocate Reviews</span>
                                       <ExternalLink className="w-2.5 h-2.5 opacity-50" />
                                     </a>
                                   )}
