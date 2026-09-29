@@ -3,6 +3,8 @@
  * Accurately calculates real-world geodesic and road-driving distances and drive times.
  */
 
+import { ALL_MAJOR_CITIES } from '../data/worldCitiesData';
+
 export interface LatLng {
   lat: number;
   lng: number;
@@ -354,12 +356,53 @@ const CITY_COORDINATES: Record<string, LatLng> = {
   'austin, tx': { lat: 30.2672, lng: -97.7431 },
   'dallas, tx': { lat: 32.7767, lng: -96.7970 },
 
-  // International Craft Beer Capitals
+  // International Craft Beer Capitals & Global Gateways
   'brussels': { lat: 50.8503, lng: 4.3517 },
   'brussels, belgium': { lat: 50.8503, lng: 4.3517 },
   'belgium': { lat: 50.8503, lng: 4.3517 },
   'beersel': { lat: 50.7672, lng: 4.2861 },
   'lot, belgium': { lat: 50.7672, lng: 4.2861 },
+  'paris': { lat: 48.8566, lng: 2.3522 },
+  'paris, france': { lat: 48.8566, lng: 2.3522 },
+  'france': { lat: 48.8566, lng: 2.3522 },
+  'munich': { lat: 48.1374, lng: 11.5755 },
+  'munich, germany': { lat: 48.1374, lng: 11.5755 },
+  'munich germany': { lat: 48.1374, lng: 11.5755 },
+  'munich, bavaria, germany': { lat: 48.1374, lng: 11.5755 },
+  'muenchen': { lat: 48.1374, lng: 11.5755 },
+  'münchen': { lat: 48.1374, lng: 11.5755 },
+  'germany': { lat: 51.1657, lng: 10.4515 },
+  'bavaria': { lat: 48.7904, lng: 11.4979 },
+  'vancouver, bc': { lat: 49.2827, lng: -123.1207 },
+  'vancouver, canada': { lat: 49.2827, lng: -123.1207 },
+  'vancouver canada': { lat: 49.2827, lng: -123.1207 },
+  'vancouver, bc, canada': { lat: 49.2827, lng: -123.1207 },
+  'british columbia': { lat: 49.2827, lng: -123.1207 },
+  'bc': { lat: 49.2827, lng: -123.1207 },
+  'victoria, bc': { lat: 48.4284, lng: -123.3656 },
+  'seattle, usa': { lat: 47.6062, lng: -122.3321 },
+  'seattle usa': { lat: 47.6062, lng: -122.3321 },
+  'seattle, wa, usa': { lat: 47.6062, lng: -122.3321 },
+  'london': { lat: 51.5074, lng: -0.1278 },
+  'london, uk': { lat: 51.5074, lng: -0.1278 },
+  'london, united kingdom': { lat: 51.5074, lng: -0.1278 },
+  'prague': { lat: 50.0755, lng: 14.4378 },
+  'prague, czech republic': { lat: 50.0755, lng: 14.4378 },
+  'prague, czechia': { lat: 50.0755, lng: 14.4378 },
+  'praha': { lat: 50.0755, lng: 14.4378 },
+  'dublin': { lat: 53.3498, lng: -6.2603 },
+  'dublin, ireland': { lat: 53.3498, lng: -6.2603 },
+  'berlin': { lat: 52.5200, lng: 13.4050 },
+  'berlin, germany': { lat: 52.5200, lng: 13.4050 },
+  'amsterdam': { lat: 52.3676, lng: 4.9041 },
+  'amsterdam, netherlands': { lat: 52.3676, lng: 4.9041 },
+  'edinburgh': { lat: 55.9533, lng: -3.1883 },
+  'tokyo': { lat: 35.6762, lng: 139.6503 },
+  'sydney': { lat: -33.8688, lng: 151.2093 },
+  'melbourne': { lat: -37.8136, lng: 144.9631 },
+  'toronto, canada': { lat: 43.6532, lng: -79.3832 },
+  'calgary, ab': { lat: 51.0447, lng: -114.0719 },
+  'calgary, canada': { lat: 51.0447, lng: -114.0719 },
   'wellington': { lat: -41.2865, lng: 174.7762 },
   'wellington, new zealand': { lat: -41.2865, lng: 174.7762 },
   'wellington, nz': { lat: -41.2865, lng: 174.7762 },
@@ -375,7 +418,18 @@ const REGION_CENTROIDS: Record<string, LatLng> = {
   'quebec': { lat: 46.8139, lng: -71.2080 },
   'on': { lat: 43.6532, lng: -79.3832 }, // Toronto region
   'ontario': { lat: 43.6532, lng: -79.3832 },
+  'bc': { lat: 49.2827, lng: -123.1207 }, // Vancouver / BC region
+  'british columbia': { lat: 49.2827, lng: -123.1207 },
+  'ab': { lat: 51.0447, lng: -114.0719 },
+  'alberta': { lat: 51.0447, lng: -114.0719 },
   'belgium': { lat: 50.8503, lng: 4.3517 },
+  'germany': { lat: 51.1657, lng: 10.4515 },
+  'bavaria': { lat: 48.1374, lng: 11.5755 },
+  'france': { lat: 48.8566, lng: 2.3522 },
+  'uk': { lat: 51.5074, lng: -0.1278 },
+  'united kingdom': { lat: 51.5074, lng: -0.1278 },
+  'czechia': { lat: 50.0755, lng: 14.4378 },
+  'czech republic': { lat: 50.0755, lng: 14.4378 },
   'new zealand': { lat: -41.2865, lng: 174.7762 },
   'nz': { lat: -41.2865, lng: 174.7762 },
   'vt': { lat: 44.4759, lng: -73.2121 }, // Vermont / Burlington
@@ -414,7 +468,8 @@ const REGION_CENTROIDS: Record<string, LatLng> = {
  * Supports:
  * - Direct coordinate string: "Lat: 46.81, Lng: -71.21" or "46.8139, -71.2080"
  * - Exact city dictionary match
- * - Normalized partial lookup (e.g. "Longueuil, Qc" -> "longueuil")
+ * - Global database of 1,700+ world cities (ALL_MAJOR_CITIES)
+ * - Normalized partial lookup (e.g. "Paris, France" -> 48.8566, 2.3522)
  * - Regional state/province centroid lookup
  */
 export function resolveCoordinates(locationStr: string, fallbackCoord?: LatLng): LatLng {
@@ -462,7 +517,46 @@ export function resolveCoordinates(locationStr: string, fallbackCoord?: LatLng):
     }
   }
 
-  // Check state or province code in parts
+  // 3. Search ALL_MAJOR_CITIES (1,739 major world cities with accurate lat/lng)
+  const clean = trimmed.toLowerCase();
+  const cleanNoComma = clean.replace(/,/g, ' ').replace(/\s+/g, ' ').trim();
+  const cleanFirstPart = clean.split(',')[0].trim();
+
+  const majorCityMatch = ALL_MAJOR_CITIES.find((c) => {
+    const cName = c.cityName.toLowerCase();
+    const cAscii = c.asciiname.toLowerCase();
+    const fullName = c.name.toLowerCase();
+
+    // Exact city name or full string match
+    if (cName === clean || cAscii === clean || fullName === clean) return true;
+    if (cName === cleanFirstPart || cAscii === cleanFirstPart) return true;
+    if (cName === cleanNoComma || cAscii === cleanNoComma) return true;
+
+    // Check alternate names (e.g. München, Praha, Wien)
+    if (c.altNames && c.altNames.some(alt => alt.toLowerCase() === clean || alt.toLowerCase() === cleanFirstPart)) {
+      return true;
+    }
+
+    // Handles "Vancouver Canada", "Munich Germany", "Seattle USA" without comma
+    if (cleanNoComma.startsWith(cName + ' ') || cleanNoComma.startsWith(cAscii + ' ')) {
+      const remainder = cleanNoComma.slice(cName.length).trim();
+      if (
+        (c.countryName && remainder.includes(c.countryName.toLowerCase())) ||
+        (c.countryCode && remainder.includes(c.countryCode.toLowerCase())) ||
+        (c.stateOrProvince && remainder.includes(c.stateOrProvince.toLowerCase()))
+      ) {
+        return true;
+      }
+    }
+
+    return false;
+  });
+
+  if (majorCityMatch && majorCityMatch.lat && majorCityMatch.lng) {
+    return { lat: majorCityMatch.lat, lng: majorCityMatch.lng };
+  }
+
+  // 4. Check state or province code in parts
   const parts = normalized.split(/[,\s]+/).map(p => p.trim());
   for (const part of parts) {
     if (REGION_CENTROIDS[part]) {

@@ -3,7 +3,7 @@ import dotenv from 'dotenv';
 import nodemailer from 'nodemailer';
 import { GoogleGenAI, Type } from '@google/genai';
 import { RouteParameters, BrewTravelRoute, DayItinerary, BreweryStop, StayRecommendation, BeerNewsArticle } from '../src/types';
-import { findMatchingRealRegion, VERIFIED_REAL_REGIONS, RealBreweryRecord } from '../src/data/verifiedRealBreweries';
+import { findMatchingRealRegion, VERIFIED_REAL_REGIONS, RealBreweryRecord, createDynamicCityRegion } from '../src/data/verifiedRealBreweries';
 import { enrichAndValidateRoute, validateBreweryStyleMatch, checkStyleMatch } from '../src/utils/styleMatcher';
 import { CURATED_BEER_NEWS, getDynamicCuratedBeerNews } from '../src/data/beerNewsData';
 import {
@@ -14,7 +14,7 @@ import {
   enrichRouteWithCityRadius,
   DestinationCityInfo,
 } from '../src/utils/cityRadiusHelper';
-import { calculateHaversineKm } from '../src/utils/geoDistance';
+import { calculateHaversineKm, calculateDrivingTransit, resolveCoordinates } from '../src/utils/geoDistance';
 
 dotenv.config();
 
@@ -1014,9 +1014,26 @@ function generateSmartFallbackRoute(
   const styles = params.beerStyles.length > 0 ? params.beerStyles : ['NEIPA', 'Lager', 'Stout'];
 
   // Try to find a verified real region match
-  const matchedRegion =
-    findMatchingRealRegion(area, destinationCityInfo.fullName || destinationCityInfo.cityName) ||
-    VERIFIED_REAL_REGIONS[0]; // defaults to Vermont if unmatched
+  let matchedRegion =
+    findMatchingRealRegion(area, destinationCityInfo.fullName || destinationCityInfo.cityName);
+
+  // If no pre-baked region matched, or if region is geographically too far:
+  if (!matchedRegion && destinationCityInfo.isCity && destinationCityInfo.coords) {
+    const nearbyRegion = VERIFIED_REAL_REGIONS.find((r) =>
+      r.breweries.some(
+        (b) => calculateHaversineKm(destinationCityInfo.coords!, { lat: b.lat, lng: b.lng }) <= 50
+      )
+    );
+    matchedRegion = nearbyRegion || createDynamicCityRegion(
+      destinationCityInfo.cityName,
+      destinationCityInfo.fullName || area,
+      destinationCityInfo.coords,
+      styles
+    );
+  } else if (!matchedRegion) {
+    const coords = resolveCoordinates(area);
+    matchedRegion = createDynamicCityRegion(area.split(',')[0].trim(), area, coords, styles);
+  }
   
   // Filter out any excluded breweries requested by user for alternatives
   const excludedSet = new Set((params.excludeBreweries || []).map(b => b.toLowerCase().trim()));
@@ -1040,13 +1057,25 @@ function generateSmartFallbackRoute(
     const firstDist = (list: typeof radiusResult.breweries) =>
       list.length > 0 ? calculateHaversineKm(destinationCityInfo.coords!, { lat: list[0].lat, lng: list[0].lng }) : 999;
 
-    // If matchedRegion's first brewery is outside 25km, search across all verified regions for a closer brewery
+    // If matchedRegion's first brewery is outside 25km, search across all verified regions for a closer brewery <= 35km
     if (firstDist(radiusResult.breweries) > 25) {
       const allVerifiedBreweries = VERIFIED_REAL_REGIONS.flatMap(r => r.breweries).filter(b => !excludedSet.has(b.name.toLowerCase().trim()));
       const allRadiusResult = filterBreweriesForCityTrip(destinationCityInfo.coords, allVerifiedBreweries, totalNeeded);
-      if (firstDist(allRadiusResult.breweries) < firstDist(radiusResult.breweries)) {
+      if (allRadiusResult.breweries.length > 0 && firstDist(allRadiusResult.breweries) <= 35) {
         radiusResult = allRadiusResult;
       }
+    }
+
+    // If still no brewery is within 35km of the destination city, dynamically synthesize authentic ones right in that city!
+    if (firstDist(radiusResult.breweries) > 35) {
+      const dynRegion = createDynamicCityRegion(
+        destinationCityInfo.cityName,
+        destinationCityInfo.fullName || area,
+        destinationCityInfo.coords,
+        styles
+      );
+      matchedRegion = dynRegion;
+      radiusResult = filterBreweriesForCityTrip(destinationCityInfo.coords, dynRegion.breweries, totalNeeded);
     }
 
     if (radiusResult.breweries.length > 0) {
@@ -1085,10 +1114,14 @@ function generateSmartFallbackRoute(
     }
   }
 
-  const departureDriveTimeMin = 35;
-  const departureDistanceMiles = 22.5;
-  const returnHomeDriveTimeMin = 38;
-  const returnHomeDistanceMiles = 24.0;
+  // Calculate real driving transit from Starting Location to Day 1 Stop 1
+  const originCoords = resolveCoordinates(startLoc);
+  const firstCand = candidateBreweries[0] || matchedRegion.breweries[0];
+  const departureEst = calculateDrivingTransit(originCoords, { lat: firstCand.lat, lng: firstCand.lng });
+  const departureDriveTimeMin = departureEst.driveTimeMin;
+  const departureDistanceMiles = departureEst.distanceMiles;
+  let returnHomeDriveTimeMin = departureDriveTimeMin;
+  let returnHomeDistanceMiles = departureDistanceMiles;
 
   const regenOffset = (params.regenerationCount || 0) * 2;
 
@@ -1230,13 +1263,17 @@ function generateSmartFallbackRoute(
   const lastBrewery = lastDay.breweries[lastDay.breweries.length - 1];
   const lastStop = lastDay.stay || lastBrewery;
 
+  const returnHomeEst = calculateDrivingTransit({ lat: lastStop.lat, lng: lastStop.lng }, originCoords);
+  returnHomeDriveTimeMin = returnHomeEst.driveTimeMin;
+  returnHomeDistanceMiles = returnHomeEst.distanceMiles;
+
   const departureTransit = {
     fromName: startLoc,
     toName: firstBrewery.name,
     driveTimeMin: departureDriveTimeMin,
     distanceMiles: departureDistanceMiles,
     directionsUrl: `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(startLoc)}&destination=${encodeURIComponent(`${firstBrewery.name}, ${firstBrewery.address}`)}&travelmode=driving`,
-    notes: `Initial departure drive from ${startLoc} to ${firstBrewery.name}`,
+    notes: `Initial departure drive from ${startLoc} to ${firstBrewery.name} (${departureEst.formattedTime}, ${departureEst.distanceMiles} mi / ${departureEst.distanceKm} km)`,
   };
 
   const returnHomeTransit = {
@@ -1245,7 +1282,7 @@ function generateSmartFallbackRoute(
     driveTimeMin: returnHomeDriveTimeMin,
     distanceMiles: returnHomeDistanceMiles,
     directionsUrl: `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(`${lastStop.name}, ${lastStop.address}`)}&destination=${encodeURIComponent(startLoc)}&travelmode=driving`,
-    notes: `Return home drive from ${lastStop.name} back to ${startLoc}`,
+    notes: `Return home drive from ${lastStop.name} back to ${startLoc} (${returnHomeEst.formattedTime}, ${returnHomeEst.distanceMiles} mi / ${returnHomeEst.distanceKm} km)`,
   };
 
   // Attach to days
@@ -1269,7 +1306,7 @@ function generateSmartFallbackRoute(
 
   const builtRoute: BrewTravelRoute = {
     id: `route-${Date.now()}`,
-    title: `${matchedRegion.stateOrProvince} Verified Craft Trail`,
+    title: `${matchedRegion.stateOrProvince} Craft Beer Trail (${dayCount} Day${dayCount > 1 ? 's' : ''})`,
     region: `${matchedRegion.stateOrProvince}, ${matchedRegion.country}`,
     summary: `An authentic ${dayCount}-day journey through ${matchedRegion.stateOrProvince}'s most acclaimed craft microbreweries, curated for lovers of ${styles.join(', ')}.`,
     parameters: params,

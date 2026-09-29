@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { BeerNewsArticle, BeerNewsCategory } from '../types';
 import { CURATED_BEER_NEWS, getDynamicCuratedBeerNews } from '../data/beerNewsData';
+import { AdSenseBanner } from './AdSenseBanner';
 
 interface BeerNewsPageProps {
   onStartPlanning: () => void;
@@ -328,12 +329,22 @@ export const BeerNewsPage: React.FC<BeerNewsPageProps> = ({ onStartPlanning, isA
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-              {remainingArticles.map((article) => (
-                <article
-                  key={article.id}
-                  onClick={() => setActiveArticleModal(article)}
-                  className="p-5 rounded-3xl bg-[#131F12] border border-[#223820] hover:border-[#D97706]/70 transition-all flex flex-col justify-between group cursor-pointer shadow-md hover:shadow-[#D97706]/10"
-                >
+              {remainingArticles.map((article, idx) => (
+                <React.Fragment key={article.id}>
+                  {idx === 2 && (
+                    <AdSenseBanner
+                      format="bigbox"
+                      className="h-full"
+                      sponsorName="Yakima Chief Hops"
+                      sponsorTagline="100% grower-owned network delivering premium Pacific Northwest hop varieties (Citra®, Mosaic®, Simcoe®) to master craft brewers."
+                      sponsorCta="EXPLORE HOPS"
+                      sponsorUrl="https://www.yakimachief.com/"
+                    />
+                  )}
+                  <article
+                    onClick={() => setActiveArticleModal(article)}
+                    className="p-5 rounded-3xl bg-[#131F12] border border-[#223820] hover:border-[#D97706]/70 transition-all flex flex-col justify-between group cursor-pointer shadow-md hover:shadow-[#D97706]/10"
+                  >
                   <div className="space-y-3">
                     <div className="flex flex-wrap items-center justify-between gap-1.5">
                       <span className={`text-[10px] font-black px-2.5 py-0.5 rounded-full border uppercase tracking-wider font-brand ${getCategoryBadgeClass(article.category)}`}>
@@ -379,6 +390,7 @@ export const BeerNewsPage: React.FC<BeerNewsPageProps> = ({ onStartPlanning, isA
                     </span>
                   </div>
                 </article>
+              </React.Fragment>
               ))}
             </div>
           </div>

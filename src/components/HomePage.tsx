@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import { AppPageView } from '../types';
 import { POPULAR_DESTINATIONS } from '../data/curatedRoutes';
+import { AdSenseBanner } from './AdSenseBanner';
 import breweryHeroBg from '../assets/images/brewery_hero_bg_1790276576404.jpg';
 import breweryTapsPintsBg from '../assets/images/beer_taps_pints_flow_1790279604710.jpg';
 
@@ -182,6 +183,11 @@ export const HomePage: React.FC<HomePageProps> = ({
         </div>
       </section>
 
+      {/* Ad Leaderboard Placement: Between Solving Dilemma & From Idea to Pint */}
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-2">
+        <AdSenseBanner format="leaderboard" />
+      </div>
+
       {/* How It Works (3 Steps) with Atmospheric Draft Taps & Pints Background */}
       <section className="relative isolate overflow-hidden py-16 sm:py-24 border-y border-[#253D20] px-4 sm:px-6 lg:px-8">
         {/* Background Atmosphere Image - clear, vibrant craft beer bar scene */}
@@ -339,6 +345,11 @@ export const HomePage: React.FC<HomePageProps> = ({
           </a>
         </div>
       </section>
+
+      {/* Ad Leaderboard Placement: After Global Beer News Updates & Events */}
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+        <AdSenseBanner format="leaderboard" />
+      </div>
 
       {/* Responsible Craft Drinking Commitment */}
       <section className="py-12 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto text-center space-y-4">

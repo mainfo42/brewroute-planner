@@ -191,16 +191,21 @@ export function detectDestinationCity(areaInput: string): DestinationCityInfo {
     return { isCity: false, type: 'state_or_region', fullName: areaInput };
   }
 
-  // Rule 5: City name only without comma (e.g. "Austin", "Denver", "Munich", "Sherbrooke")
+  // Rule 5: City name only or City + Country/State without comma (e.g. "Austin", "Denver", "Munich", "Vancouver Canada", "Seattle USA")
   const cityOnlyMatch =
     ALL_MAJOR_CITIES.find(
       (c) =>
         c.cityName.toLowerCase() === clean ||
         c.asciiname.toLowerCase() === clean ||
-        (c.altNames && c.altNames.some((alt) => alt.toLowerCase() === clean))
+        (c.altNames && c.altNames.some((alt) => alt.toLowerCase() === clean)) ||
+        (clean.startsWith(c.cityName.toLowerCase() + ' ') &&
+          (clean.includes('canada') || clean.includes('usa') || clean.includes('germany') || clean.includes('france') || clean.includes('uk') || (c.stateOrProvince && clean.includes(c.stateOrProvince.toLowerCase()))))
     ) ||
     ALL_LOCATION_SUGGESTIONS.find(
-      (s) => s.type === 'city' && s.name.toLowerCase().startsWith(clean + ',')
+      (s) =>
+        s.type === 'city' &&
+        (s.name.toLowerCase().startsWith(clean + ',') ||
+         (s.cityName && clean.startsWith(s.cityName.toLowerCase() + ' ')))
     );
 
   if (cityOnlyMatch) {
@@ -388,9 +393,9 @@ export function enrichRouteWithCityRadius(
   // SPECIAL REGIONAL GUARD: If destination is New York State, guarantee no Vermont leakage
   const destArea = (route.parameters?.destinationArea || '').toLowerCase();
   const isNewYorkSearch =
-    destArea.includes('new york') ||
-    destArea.includes('ny') ||
-    (route.region && route.region.toLowerCase().includes('new york'));
+    /\b(new york|nyc)\b/i.test(destArea) ||
+    (/\bny\b/i.test(destArea) && !/\bgermany\b/i.test(destArea) && !/\bbrittany\b/i.test(destArea) && !/\bcompany\b/i.test(destArea)) ||
+    (route.region && /\bnew york\b/i.test(route.region));
 
   if (isNewYorkSearch) {
     const nyRegion = VERIFIED_REAL_REGIONS.find((r) => r.stateOrProvince === 'New York');
@@ -513,6 +518,49 @@ export function enrichRouteWithCityRadius(
     }
   }
 
+  // Update returnHomeTransit using actual origin coordinates
+  const lastDay = days[days.length - 1];
+  const lastBrewery = lastDay?.breweries[lastDay.breweries.length - 1];
+  const lastStop = (lastDay?.stay) ? lastDay.stay : lastBrewery;
+  const origin = startLocation || route.parameters?.startLocation || route.departureTransit?.fromName;
+  if (lastStop && origin) {
+    const originCoords = resolveCoordinates(origin);
+    const returnTransit = calculateDrivingTransit({ lat: lastStop.lat, lng: lastStop.lng }, originCoords);
+    route.returnHomeTransit = {
+      fromName: lastStop.name,
+      toName: origin,
+      driveTimeMin: returnTransit.driveTimeMin,
+      distanceMiles: returnTransit.distanceMiles,
+      directionsUrl: `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent((lastStop as any).address ? `${lastStop.name}, ${(lastStop as any).address}` : lastStop.name)}&destination=${encodeURIComponent(origin)}&travelmode=driving`,
+      notes: `Return home journey back to ${origin} (${returnTransit.formattedTime}, ${returnTransit.distanceMiles} mi / ${returnTransit.distanceKm} km)`,
+    };
+    lastDay.returnHomeTransit = route.returnHomeTransit;
+  }
+
+  // Recompute totalTravelTimeMin and totalDistanceMiles accurately
+  const departureMin = route.departureTransit?.driveTimeMin || 0;
+  const departureDist = route.departureTransit?.distanceMiles || 0;
+  const returnHomeMin = route.returnHomeTransit?.driveTimeMin || 0;
+  const returnHomeDist = route.returnHomeTransit?.distanceMiles || 0;
+
+  let intermediateMin = 0;
+  let intermediateDist = 0;
+  days.forEach((d) => {
+    d.breweries.forEach((b, bi) => {
+      if (bi > 0) {
+        intermediateMin += b.driveTimeFromPrevMin || 12;
+        intermediateDist += b.driveDistanceFromPrevMiles || 4.5;
+      }
+    });
+    if (d.stay) {
+      intermediateMin += d.stay.driveTimeFromLastBreweryMin || 14;
+      intermediateDist += 5.0;
+    }
+  });
+
+  route.totalTravelTimeMin = departureMin + intermediateMin + returnHomeMin;
+  route.totalDistanceMiles = parseFloat((departureDist + intermediateDist + returnHomeDist).toFixed(1));
+
   // Calculate distance for subsequent days
   for (let i = 1; i < days.length; i++) {
     days[i].breweries = days[i].breweries.map((b) => ({
@@ -525,7 +573,6 @@ export function enrichRouteWithCityRadius(
   }
 
   // Rebuild multi-stop and daily Google Maps directions URLs
-  const origin = startLocation || route.parameters?.startLocation || route.departureTransit?.fromName;
   const orderedWaypoints: string[] = [];
   days.forEach((d) => {
     d.breweries.forEach((b) => {
