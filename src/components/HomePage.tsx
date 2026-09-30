@@ -56,6 +56,11 @@ export const HomePage: React.FC<HomePageProps> = ({
               </span>
             </h1>
 
+            {/* Geographic Coverage Notice */}
+            <p className="text-xs sm:text-sm font-semibold tracking-wide text-[#A8C4A2] -mt-3 drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]">
+              (Breweries from Canada and United States)
+            </p>
+
             {/* Purpose & Mission Statement */}
             <p className="text-base sm:text-xl text-zinc-100 max-w-3xl mx-auto font-medium leading-relaxed drop-shadow-[0_2px_10px_rgba(0,0,0,0.95)]">
               BrewHop is engineered to eliminate the stress and guesswork from brewery touring. 

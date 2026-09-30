@@ -356,6 +356,28 @@ const CITY_COORDINATES: Record<string, LatLng> = {
   'austin, tx': { lat: 30.2672, lng: -97.7431 },
   'dallas, tx': { lat: 32.7767, lng: -96.7970 },
 
+  // Maritime Canada Craft Hubs (Greater Moncton, Halifax, Saint John, Fredericton, St. John's)
+  'moncton, nb': { lat: 46.0945, lng: -64.7965 },
+  'moncton, nb, canada': { lat: 46.0945, lng: -64.7965 },
+  'moncton nb': { lat: 46.0945, lng: -64.7965 },
+  'moncton canada': { lat: 46.0945, lng: -64.7965 },
+  'dieppe': { lat: 46.0792, lng: -64.7214 },
+  'dieppe, nb': { lat: 46.0792, lng: -64.7214 },
+  'dieppe nb': { lat: 46.0792, lng: -64.7214 },
+  'riverview': { lat: 46.0685, lng: -64.7952 },
+  'riverview, nb': { lat: 46.0685, lng: -64.7952 },
+  'riverview nb': { lat: 46.0685, lng: -64.7952 },
+  'saint john': { lat: 45.2721, lng: -66.0612 },
+  'fredericton, nb': { lat: 45.9636, lng: -66.6431 },
+  'halifax, ns': { lat: 44.6488, lng: -63.5752 },
+  'halifax, ns, canada': { lat: 44.6488, lng: -63.5752 },
+  'dartmouth': { lat: 44.6658, lng: -63.5677 },
+  'dartmouth, ns': { lat: 44.6658, lng: -63.5677 },
+  'st. john\'s': { lat: 47.5649, lng: -52.7093 },
+  'st johns': { lat: 47.5649, lng: -52.7093 },
+  'st johns, nl': { lat: 47.5649, lng: -52.7093 },
+  'charlottetown, pe': { lat: 46.2382, lng: -63.1311 },
+
   // International Craft Beer Capitals & Global Gateways
   'brussels': { lat: 50.8503, lng: 4.3517 },
   'brussels, belgium': { lat: 50.8503, lng: 4.3517 },
@@ -564,7 +586,7 @@ export function resolveCoordinates(locationStr: string, fallbackCoord?: LatLng):
     }
   }
 
-  return fallbackCoord || { lat: 45.5017, lng: -73.5673 };
+  return fallbackCoord || { lat: 0, lng: 0 };
 }
 
 /**

@@ -3,7 +3,18 @@ import dotenv from 'dotenv';
 import nodemailer from 'nodemailer';
 import { GoogleGenAI, Type } from '@google/genai';
 import { RouteParameters, BrewTravelRoute, DayItinerary, BreweryStop, StayRecommendation, BeerNewsArticle } from '../src/types';
-import { findMatchingRealRegion, VERIFIED_REAL_REGIONS, RealBreweryRecord, createDynamicCityRegion } from '../src/data/verifiedRealBreweries';
+import {
+  findMatchingRealRegion,
+  VERIFIED_REAL_REGIONS,
+  RealBreweryRecord,
+  createDynamicCityRegion,
+  findVerifiedBreweryByName,
+  isVerifiedRealBrewery,
+  findVerifiedBreweriesNearLocation,
+  calculate5PlatformComposite,
+  getBeerAdvocateScore,
+  convertRealBreweryToStop,
+} from '../src/data/verifiedRealBreweries';
 import { enrichAndValidateRoute, validateBreweryStyleMatch, checkStyleMatch } from '../src/utils/styleMatcher';
 import { CURATED_BEER_NEWS, getDynamicCuratedBeerNews } from '../src/data/beerNewsData';
 import {
@@ -158,7 +169,7 @@ Each item must have:
 
         const response = await withTimeout(
           ai.models.generateContent({
-            model: 'gemini-3.8-flash',
+            model: 'gemini-2.5-flash',
             contents: prompt,
             config: {
               responseMimeType: 'application/json',
@@ -479,6 +490,75 @@ apiRouter.post('/generate-route', async (req, res) => {
   const destinationCityInfo = detectDestinationCity(params.destinationArea);
   const cityRadiusInstruction = getCityRadiusInstruction(destinationCityInfo, dayCount, params.startLocation);
 
+  // 1. Detect candidate verified breweries for the destination area
+  let matchedRegion = findMatchingRealRegion(params.destinationArea, destinationCityInfo.fullName || destinationCityInfo.cityName);
+  if (!matchedRegion && destinationCityInfo.isCity && destinationCityInfo.coords) {
+    const nearbyRegion = VERIFIED_REAL_REGIONS.find((r) =>
+      r.breweries.some(
+        (b) => calculateHaversineKm(destinationCityInfo.coords!, { lat: b.lat, lng: b.lng }) <= 50
+      )
+    );
+    if (nearbyRegion) {
+      matchedRegion = nearbyRegion;
+    }
+  }
+
+  let verifiedCandidates: RealBreweryRecord[] = matchedRegion ? matchedRegion.breweries : [];
+  if (destinationCityInfo.isCity && destinationCityInfo.coords) {
+    const nearby = findVerifiedBreweriesNearLocation(destinationCityInfo.coords, 50);
+    if (nearby.length > 0) {
+      verifiedCandidates = nearby;
+    } else {
+      verifiedCandidates = [];
+      matchedRegion = undefined;
+    }
+  }
+
+  // Gracefully handle destination with no verifiable real breweries without synthetic hallucinations
+  if (destinationCityInfo.isCity && verifiedCandidates.length === 0) {
+    const emptyRoute: BrewTravelRoute = {
+      id: `route-${Date.now()}`,
+      title: `${params.destinationArea} Craft Beer Trail`,
+      region: params.destinationArea,
+      summary: `No verifiable physical craft breweries meeting the search criteria were found in ${params.destinationArea}. BrewHop strictly validates physical operating breweries across 5 platforms and does not generate synthetic or estimated breweries.`,
+      parameters: params,
+      days: [
+        {
+          dayNumber: 1,
+          dayTitle: `Exploration of ${params.destinationArea}`,
+          theme: 'Craft Exploration',
+          breweries: [],
+          totalDriveTimeMin: 0,
+          totalDriveDistanceMiles: 0,
+          recommendedStartTime: '11:00 AM',
+          daySummary: `No verifiable operating craft breweries were located in ${params.destinationArea}. Please try a nearby major metropolitan area.`,
+        },
+      ],
+      totalBreweries: 0,
+      totalTravelTimeMin: 0,
+      totalDistanceMiles: 0,
+      beerStyleMatchNotes: 'No matching verified breweries found in this destination area.',
+      responsibleTastingTips: [
+        'Designate a sober driver or schedule rideshare services in advance.',
+        'Drink water between tastings to stay hydrated.',
+        'Plan brewery stops during normal open taproom hours.',
+      ],
+      googleMapsMultiStopUrl: `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(params.startLocation)}&destination=${encodeURIComponent(params.destinationArea)}&travelmode=driving`,
+      hasRouteWarning: true,
+      routeWarningMessage: `No verifiable operating craft breweries meeting your criteria were found in "${params.destinationArea}". BrewHop enforces strict real-world entity verification and never generates synthetic or fictional breweries. Please consider searching a nearby metropolitan area or adjusting your distance preferences.`,
+      createdAt: new Date().toISOString(),
+    };
+    return res.json(emptyRoute);
+  }
+
+  const destinationSpecificGrounding = verifiedCandidates.length > 0
+    ? `AUTHENTIC VERIFIED PHYSICAL CRAFT BREWERIES IN THIS DESTINATION (${params.destinationArea}):
+You MUST choose exclusively from the following VERIFIED real-world operating physical craft breweries for "${params.destinationArea}":
+${verifiedCandidates.map(b => `- "${b.name}" located at "${b.address}", ${b.city}, ${b.state}. Ratings: Google ${b.googleScore}, Untappd ${b.untappdScore}, RateBeer ${b.rateBeerScore}, TripAdvisor ${b.tripAdvisorScore}, BeerAdvocate ${b.beerAdvocateScore || 4.5}. Flagships: ${(b.beerHighlights || []).map(bh => `${bh.name} (${bh.style})`).join(', ')}`).join('\n')}
+CRITICAL: You are strictly forbidden from inventing, estimating, or altering brewery names outside this verified physical registry.`
+    : `CRITICAL REAL-WORLD ENTITY VERIFICATION DIRECTIVE:
+Every brewery MUST be an actual, currently operating, physical craft brewery located in or directly adjacent to "${params.destinationArea}". DO NOT hallucinate, invent, or estimate brewery names or addresses under any circumstances. If no verifiable physical craft breweries operate in "${params.destinationArea}", return an empty array for days.breweries.`;
+
   const stayRequirement = wantsStay
     ? `Since trip length is ${params.tripLength} (${dayCount} days) and stay type is ${params.stayType}, you MUST include an overnight "stay" recommendation object ONLY between active tour days.
        - FOR 2-DAY TRIPS: Include 1 stay recommendation on Day 1 (for the night between Day 1 and Day 2). Day 2 (final day) must NOT have a stay object.
@@ -509,19 +589,7 @@ You MUST include:
 - Real food program (e.g., on-site food trucks, wood-fired pizza kitchen, artisan cheese & pretzels).
 - Real stay recommendations (real hotels or Airbnbs in that exact town/city).
 
-QUEBEC MICROBREWERIES GROUNDING (https://fr.wikipedia.org/wiki/Liste_de_microbrasseries_au_Qu%C3%A9bec):
-When generating routes for Quebec or Quebec destinations (such as Sherbrooke, Montreal, Quebec City, etc.):
-You MUST consult and match authentic operating microbreweries from Wikipedia's official directory: https://fr.wikipedia.org/wiki/Liste_de_microbrasseries_au_Qu%C3%A9bec
-- In Sherbrooke / Estrie: Siboire Dépôt (80 Rue du Dépôt), Siboire Jacques-Cartier (400 Rue Jacques-Cartier Sud), Le Refuge des Brasseurs (2155 Rue Galt Ouest), La Mare au Diable (157 Rue King Ouest), Boquébière, Microbrasserie Hop Station. If 25km radius needed: Microbrasserie La Memphré (Magog), Canton Brasse (Orford).
-- In Montreal: Brasserie Dieu du Ciel!, Messorem Bracitorium, Pit Caribou Pub, Isle de Garde, Harricana, Mellön, Benelux, Réservoir.
-- In Quebec City: La Barberie, Noctem Artisans Brasseurs, La Souche, Griendel.
-- In Mauricie: Le Trou du Diable (Shawinigan).
-CRITICAL: If the destination is Sherbrooke, QC, NEVER recommend Montreal breweries! The first brewery MUST be in Sherbrooke <= 10 km from Sherbrooke.
-
-NEW YORK STATE REGIONAL ACCURACY:
-When the destination area is New York State ("New York", "NY", "New York, USA (state)"):
-ALL breweries MUST be physically inside New York State (e.g. Other Half Brewing, Equilibrium Brewery, Suarez Family Brewery, Hudson Valley Brewery, Fidens Brewing, Big Slide Brewery / Lake Placid, Valcour Brewing / Plattsburgh, SingleCut Beersmiths).
-It is STRICTLY FORBIDDEN to return Vermont, Massachusetts, or other states when New York is requested.
+${destinationSpecificGrounding}
 
 USER CRITERIA & STRICT TRIP LENGTH CONSTRAINTS:
 - Starting Location (Home / Origin): "${params.startLocation}"
@@ -569,7 +637,7 @@ Return a strictly valid JSON object matching the JSON schema.`;
   try {
     if (ai) {
       const response = await ai.models.generateContent({
-        model: 'gemini-3.8-flash',
+        model: 'gemini-2.5-flash',
         contents: prompt,
         config: {
           responseMimeType: 'application/json',
@@ -795,6 +863,8 @@ Return a strictly valid JSON object matching the JSON schema.`;
         }
 
         // Ensure days and brewery limits per day (strictly max 3)
+        const allUsedBreweryNames = new Set<string>();
+
         parsed.days.forEach((day, dIdx) => {
           day.dayNumber = dIdx + 1;
           if (day.breweries && day.breweries.length > 3) {
@@ -806,7 +876,38 @@ Return a strictly valid JSON object matching the JSON schema.`;
             day.stay = undefined;
           }
 
-          day.breweries.forEach(b => {
+          day.breweries.forEach((b, bIdx) => {
+            const verified = findVerifiedBreweryByName(b.name);
+            if (verified) {
+              b.name = verified.name;
+              b.address = verified.address;
+              b.city = verified.city;
+              b.state = verified.state;
+              b.lat = verified.lat;
+              b.lng = verified.lng;
+              b.websiteUrl = verified.websiteUrl;
+              if (!b.beerHighlights || b.beerHighlights.length === 0) {
+                b.beerHighlights = verified.beerHighlights;
+              }
+              const ba = getBeerAdvocateScore(verified);
+              b.ratings = {
+                google: { score: verified.googleScore, count: verified.googleCount },
+                untappd: { score: verified.untappdScore, count: verified.untappdCount },
+                rateBeer: { score: verified.rateBeerScore, count: 'Top Rated' },
+                tripAdvisor: { score: verified.tripAdvisorScore, count: verified.tripAdvisorCount },
+                beerAdvocate: { score: ba.score, count: ba.count },
+                compositeAverage: calculate5PlatformComposite(verified),
+              };
+            } else if (verifiedCandidates.length > 0) {
+              // Substitute with authentic verified brewery from candidate pool to prevent hallucination
+              const available = verifiedCandidates.filter(c => !allUsedBreweryNames.has(c.name.toLowerCase()));
+              const sub = available[0] || verifiedCandidates[bIdx % verifiedCandidates.length];
+              const converted = convertRealBreweryToStop(sub, day.dayNumber, bIdx);
+              Object.assign(b, converted);
+            }
+
+            allUsedBreweryNames.add(b.name.toLowerCase());
+
             const googleScore = Number(b.ratings?.google?.score || 4.7);
             const untappdScore = Number(b.ratings?.untappd?.score || 4.2);
             const rateBeerScore = Number(b.ratings?.rateBeer?.score || 4.3);
@@ -842,6 +943,14 @@ Return a strictly valid JSON object matching the JSON schema.`;
             }
           });
         });
+
+        // Ensure total breweries count and warning if empty
+        const totalValid = parsed.days.reduce((acc, d) => acc + d.breweries.length, 0);
+        parsed.totalBreweries = totalValid;
+        if (totalValid === 0) {
+          parsed.hasRouteWarning = true;
+          parsed.routeWarningMessage = `No verifiable physical craft breweries meeting the search criteria were found in "${params.destinationArea}". BrewHop enforces strict real-world entity verification and never generates synthetic or fictional breweries. Please consider searching a nearby metropolitan area or adjusting your distance preferences.`;
+        }
 
         // Ensure first brewery and last stop are identified
         const firstBrewery = parsed.days[0]?.breweries[0];
@@ -1017,22 +1126,58 @@ function generateSmartFallbackRoute(
   let matchedRegion =
     findMatchingRealRegion(area, destinationCityInfo.fullName || destinationCityInfo.cityName);
 
-  // If no pre-baked region matched, or if region is geographically too far:
-  if (!matchedRegion && destinationCityInfo.isCity && destinationCityInfo.coords) {
-    const nearbyRegion = VERIFIED_REAL_REGIONS.find((r) =>
-      r.breweries.some(
-        (b) => calculateHaversineKm(destinationCityInfo.coords!, { lat: b.lat, lng: b.lng }) <= 50
-      )
-    );
-    matchedRegion = nearbyRegion || createDynamicCityRegion(
-      destinationCityInfo.cityName,
-      destinationCityInfo.fullName || area,
-      destinationCityInfo.coords,
-      styles
-    );
-  } else if (!matchedRegion) {
-    const coords = resolveCoordinates(area);
-    matchedRegion = createDynamicCityRegion(area.split(',')[0].trim(), area, coords, styles);
+  // For city destinations, strictly constrain candidate breweries to the greater metropolitan area (<= 50km)
+  if (destinationCityInfo.isCity && destinationCityInfo.coords) {
+    const nearbyBreweries = findVerifiedBreweriesNearLocation(destinationCityInfo.coords, 50);
+    if (nearbyBreweries.length > 0) {
+      matchedRegion = {
+        regionKeywords: [area.toLowerCase()],
+        stateOrProvince: destinationCityInfo.cityName || area,
+        country: 'North America',
+        breweries: nearbyBreweries,
+        hotels: matchedRegion?.hotels || [],
+        airbnbs: matchedRegion?.airbnbs || [],
+      };
+    } else {
+      matchedRegion = undefined;
+    }
+  }
+
+  // Gracefully handle destination with no verifiable real breweries without synthetic hallucinations
+  if (!matchedRegion || matchedRegion.breweries.length === 0) {
+    const emptyRoute: BrewTravelRoute = {
+      id: `route-${Date.now()}`,
+      title: `${area} Craft Beer Trail`,
+      region: area,
+      summary: `No verifiable physical craft breweries meeting the search criteria were found in ${area}. BrewHop strictly validates physical operating breweries across 5 platforms and does not generate synthetic or estimated breweries.`,
+      parameters: params,
+      days: [
+        {
+          dayNumber: 1,
+          dayTitle: `Exploration of ${area}`,
+          theme: 'Craft Exploration',
+          breweries: [],
+          totalDriveTimeMin: 0,
+          totalDriveDistanceMiles: 0,
+          recommendedStartTime: '11:00 AM',
+          daySummary: `No verifiable operating craft breweries were located in ${area}. Please try a nearby major metropolitan area.`,
+        },
+      ],
+      totalBreweries: 0,
+      totalTravelTimeMin: 0,
+      totalDistanceMiles: 0,
+      beerStyleMatchNotes: 'No matching verified breweries found in this destination area.',
+      responsibleTastingTips: [
+        'Designate a sober driver or schedule rideshare services in advance.',
+        'Drink water between tastings to stay hydrated.',
+        'Plan brewery stops during normal open taproom hours.',
+      ],
+      googleMapsMultiStopUrl: `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(startLoc)}&destination=${encodeURIComponent(area)}&travelmode=driving`,
+      hasRouteWarning: true,
+      routeWarningMessage: `No verifiable operating craft breweries meeting your criteria were found in "${area}". BrewHop enforces strict real-world entity verification and never generates synthetic or fictional breweries. Please consider searching a nearby metropolitan area or adjusting your distance preferences.`,
+      createdAt: new Date().toISOString(),
+    };
+    return emptyRoute;
   }
   
   // Filter out any excluded breweries requested by user for alternatives
@@ -1057,25 +1202,13 @@ function generateSmartFallbackRoute(
     const firstDist = (list: typeof radiusResult.breweries) =>
       list.length > 0 ? calculateHaversineKm(destinationCityInfo.coords!, { lat: list[0].lat, lng: list[0].lng }) : 999;
 
-    // If matchedRegion's first brewery is outside 25km, search across all verified regions for a closer brewery <= 35km
+    // If matchedRegion's first brewery is outside 25km, search across all verified regions for a closer brewery <= 50km
     if (firstDist(radiusResult.breweries) > 25) {
       const allVerifiedBreweries = VERIFIED_REAL_REGIONS.flatMap(r => r.breweries).filter(b => !excludedSet.has(b.name.toLowerCase().trim()));
       const allRadiusResult = filterBreweriesForCityTrip(destinationCityInfo.coords, allVerifiedBreweries, totalNeeded);
-      if (allRadiusResult.breweries.length > 0 && firstDist(allRadiusResult.breweries) <= 35) {
+      if (allRadiusResult.breweries.length > 0 && firstDist(allRadiusResult.breweries) <= 50) {
         radiusResult = allRadiusResult;
       }
-    }
-
-    // If still no brewery is within 35km of the destination city, dynamically synthesize authentic ones right in that city!
-    if (firstDist(radiusResult.breweries) > 35) {
-      const dynRegion = createDynamicCityRegion(
-        destinationCityInfo.cityName,
-        destinationCityInfo.fullName || area,
-        destinationCityInfo.coords,
-        styles
-      );
-      matchedRegion = dynRegion;
-      radiusResult = filterBreweriesForCityTrip(destinationCityInfo.coords, dynRegion.breweries, totalNeeded);
     }
 
     if (radiusResult.breweries.length > 0) {
@@ -1083,9 +1216,9 @@ function generateSmartFallbackRoute(
     }
   }
 
-  // Sort candidate breweries prioritizing matching styles, but PRESERVE first brewery for city trips!
-  if (params.beerStyles && params.beerStyles.length > 0) {
-    if (destinationCityInfo.isCity && candidateBreweries.length > 1) {
+  // Rank candidate breweries using 5-platform composite rating and beer style preferences
+  if (candidateBreweries.length > 1) {
+    if (destinationCityInfo.isCity) {
       const firstBrewery = candidateBreweries[0];
       const rest = candidateBreweries.slice(1).sort((a, b) => {
         const aMatches = (a.beerHighlights || []).some(bh =>
@@ -1096,7 +1229,10 @@ function generateSmartFallbackRoute(
         );
         if (aMatches && !bMatches) return -1;
         if (!aMatches && bMatches) return 1;
-        return 0;
+
+        const scoreA = calculate5PlatformComposite(a);
+        const scoreB = calculate5PlatformComposite(b);
+        return scoreB - scoreA;
       });
       candidateBreweries = [firstBrewery, ...rest];
     } else {
@@ -1109,7 +1245,10 @@ function generateSmartFallbackRoute(
         );
         if (aMatches && !bMatches) return -1;
         if (!aMatches && bMatches) return 1;
-        return 0;
+
+        const scoreA = calculate5PlatformComposite(a);
+        const scoreB = calculate5PlatformComposite(b);
+        return scoreB - scoreA;
       });
     }
   }

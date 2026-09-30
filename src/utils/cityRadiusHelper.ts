@@ -180,12 +180,15 @@ export function detectDestinationCity(areaInput: string): DestinationCityInfo {
 
       // If not in major cities list but not a state/region keyword (e.g. smaller towns like Stowe, Hood River)
       const fallbackCoords = resolveCoordinates(areaInput);
+      const validCoords = (fallbackCoords && (fallbackCoords.lat !== 0 || fallbackCoords.lng !== 0))
+        ? fallbackCoords
+        : undefined;
       return {
         isCity: true,
         type: 'city',
         cityName: firstPart,
         fullName: areaInput,
-        coords: fallbackCoords,
+        coords: validCoords,
       };
     }
     return { isCity: false, type: 'state_or_region', fullName: areaInput };
@@ -228,12 +231,15 @@ export function detectDestinationCity(areaInput: string): DestinationCityInfo {
 
   // Rule 6: Fallback - if it's not recognized as a state/province, treat as specific city
   const fallbackCoords = resolveCoordinates(areaInput);
+  const validCoords = (fallbackCoords && (fallbackCoords.lat !== 0 || fallbackCoords.lng !== 0))
+    ? fallbackCoords
+    : undefined;
   return {
     isCity: true,
     type: 'city',
     cityName: areaInput.trim(),
     fullName: areaInput.trim(),
-    coords: fallbackCoords,
+    coords: validCoords,
   };
 }
 
@@ -282,11 +288,22 @@ export function filterBreweriesForCityTrip<T extends { lat: number; lng: number 
       radiusUsedKm = 25;
       isEnlarged = true;
     } else {
-      withDistance.sort((a, b) => a.distanceKm - b.distanceKm);
-      firstBreweryItem = withDistance[0];
-      radiusUsedKm = 25;
-      isEnlarged = true;
+      // Step 2b: Enlarge search to cover greater metropolitan area (max 50 km)
+      const within50 = withDistance.filter((item) => item.distanceKm <= 50);
+      if (within50.length > 0) {
+        within50.sort((a, b) => a.distanceKm - b.distanceKm);
+        firstBreweryItem = within50[0];
+        radiusUsedKm = Math.min(50, Math.ceil(firstBreweryItem.distanceKm));
+        isEnlarged = true;
+      } else {
+        // No verifiable physical craft breweries located within metropolitan area
+        return { breweries: [], firstBreweryRadiusKm: 50, isEnlarged: true };
+      }
     }
+  }
+
+  if (!firstBreweryItem) {
+    return { breweries: [], firstBreweryRadiusKm: radiusUsedKm, isEnlarged };
   }
 
   // Step 3: Pick subsequent breweries spaced under 25 mins driving distance
