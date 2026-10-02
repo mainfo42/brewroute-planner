@@ -13,6 +13,7 @@ import { AboutPage } from './components/AboutPage';
 import { BeerNewsPage } from './components/BeerNewsPage';
 import { HamburgerMenu } from './components/HamburgerMenu';
 import { ContactModal } from './components/ContactModal';
+import { BrandLogo } from './components/BrandLogo';
 import {
   BrewTravelRoute,
   RouteParameters,
@@ -80,7 +81,7 @@ export default function App() {
     return initial === 'news' ? 'news' : initial === 'plan' ? 'plan' : 'home';
   });
 
-  const navigateToPage = (page: AppPageView, replace = false) => {
+  const navigateToPage = (page: AppPageView, replace = false, skipScroll = false) => {
     setCurrentPage(page);
     setActiveMobileTab(page === 'news' ? 'news' : page === 'home' ? 'home' : 'plan');
 
@@ -101,7 +102,9 @@ export default function App() {
       document.title = getPageTitle(page);
     }
 
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (!skipScroll) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   };
 
   // Dedicated handler to start a brand new empty Plan Route
@@ -210,7 +213,8 @@ export default function App() {
     setIsLoading(true);
     setErrorMessage(null);
     setRegenerationCount(0);
-    navigateToPage('plan');
+    // Keep the focus as it is, do not scroll the page back up while search is on-going
+    navigateToPage('plan', false, true);
 
     try {
       const response = await fetch('/api/generate-route', {
@@ -670,16 +674,17 @@ export default function App() {
         <div className="max-w-6xl mx-auto space-y-6">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             {/* Brand & Purpose */}
-            <div className="flex items-center gap-2.5">
-              <span className="w-2.5 h-2.5 rounded-full bg-[#58A72F] shadow-[0_0_8px_#58A72F]" />
-              <span className={`font-black tracking-wide text-sm font-brand ${currentPage === 'plan' && currentRoute ? 'text-[#122610]' : 'text-white'}`}>
-                BREWHOP
-              </span>
-              <span className="text-[#58A72F]">•</span>
-              <span className={`text-xs ${currentPage === 'plan' && currentRoute ? 'text-[#3E5C38]' : 'text-[#A6D496]'}`}>
-                Craft Beer Road Trip Planner
-              </span>
-            </div>
+            <BrandLogo
+              size="sm"
+              darkMode={!(currentPage === 'plan' && currentRoute)}
+              slogan="CRAFT BEER TRAILS"
+              href="/"
+              onClick={(e) => {
+                e.preventDefault();
+                setCurrentPage('home');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+            />
 
             {/* Navigation & Contact Us Action */}
             <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4 text-xs font-semibold">

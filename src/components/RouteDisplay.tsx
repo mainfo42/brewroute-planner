@@ -108,6 +108,11 @@ export const RouteDisplay: React.FC<RouteDisplayProps> = ({
     return remainingMins > 0 ? `~${hrs} hr ${remainingMins} min` : `~${hrs} hr`;
   };
 
+  // Check if any brewery was added as an alternative style stop to complete the trail
+  const hasAlternativeStops = route.days.some((d) =>
+    d.breweries.some((b) => b.isAlternativeStyleStop || (!b.hasPreferredStyle && (route.parameters?.beerStyles || []).length > 0))
+  );
+
   // Dynamic coordinate and transit resolution for Origin Departure & Return Home
   const startLocationStr = route.parameters?.startLocation || route.departureTransit?.fromName || 'Burlington, VT';
   const startCoord = resolveCoordinates(startLocationStr, route.startLocationCoord);
@@ -218,6 +223,12 @@ export const RouteDisplay: React.FC<RouteDisplayProps> = ({
                 <RotateCcw className="w-3 h-3 text-[#58A72F]" />
                 Round-Trip
               </span>
+              {hasAlternativeStops && (
+                <span className="px-3 py-0.5 rounded-full bg-[#FEF3C7] text-[#92400E] border border-[#FCD34D] text-xs font-black flex items-center gap-1 font-brand">
+                  <Award className="w-3.5 h-3.5 text-[#D97706]" />
+                  Includes Top-Rated Completion Stop
+                </span>
+              )}
             </div>
 
             <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-[#122610] tracking-tight leading-tight font-display">
@@ -721,6 +732,13 @@ export const RouteDisplay: React.FC<RouteDisplayProps> = ({
                                     ✓ {brewery.matchedStyles.join(', ')}
                                   </span>
                                 )}
+
+                                {(brewery.isAlternativeStyleStop || (!brewery.hasPreferredStyle && (route.parameters?.beerStyles || []).length > 0)) && (
+                                  <span className="px-2.5 py-0.5 rounded-full bg-[#FEF3C7] text-[#92400E] border border-[#FCD34D] text-[11px] font-black flex items-center gap-1 font-brand uppercase tracking-wider shadow-2xs">
+                                    <Award className="w-3 h-3 text-[#D97706]" />
+                                    <span>Trail Completion Stop</span>
+                                  </span>
+                                )}
                               </div>
 
                               {/* On Tap & Acclaimed Beer Offerings */}
@@ -862,13 +880,25 @@ export const RouteDisplay: React.FC<RouteDisplayProps> = ({
                                 </div>
                               </div>
 
-                              {/* Style Fallback Notice (if brewery has no matching preferred styles) */}
-                              {brewery.styleNotice && (
-                                <div className="p-3 rounded-2xl bg-[#FEF9EE] border border-[#FDE68A] text-[#78350F] text-xs flex items-start gap-2.5 shadow-2xs">
-                                  <Info className="w-4 h-4 text-[#D97706] shrink-0 mt-0.5" />
-                                  <div className="space-y-0.5">
-                                    <span className="font-bold text-[#78350F]">Style Note: </span>
-                                    <span className="text-[#92400E]">{brewery.styleNotice}</span>
+                              {/* Style Fallback & Trail Completion Note (if brewery proposes other beer types) */}
+                              {(brewery.isAlternativeStyleStop || (!brewery.hasPreferredStyle && brewery.styleNotice)) && (
+                                <div className="p-3.5 sm:p-4 rounded-2xl bg-[#FFFBEB] border-2 border-[#FCD34D] text-[#78350F] text-xs sm:text-sm flex items-start gap-3 shadow-xs">
+                                  <div className="w-7 h-7 rounded-full bg-[#FEF3C7] border border-[#F59E0B]/50 flex items-center justify-center shrink-0 mt-0.5 shadow-2xs">
+                                    <Info className="w-4 h-4 text-[#D97706]" />
+                                  </div>
+                                  <div className="space-y-1">
+                                    <div className="flex items-center gap-2 flex-wrap">
+                                      <span className="font-black text-[#78350F] uppercase tracking-wide text-[10px] sm:text-[11px] font-brand bg-[#FDE68A]/80 px-2 py-0.5 rounded-md border border-[#FCD34D]">
+                                        Trail Completion Brewery
+                                      </span>
+                                      <span className="font-extrabold text-[#92400E] text-xs">
+                                        Included for Exceptional 5-Platform Ratings
+                                      </span>
+                                    </div>
+                                    <p className="text-[#92400E] leading-relaxed font-medium">
+                                      {brewery.styleNotice ||
+                                        `Added to complete your trail: While this acclaimed brewery specializes in other craft styles rather than your selected styles, it was included for its outstanding certified ratings and stellar local craft reputation.`}
+                                    </p>
                                   </div>
                                 </div>
                               )}

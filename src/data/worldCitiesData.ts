@@ -1,5 +1,5 @@
-// Comprehensive database of every city > 50,000 in North America (USA, Canada, Mexico)
-// and every city > 200,000 in Europe, sourced from official GeoNames census data.
+// Comprehensive database of every city in North America & Europe with population thresholds
+// Sourced from official census & GeoNames data, customized for BrewHop entity grounding.
 export interface CityDataRecord {
   name: string;
   cityName: string;
@@ -15,7 +15,7 @@ export interface CityDataRecord {
   lat: number;
   lng: number;
   altNames?: string[];
-  craftBeerHubRank?: string;
+  craftBeerHubRank?: string | null;
 }
 
 export const ALL_MAJOR_CITIES: CityDataRecord[] = [
@@ -260,30 +260,6 @@ export const ALL_MAJOR_CITIES: CityDataRecord[] = [
     "craftBeerHubRank": "Ontario Craft Capital"
   },
   {
-    "name": "Brooklyn, NY, USA",
-    "cityName": "Brooklyn",
-    "asciiname": "Brooklyn",
-    "subtext": "New York, USA • Pop. 2,736,074",
-    "type": "city",
-    "stateOrProvince": "New York",
-    "code": "NY",
-    "country": "USA",
-    "countryCode": "US",
-    "countryName": "USA",
-    "population": 2736074,
-    "lat": 40.6501,
-    "lng": -73.9496,
-    "altNames": [
-      "Bklyn",
-      "Borough of Brooklyn",
-      "Breuckelen",
-      "Breukelen",
-      "Broklino",
-      "Brucclinu"
-    ],
-    "craftBeerHubRank": null
-  },
-  {
     "name": "Chicago, IL, USA",
     "cityName": "Chicago",
     "asciiname": "Chicago",
@@ -330,30 +306,6 @@ export const ALL_MAJOR_CITIES: CityDataRecord[] = [
       "Roma"
     ],
     "craftBeerHubRank": "Italian Craft Beer Pioneer"
-  },
-  {
-    "name": "Queens, NY, USA",
-    "cityName": "Queens",
-    "asciiname": "Queens",
-    "subtext": "New York, USA • Pop. 2,316,841",
-    "type": "city",
-    "stateOrProvince": "New York",
-    "code": "NY",
-    "country": "USA",
-    "countryCode": "US",
-    "countryName": "USA",
-    "population": 2316841,
-    "lat": 40.6815,
-    "lng": -73.8365,
-    "altNames": [
-      "Borough of Queens",
-      "Comte de Queens",
-      "Comté de Queens",
-      "Condado de Queens",
-      "Kuins",
-      "Kvino"
-    ],
-    "craftBeerHubRank": null
   },
   {
     "name": "Houston, TX, USA",
@@ -884,30 +836,6 @@ export const ALL_MAJOR_CITIES: CityDataRecord[] = [
     "craftBeerHubRank": "World Beer Capital • Oktoberfest"
   },
   {
-    "name": "Manhattan, NY, USA",
-    "cityName": "Manhattan",
-    "asciiname": "Manhattan",
-    "subtext": "New York, USA • Pop. 1,487,536",
-    "type": "city",
-    "stateOrProvince": "New York",
-    "code": "NY",
-    "country": "USA",
-    "countryCode": "US",
-    "countryName": "USA",
-    "population": 1487536,
-    "lat": 40.7834,
-    "lng": -73.9663,
-    "altNames": [
-      "Borough of Manhattan",
-      "Manatans",
-      "Manathans",
-      "Manathas",
-      "Manathes",
-      "Manatte"
-    ],
-    "craftBeerHubRank": null
-  },
-  {
     "name": "Zapopan, Jalisco, Mexico",
     "cityName": "Zapopan",
     "asciiname": "Zapopan",
@@ -1000,28 +928,6 @@ export const ALL_MAJOR_CITIES: CityDataRecord[] = [
       "Guadalajara i Jalisco",
       "Guadalakhara",
       "Guadalaxara"
-    ],
-    "craftBeerHubRank": null
-  },
-  {
-    "name": "The Bronx, NY, USA",
-    "cityName": "The Bronx",
-    "asciiname": "The Bronx",
-    "subtext": "New York, USA • Pop. 1,385,108",
-    "type": "city",
-    "stateOrProvince": "New York",
-    "code": "NY",
-    "country": "USA",
-    "countryCode": "US",
-    "countryName": "USA",
-    "population": 1385108,
-    "lat": 40.8499,
-    "lng": -73.8664,
-    "altNames": [
-      "Borough of Bronx",
-      "Bronks",
-      "Bronkso",
-      "Bronx"
     ],
     "craftBeerHubRank": null
   },
@@ -5166,26 +5072,6 @@ export const ALL_MAJOR_CITIES: CityDataRecord[] = [
       "Mykolaiv",
       "Mykolaïv",
       "NLV"
-    ],
-    "craftBeerHubRank": null
-  },
-  {
-    "name": "Staten Island, NY, USA",
-    "cityName": "Staten Island",
-    "asciiname": "Staten Island",
-    "subtext": "New York, USA • Pop. 468,730",
-    "type": "city",
-    "stateOrProvince": "New York",
-    "code": "NY",
-    "country": "USA",
-    "countryCode": "US",
-    "countryName": "USA",
-    "population": 468730,
-    "lat": 40.5623,
-    "lng": -74.1399,
-    "altNames": [
-      "Borough of Staten Island",
-      "Staten-Ajlend"
     ],
     "craftBeerHubRank": null
   },
@@ -12533,29 +12419,6 @@ export const ALL_MAJOR_CITIES: CityDataRecord[] = [
     "craftBeerHubRank": null
   },
   {
-    "name": "Upper West Side, NY, USA",
-    "cityName": "Upper West Side",
-    "asciiname": "Upper West Side",
-    "subtext": "New York, USA • Pop. 226,989",
-    "type": "city",
-    "stateOrProvince": "New York",
-    "code": "NY",
-    "country": "USA",
-    "countryCode": "US",
-    "countryName": "USA",
-    "population": 226989,
-    "lat": 40.7871,
-    "lng": -73.9754,
-    "altNames": [
-      "Aukstutinis Vestsaidas",
-      "Verkhnij Vest-Sajd",
-      "eopeoweseuteusaideu",
-      "shang xi cheng",
-      "xap pexr west sid"
-    ],
-    "craftBeerHubRank": null
-  },
-  {
     "name": "Staryy Oskol, Belgorod Oblast, Russia",
     "cityName": "Staryy Oskol",
     "asciiname": "Staryy Oskol",
@@ -13345,30 +13208,6 @@ export const ALL_MAJOR_CITIES: CityDataRecord[] = [
       "Mokotow",
       "Mokotuv",
       "mo ke tuo fu qu"
-    ],
-    "craftBeerHubRank": null
-  },
-  {
-    "name": "Jamaica, NY, USA",
-    "cityName": "Jamaica",
-    "asciiname": "Jamaica",
-    "subtext": "New York, USA • Pop. 216,866",
-    "type": "city",
-    "stateOrProvince": "New York",
-    "code": "NY",
-    "country": "USA",
-    "countryCode": "US",
-    "countryName": "USA",
-    "population": 216866,
-    "lat": 40.6915,
-    "lng": -73.8057,
-    "altNames": [
-      "Dzhamejka",
-      "Jaimaica",
-      "Jamaicah",
-      "Jamaick",
-      "Jamaico",
-      "Jamaika"
     ],
     "craftBeerHubRank": null
   },
@@ -14742,30 +14581,6 @@ export const ALL_MAJOR_CITIES: CityDataRecord[] = [
     "craftBeerHubRank": null
   },
   {
-    "name": "Yonkers, NY, USA",
-    "cityName": "Yonkers",
-    "asciiname": "Yonkers",
-    "subtext": "New York, USA • Pop. 201,116",
-    "type": "city",
-    "stateOrProvince": "New York",
-    "code": "NY",
-    "country": "USA",
-    "countryCode": "US",
-    "countryName": "USA",
-    "population": 201116,
-    "lat": 40.9304,
-    "lng": -73.8979,
-    "altNames": [
-      "Ionkers",
-      "Jonkers",
-      "Jonkersas",
-      "Jonkurs",
-      "Yonckers",
-      "yang ke si"
-    ],
-    "craftBeerHubRank": null
-  },
-  {
     "name": "Glendale, CA, USA",
     "cityName": "Glendale",
     "asciiname": "Glendale",
@@ -15583,26 +15398,6 @@ export const ALL_MAJOR_CITIES: CityDataRecord[] = [
     "craftBeerHubRank": null
   },
   {
-    "name": "East Flatbush, NY, USA",
-    "cityName": "East Flatbush",
-    "asciiname": "East Flatbush",
-    "subtext": "New York, USA • Pop. 178,464",
-    "type": "city",
-    "stateOrProvince": "New York",
-    "code": "NY",
-    "country": "USA",
-    "countryCode": "US",
-    "countryName": "USA",
-    "population": 178464,
-    "lat": 40.6537,
-    "lng": -73.9304,
-    "altNames": [
-      "Ist-Flehtbush",
-      "Rugby"
-    ],
-    "craftBeerHubRank": null
-  },
-  {
     "name": "Spring Valley, NV, USA",
     "cityName": "Spring Valley",
     "asciiname": "Spring Valley",
@@ -15887,27 +15682,6 @@ export const ALL_MAJOR_CITIES: CityDataRecord[] = [
       "San Miguel Allende",
       "San Minkel nte Agiente",
       "San-Migel'-de-Al'ende"
-    ],
-    "craftBeerHubRank": null
-  },
-  {
-    "name": "East New York, NY, USA",
-    "cityName": "East New York",
-    "asciiname": "East New York",
-    "subtext": "New York, USA • Pop. 173,198",
-    "type": "city",
-    "stateOrProvince": "New York",
-    "code": "NY",
-    "country": "USA",
-    "countryCode": "US",
-    "countryName": "USA",
-    "population": 173198,
-    "lat": 40.6668,
-    "lng": -73.8824,
-    "altNames": [
-      "Ist-N'ju-Jork",
-      "Oostwoud",
-      "Starrett City"
     ],
     "craftBeerHubRank": null
   },
@@ -16928,29 +16702,6 @@ export const ALL_MAJOR_CITIES: CityDataRecord[] = [
     "craftBeerHubRank": null
   },
   {
-    "name": "Washington Heights, NY, USA",
-    "cityName": "Washington Heights",
-    "asciiname": "Washington Heights",
-    "subtext": "New York, USA • Pop. 152,613",
-    "type": "city",
-    "stateOrProvince": "New York",
-    "code": "NY",
-    "country": "USA",
-    "countryCode": "US",
-    "countryName": "USA",
-    "population": 152613,
-    "lat": 40.8501,
-    "lng": -73.9354,
-    "altNames": [
-      "Harlem Heights",
-      "Pen-a-bick",
-      "Vashington-Khajts",
-      "washintonhaitsu",
-      "wosingteonhaicheu"
-    ],
-    "craftBeerHubRank": null
-  },
-  {
     "name": "Lakewood, CO, USA",
     "cityName": "Lakewood",
     "asciiname": "Lakewood",
@@ -17021,28 +16772,6 @@ export const ALL_MAJOR_CITIES: CityDataRecord[] = [
     "craftBeerHubRank": null
   },
   {
-    "name": "Astoria, NY, USA",
-    "cityName": "Astoria",
-    "asciiname": "Astoria",
-    "subtext": "New York, USA • Pop. 150,165",
-    "type": "city",
-    "stateOrProvince": "New York",
-    "code": "NY",
-    "country": "USA",
-    "countryCode": "US",
-    "countryName": "USA",
-    "population": 150165,
-    "lat": 40.7721,
-    "lng": -73.9301,
-    "altNames": [
-      "Astorija",
-      "Hallett's Cove",
-      "aeseutolia",
-      "astwrya"
-    ],
-    "craftBeerHubRank": null
-  },
-  {
     "name": "Gloucester, ON, Canada",
     "cityName": "Gloucester",
     "asciiname": "Gloucester",
@@ -17106,27 +16835,6 @@ export const ALL_MAJOR_CITIES: CityDataRecord[] = [
       "Kholivud",
       "Khollivud",
       "halivuda"
-    ],
-    "craftBeerHubRank": null
-  },
-  {
-    "name": "Borough Park, NY, USA",
-    "cityName": "Borough Park",
-    "asciiname": "Borough Park",
-    "subtext": "New York, USA • Pop. 149,248",
-    "type": "city",
-    "stateOrProvince": "New York",
-    "code": "NY",
-    "country": "USA",
-    "countryCode": "US",
-    "countryName": "USA",
-    "population": 149248,
-    "lat": 40.634,
-    "lng": -73.9968,
-    "altNames": [
-      "Blythebourne",
-      "Boro-Park",
-      "zi zhi shi gong yuan"
     ],
     "craftBeerHubRank": null
   },
@@ -17430,25 +17138,6 @@ export const ALL_MAJOR_CITIES: CityDataRecord[] = [
     "craftBeerHubRank": null
   },
   {
-    "name": "Rosemont–La Petite-Patrie, QC, Canada",
-    "cityName": "Rosemont–La Petite-Patrie",
-    "asciiname": "Rosemont-La Petite-Patrie",
-    "subtext": "Quebec, Canada • Pop. 146,501",
-    "type": "city",
-    "stateOrProvince": "Quebec",
-    "code": "QC",
-    "country": "Canada",
-    "countryCode": "CA",
-    "countryName": "Canada",
-    "population": 146501,
-    "lat": 45.5366,
-    "lng": -73.6069,
-    "altNames": [
-      "Rosemont-La Petite-Patrie"
-    ],
-    "craftBeerHubRank": null
-  },
-  {
     "name": "Gainesville, FL, USA",
     "cityName": "Gainesville",
     "asciiname": "Gainesville",
@@ -17469,25 +17158,6 @@ export const ALL_MAJOR_CITIES: CityDataRecord[] = [
       "Gejnsvil",
       "Gejnsvill",
       "Hog Town"
-    ],
-    "craftBeerHubRank": null
-  },
-  {
-    "name": "Villeray–Saint-Michel–Parc-Extension, QC, Canada",
-    "cityName": "Villeray–Saint-Michel–Parc-Extension",
-    "asciiname": "Villeray-Saint-Michel-Parc-Extension",
-    "subtext": "Quebec, Canada • Pop. 144,814",
-    "type": "city",
-    "stateOrProvince": "Quebec",
-    "code": "QC",
-    "country": "Canada",
-    "countryCode": "CA",
-    "countryName": "Canada",
-    "population": 144814,
-    "lat": 45.5587,
-    "lng": -73.6054,
-    "altNames": [
-      "Villeray-Saint-Michel-Parc-Extension"
     ],
     "craftBeerHubRank": null
   },
@@ -17703,25 +17373,6 @@ export const ALL_MAJOR_CITIES: CityDataRecord[] = [
       "Sjurpriz",
       "Surprajz",
       "sapuraizu"
-    ],
-    "craftBeerHubRank": null
-  },
-  {
-    "name": "Mercier–Hochelaga-Maisonneuve, QC, Canada",
-    "cityName": "Mercier–Hochelaga-Maisonneuve",
-    "asciiname": "Mercier-Hochelaga-Maisonneuve",
-    "subtext": "Quebec, Canada • Pop. 142,753",
-    "type": "city",
-    "stateOrProvince": "Quebec",
-    "code": "QC",
-    "country": "Canada",
-    "countryCode": "CA",
-    "countryName": "Canada",
-    "population": 142753,
-    "lat": 45.5719,
-    "lng": -73.5463,
-    "altNames": [
-      "Mercier-Hochelaga-Maisonneuve"
     ],
     "craftBeerHubRank": null
   },
@@ -18188,46 +17839,6 @@ export const ALL_MAJOR_CITIES: CityDataRecord[] = [
       "Dehjton",
       "Deitonas",
       "Dejton"
-    ],
-    "craftBeerHubRank": null
-  },
-  {
-    "name": "Ahuntsic-Cartierville, QC, Canada",
-    "cityName": "Ahuntsic-Cartierville",
-    "asciiname": "Ahuntsic-Cartierville",
-    "subtext": "Quebec, Canada • Pop. 135,336",
-    "type": "city",
-    "stateOrProvince": "Quebec",
-    "code": "QC",
-    "country": "Canada",
-    "countryCode": "CA",
-    "countryName": "Canada",
-    "population": 135336,
-    "lat": 45.5667,
-    "lng": -73.6667,
-    "altNames": [
-      "Ahuntsic",
-      "Akhuncik-Kartierville",
-      "Cartierville"
-    ],
-    "craftBeerHubRank": null
-  },
-  {
-    "name": "Le Vieux-Longueuil, QC, Canada",
-    "cityName": "Le Vieux-Longueuil",
-    "asciiname": "Le Vieux-Longueuil",
-    "subtext": "Quebec, Canada • Pop. 135,218",
-    "type": "city",
-    "stateOrProvince": "Quebec",
-    "code": "QC",
-    "country": "Canada",
-    "countryCode": "CA",
-    "countryName": "Canada",
-    "population": 135218,
-    "lat": 45.5372,
-    "lng": -73.5077,
-    "altNames": [
-      "Le Vieuks-Longueuil"
     ],
     "craftBeerHubRank": null
   },
@@ -19017,25 +18628,6 @@ export const ALL_MAJOR_CITIES: CityDataRecord[] = [
     "craftBeerHubRank": null
   },
   {
-    "name": "Sunset Park, NY, USA",
-    "cityName": "Sunset Park",
-    "asciiname": "Sunset Park",
-    "subtext": "New York, USA • Pop. 126,000",
-    "type": "city",
-    "stateOrProvince": "New York",
-    "code": "NY",
-    "country": "USA",
-    "countryCode": "US",
-    "countryName": "USA",
-    "population": 126000,
-    "lat": 40.6455,
-    "lng": -74.0124,
-    "altNames": [
-      "ri luo gong yuan"
-    ],
-    "craftBeerHubRank": null
-  },
-  {
     "name": "Topeka, KS, USA",
     "cityName": "Topeka",
     "asciiname": "Topeka",
@@ -19199,46 +18791,6 @@ export const ALL_MAJOR_CITIES: CityDataRecord[] = [
     "altNames": [
       "Orisaba",
       "ao li sa ba"
-    ],
-    "craftBeerHubRank": null
-  },
-  {
-    "name": "Sheepshead Bay, NY, USA",
-    "cityName": "Sheepshead Bay",
-    "asciiname": "Sheepshead Bay",
-    "subtext": "New York, USA • Pop. 122,534",
-    "type": "city",
-    "stateOrProvince": "New York",
-    "code": "NY",
-    "country": "USA",
-    "countryCode": "US",
-    "countryName": "USA",
-    "population": 122534,
-    "lat": 40.5912,
-    "lng": -73.9446,
-    "altNames": [
-      "Shipshead Bai"
-    ],
-    "craftBeerHubRank": null
-  },
-  {
-    "name": "Amherst, NY, USA",
-    "cityName": "Amherst",
-    "asciiname": "Amherst",
-    "subtext": "New York, USA • Pop. 122,366",
-    "type": "city",
-    "stateOrProvince": "New York",
-    "code": "NY",
-    "country": "USA",
-    "countryCode": "US",
-    "countryName": "USA",
-    "population": 122366,
-    "lat": 42.9784,
-    "lng": -78.7998,
-    "altNames": [
-      "Amkherst",
-      "amhrst  nywywrk",
-      "amuhasuto"
     ],
     "craftBeerHubRank": null
   },
@@ -19453,25 +19005,6 @@ export const ALL_MAJOR_CITIES: CityDataRecord[] = [
       "Alentauno",
       "Allenschteddel",
       "Allentaun"
-    ],
-    "craftBeerHubRank": null
-  },
-  {
-    "name": "Saint-Louis-de-Terrebonne, QC, Canada",
-    "cityName": "Saint-Louis-de-Terrebonne",
-    "asciiname": "Saint-Louis-de-Terrebonne",
-    "subtext": "Quebec, Canada • Pop. 119,944",
-    "type": "city",
-    "stateOrProvince": "Quebec",
-    "code": "QC",
-    "country": "Canada",
-    "countryCode": "CA",
-    "countryName": "Canada",
-    "population": 119944,
-    "lat": 45.702,
-    "lng": -73.7867,
-    "altNames": [
-      "Saint-Lauis-De-Terrebonne"
     ],
     "craftBeerHubRank": null
   },
@@ -19796,30 +19329,6 @@ export const ALL_MAJOR_CITIES: CityDataRecord[] = [
     "craftBeerHubRank": null
   },
   {
-    "name": "Harlem, NY, USA",
-    "cityName": "Harlem",
-    "asciiname": "Harlem",
-    "subtext": "New York, USA • Pop. 116,345",
-    "type": "city",
-    "stateOrProvince": "New York",
-    "code": "NY",
-    "country": "USA",
-    "countryCode": "US",
-    "countryName": "USA",
-    "population": 116345,
-    "lat": 40.8079,
-    "lng": -73.9454,
-    "altNames": [
-      "Garlem",
-      "Harlema",
-      "Harlemas",
-      "Harlemo",
-      "Kharlem",
-      "New Harlem"
-    ],
-    "craftBeerHubRank": null
-  },
-  {
     "name": "Westminster, CO, USA",
     "cityName": "Westminster",
     "asciiname": "Westminster",
@@ -19888,30 +19397,6 @@ export const ALL_MAJOR_CITIES: CityDataRecord[] = [
       "New Town",
       "Newton",
       "Uilmington"
-    ],
-    "craftBeerHubRank": null
-  },
-  {
-    "name": "East Harlem, NY, USA",
-    "cityName": "East Harlem",
-    "asciiname": "East Harlem",
-    "subtext": "New York, USA • Pop. 115,921",
-    "type": "city",
-    "stateOrProvince": "New York",
-    "code": "NY",
-    "country": "USA",
-    "countryCode": "US",
-    "countryName": "USA",
-    "population": 115921,
-    "lat": 40.7947,
-    "lng": -73.9425,
-    "altNames": [
-      "Arevelyan Harlem",
-      "Ekialdeko Harlem",
-      "Harlem del Este",
-      "Otterspoor",
-      "Spanish Harlem",
-      "Vostochnyj Garlem"
     ],
     "craftBeerHubRank": null
   },
@@ -20127,25 +19612,6 @@ export const ALL_MAJOR_CITIES: CityDataRecord[] = [
     "craftBeerHubRank": null
   },
   {
-    "name": "Rivière-des-Prairies–Pointe-aux-Trembles, QC, Canada",
-    "cityName": "Rivière-des-Prairies–Pointe-aux-Trembles",
-    "asciiname": "Riviere-des-Prairies-Pointe-aux-Trembles",
-    "subtext": "Quebec, Canada • Pop. 113,868",
-    "type": "city",
-    "stateOrProvince": "Quebec",
-    "code": "QC",
-    "country": "Canada",
-    "countryCode": "CA",
-    "countryName": "Canada",
-    "population": 113868,
-    "lat": 45.6406,
-    "lng": -73.5846,
-    "altNames": [
-      "Riviere-des-Prairies-Pointe-aux-Trembles"
-    ],
-    "craftBeerHubRank": null
-  },
-  {
     "name": "Navojoa, Sonora, Mexico",
     "cityName": "Navojoa",
     "asciiname": "Navojoa",
@@ -20166,30 +19632,6 @@ export const ALL_MAJOR_CITIES: CityDataRecord[] = [
       "na wo hua",
       "nawwkhwa",
       "nawwywa"
-    ],
-    "craftBeerHubRank": null
-  },
-  {
-    "name": "Elmhurst, NY, USA",
-    "cityName": "Elmhurst",
-    "asciiname": "Elmhurst",
-    "subtext": "New York, USA • Pop. 113,364",
-    "type": "city",
-    "stateOrProvince": "New York",
-    "code": "NY",
-    "country": "USA",
-    "countryCode": "US",
-    "countryName": "USA",
-    "population": 113364,
-    "lat": 40.7365,
-    "lng": -73.8779,
-    "altNames": [
-      "Elmcherst",
-      "Middeburgh",
-      "Middelburg",
-      "Middelburgh",
-      "Neutuyn",
-      "Newtown"
     ],
     "craftBeerHubRank": null
   },
@@ -20306,47 +19748,6 @@ export const ALL_MAJOR_CITIES: CityDataRecord[] = [
       "Lansings",
       "Lehnsing"
     ],
-    "craftBeerHubRank": null
-  },
-  {
-    "name": "Bushwick, NY, USA",
-    "cityName": "Bushwick",
-    "asciiname": "Bushwick",
-    "subtext": "New York, USA • Pop. 112,620",
-    "type": "city",
-    "stateOrProvince": "New York",
-    "code": "NY",
-    "country": "USA",
-    "countryCode": "US",
-    "countryName": "USA",
-    "population": 112620,
-    "lat": 40.6943,
-    "lng": -73.9188,
-    "altNames": [
-      "Boswijck",
-      "Bushuik",
-      "Bushwyck",
-      "bswwyq",
-      "bu xi wei ke",
-      "busshuuikku"
-    ],
-    "craftBeerHubRank": null
-  },
-  {
-    "name": "Gravesend, NY, USA",
-    "cityName": "Gravesend",
-    "asciiname": "Gravesend",
-    "subtext": "New York, USA • Pop. 112,229",
-    "type": "city",
-    "stateOrProvince": "New York",
-    "code": "NY",
-    "country": "USA",
-    "countryCode": "US",
-    "countryName": "USA",
-    "population": 112229,
-    "lat": 40.5976,
-    "lng": -73.9651,
-    "altNames": [],
     "craftBeerHubRank": null
   },
   {
@@ -20533,27 +19934,6 @@ export const ALL_MAJOR_CITIES: CityDataRecord[] = [
       "Matildaville",
       "Shelbyville",
       "Shelleyville"
-    ],
-    "craftBeerHubRank": null
-  },
-  {
-    "name": "Sainte-Foy, QC, Canada",
-    "cityName": "Sainte-Foy",
-    "asciiname": "Sainte-Foy",
-    "subtext": "Quebec, Canada • Pop. 111,300",
-    "type": "city",
-    "stateOrProvince": "Quebec",
-    "code": "QC",
-    "country": "Canada",
-    "countryCode": "CA",
-    "countryName": "Canada",
-    "population": 111300,
-    "lat": 46.7814,
-    "lng": -71.2922,
-    "altNames": [
-      "BQC",
-      "Sainte-Foy-Sillery-Cap-Rouge",
-      "Sent-Fua"
     ],
     "craftBeerHubRank": null
   },
@@ -20866,26 +20246,6 @@ export const ALL_MAJOR_CITIES: CityDataRecord[] = [
     "craftBeerHubRank": null
   },
   {
-    "name": "Corona, NY, USA",
-    "cityName": "Corona",
-    "asciiname": "Corona",
-    "subtext": "New York, USA • Pop. 109,698",
-    "type": "city",
-    "stateOrProvince": "New York",
-    "code": "NY",
-    "country": "USA",
-    "countryCode": "US",
-    "countryName": "USA",
-    "population": 109698,
-    "lat": 40.7471,
-    "lng": -73.8601,
-    "altNames": [
-      "Korona",
-      "West Flushing"
-    ],
-    "craftBeerHubRank": null
-  },
-  {
     "name": "Pueblo, CO, USA",
     "cityName": "Pueblo",
     "asciiname": "Pueblo",
@@ -21047,27 +20407,6 @@ export const ALL_MAJOR_CITIES: CityDataRecord[] = [
       "antrbrayz",
       "antrprayz  nwada",
       "entapuraizu"
-    ],
-    "craftBeerHubRank": null
-  },
-  {
-    "name": "La Cité-Limoilou, QC, Canada",
-    "cityName": "La Cité-Limoilou",
-    "asciiname": "La Cite-Limoilou",
-    "subtext": "Quebec, Canada • Pop. 108,415",
-    "type": "city",
-    "stateOrProvince": "Quebec",
-    "code": "QC",
-    "country": "Canada",
-    "countryCode": "CA",
-    "countryName": "Canada",
-    "population": 108415,
-    "lat": 46.8289,
-    "lng": -71.2264,
-    "altNames": [
-      "La Cite-Limoilou",
-      "La Site-Limoilau",
-      "Limoilou"
     ],
     "craftBeerHubRank": null
   },
@@ -21307,25 +20646,6 @@ export const ALL_MAJOR_CITIES: CityDataRecord[] = [
     "craftBeerHubRank": null
   },
   {
-    "name": "Le Plateau-Mont-Royal, QC, Canada",
-    "cityName": "Le Plateau-Mont-Royal",
-    "asciiname": "Le Plateau-Mont-Royal",
-    "subtext": "Quebec, Canada • Pop. 105,813",
-    "type": "city",
-    "stateOrProvince": "Quebec",
-    "code": "QC",
-    "country": "Canada",
-    "countryCode": "CA",
-    "countryName": "Canada",
-    "population": 105813,
-    "lat": 45.5283,
-    "lng": -73.5808,
-    "altNames": [
-      "Le Plateau-Mont-Rojal"
-    ],
-    "craftBeerHubRank": null
-  },
-  {
     "name": "Yautepec, Morelos, Mexico",
     "cityName": "Yautepec",
     "asciiname": "Yautepec",
@@ -21509,23 +20829,6 @@ export const ALL_MAJOR_CITIES: CityDataRecord[] = [
       "hua tie lu",
       "uotaru"
     ],
-    "craftBeerHubRank": null
-  },
-  {
-    "name": "Ville-Marie, QC, Canada",
-    "cityName": "Ville-Marie",
-    "asciiname": "Ville-Marie",
-    "subtext": "Quebec, Canada • Pop. 104,944",
-    "type": "city",
-    "stateOrProvince": "Quebec",
-    "code": "QC",
-    "country": "Canada",
-    "countryCode": "CA",
-    "countryName": "Canada",
-    "population": 104944,
-    "lat": 45.499,
-    "lng": -73.5705,
-    "altNames": [],
     "craftBeerHubRank": null
   },
   {
@@ -22519,52 +21822,6 @@ export const ALL_MAJOR_CITIES: CityDataRecord[] = [
     "craftBeerHubRank": null
   },
   {
-    "name": "Richmond Hill, NY, USA",
-    "cityName": "Richmond Hill",
-    "asciiname": "Richmond Hill",
-    "subtext": "New York, USA • Pop. 98,984",
-    "type": "city",
-    "stateOrProvince": "New York",
-    "code": "NY",
-    "country": "USA",
-    "countryCode": "US",
-    "countryName": "USA",
-    "population": 98984,
-    "lat": 40.6998,
-    "lng": -73.8312,
-    "altNames": [
-      "Richmond Khill",
-      "danton",
-      "li shi man xi er",
-      "rychmwnd hyl  kwyynz",
-      "ryz'mwnd hyl"
-    ],
-    "craftBeerHubRank": null
-  },
-  {
-    "name": "Saint-Laurent, QC, Canada",
-    "cityName": "Saint-Laurent",
-    "asciiname": "Saint-Laurent",
-    "subtext": "Quebec, Canada • Pop. 98,828",
-    "type": "city",
-    "stateOrProvince": "Quebec",
-    "code": "QC",
-    "country": "Canada",
-    "countryCode": "CA",
-    "countryName": "Canada",
-    "population": 98828,
-    "lat": 45.5001,
-    "lng": -73.6659,
-    "altNames": [
-      "Sen Loran",
-      "Sen-Loran",
-      "St Laurent",
-      "Ville Saint-Laurent",
-      "Ville St Laurent"
-    ],
-    "craftBeerHubRank": null
-  },
-  {
     "name": "Alief, TX, USA",
     "cityName": "Alief",
     "asciiname": "Alief",
@@ -23211,25 +22468,6 @@ export const ALL_MAJOR_CITIES: CityDataRecord[] = [
     "craftBeerHubRank": null
   },
   {
-    "name": "Fordham, NY, USA",
-    "cityName": "Fordham",
-    "asciiname": "Fordham",
-    "subtext": "New York, USA • Pop. 94,678",
-    "type": "city",
-    "stateOrProvince": "New York",
-    "code": "NY",
-    "country": "USA",
-    "countryCode": "US",
-    "countryName": "USA",
-    "population": 94678,
-    "lat": 40.8593,
-    "lng": -73.8985,
-    "altNames": [
-      "Fordehm"
-    ],
-    "craftBeerHubRank": null
-  },
-  {
     "name": "Livonia, MI, USA",
     "cityName": "Livonia",
     "asciiname": "Livonia",
@@ -23298,23 +22536,6 @@ export const ALL_MAJOR_CITIES: CityDataRecord[] = [
       "ao lei mu",
       "awrm  ywta"
     ],
-    "craftBeerHubRank": null
-  },
-  {
-    "name": "Chomedey, QC, Canada",
-    "cityName": "Chomedey",
-    "asciiname": "Chomedey",
-    "subtext": "Quebec, Canada • Pop. 94,030",
-    "type": "city",
-    "stateOrProvince": "Quebec",
-    "code": "QC",
-    "country": "Canada",
-    "countryCode": "CA",
-    "countryName": "Canada",
-    "population": 94030,
-    "lat": 45.5333,
-    "lng": -73.75,
-    "altNames": [],
     "craftBeerHubRank": null
   },
   {
@@ -23390,28 +22611,6 @@ export const ALL_MAJOR_CITIES: CityDataRecord[] = [
     "craftBeerHubRank": null
   },
   {
-    "name": "West Albany, NY, USA",
-    "cityName": "West Albany",
-    "asciiname": "West Albany",
-    "subtext": "New York, USA • Pop. 93,794",
-    "type": "city",
-    "stateOrProvince": "New York",
-    "code": "NY",
-    "country": "USA",
-    "countryCode": "US",
-    "countryName": "USA",
-    "population": 93794,
-    "lat": 42.6831,
-    "lng": -73.7785,
-    "altNames": [
-      "Spencerville",
-      "Vest Albani",
-      "albany ghrby",
-      "wzt albany  nywywrk"
-    ],
-    "craftBeerHubRank": null
-  },
-  {
     "name": "Yakima, WA, USA",
     "cityName": "Yakima",
     "asciiname": "Yakima",
@@ -23478,28 +22677,6 @@ export const ALL_MAJOR_CITIES: CityDataRecord[] = [
       "Kouinsi",
       "Kuajnsi",
       "Kuinsi"
-    ],
-    "craftBeerHubRank": null
-  },
-  {
-    "name": "Flatbush, NY, USA",
-    "cityName": "Flatbush",
-    "asciiname": "Flatbush",
-    "subtext": "New York, USA • Pop. 93,361",
-    "type": "city",
-    "stateOrProvince": "New York",
-    "code": "NY",
-    "country": "USA",
-    "countryCode": "US",
-    "countryName": "USA",
-    "population": 93361,
-    "lat": 40.6521,
-    "lng": -73.959,
-    "altNames": [
-      "Flehtbush",
-      "Middelwout",
-      "Middewout",
-      "Vlackebos"
     ],
     "craftBeerHubRank": null
   },
@@ -24109,27 +23286,6 @@ export const ALL_MAJOR_CITIES: CityDataRecord[] = [
     "craftBeerHubRank": null
   },
   {
-    "name": "Chinatown, NY, USA",
-    "cityName": "Chinatown",
-    "asciiname": "Chinatown",
-    "subtext": "New York, USA • Pop. 90,000",
-    "type": "city",
-    "stateOrProvince": "New York",
-    "code": "NY",
-    "country": "USA",
-    "countryCode": "US",
-    "countryName": "USA",
-    "population": 90000,
-    "lat": 40.7165,
-    "lng": -73.9963,
-    "altNames": [
-      "Chajna-taun",
-      "chainataun",
-      "man ha dun hua bu"
-    ],
-    "craftBeerHubRank": null
-  },
-  {
     "name": "Nampa, ID, USA",
     "cityName": "Nampa",
     "asciiname": "Nampa",
@@ -24336,23 +23492,6 @@ export const ALL_MAJOR_CITIES: CityDataRecord[] = [
       "dltwna",
       "dltwna  flwryda"
     ],
-    "craftBeerHubRank": null
-  },
-  {
-    "name": "La Haute-Saint-Charles, QC, Canada",
-    "cityName": "La Haute-Saint-Charles",
-    "asciiname": "La Haute-Saint-Charles",
-    "subtext": "Quebec, Canada • Pop. 88,460",
-    "type": "city",
-    "stateOrProvince": "Quebec",
-    "code": "QC",
-    "country": "Canada",
-    "countryCode": "CA",
-    "countryName": "Canada",
-    "population": 88460,
-    "lat": 46.8903,
-    "lng": -71.3722,
-    "altNames": [],
     "craftBeerHubRank": null
   },
   {
@@ -24750,25 +23889,6 @@ export const ALL_MAJOR_CITIES: CityDataRecord[] = [
     "craftBeerHubRank": null
   },
   {
-    "name": "Canarsie, NY, USA",
-    "cityName": "Canarsie",
-    "asciiname": "Canarsie",
-    "subtext": "New York, USA • Pop. 87,366",
-    "type": "city",
-    "stateOrProvince": "New York",
-    "code": "NY",
-    "country": "USA",
-    "countryCode": "US",
-    "countryName": "USA",
-    "population": 87366,
-    "lat": 40.6437,
-    "lng": -73.9007,
-    "altNames": [
-      "Kanarsi"
-    ],
-    "craftBeerHubRank": null
-  },
-  {
     "name": "Kirkland, WA, USA",
     "cityName": "Kirkland",
     "asciiname": "Kirkland",
@@ -24925,25 +24045,6 @@ export const ALL_MAJOR_CITIES: CityDataRecord[] = [
     "craftBeerHubRank": null
   },
   {
-    "name": "Montréal-Nord, QC, Canada",
-    "cityName": "Montréal-Nord",
-    "asciiname": "Montreal-Nord",
-    "subtext": "Quebec, Canada • Pop. 86,857",
-    "type": "city",
-    "stateOrProvince": "Quebec",
-    "code": "QC",
-    "country": "Canada",
-    "countryCode": "CA",
-    "countryName": "Canada",
-    "population": 86857,
-    "lat": 45.6016,
-    "lng": -73.6306,
-    "altNames": [
-      "Montreal-Nord"
-    ],
-    "craftBeerHubRank": null
-  },
-  {
     "name": "Canton, MI, USA",
     "cityName": "Canton",
     "asciiname": "Canton",
@@ -25004,25 +24105,6 @@ export const ALL_MAJOR_CITIES: CityDataRecord[] = [
       "Leeland Heights",
       "Lehigh",
       "Likhaj Ehjkers"
-    ],
-    "craftBeerHubRank": null
-  },
-  {
-    "name": "Greenburgh, NY, USA",
-    "cityName": "Greenburgh",
-    "asciiname": "Greenburgh",
-    "subtext": "New York, USA • Pop. 86,764",
-    "type": "city",
-    "stateOrProvince": "New York",
-    "code": "NY",
-    "country": "USA",
-    "countryCode": "US",
-    "countryName": "USA",
-    "population": 86764,
-    "lat": 41.0329,
-    "lng": -73.8429,
-    "altNames": [
-      "Grinburg"
     ],
     "craftBeerHubRank": null
   },
@@ -25132,23 +24214,6 @@ export const ALL_MAJOR_CITIES: CityDataRecord[] = [
       "jrmantwwn  mrylnd",
       "jrmntawn  mrylnd"
     ],
-    "craftBeerHubRank": null
-  },
-  {
-    "name": "Le Sud-Ouest, QC, Canada",
-    "cityName": "Le Sud-Ouest",
-    "asciiname": "Le Sud-Ouest",
-    "subtext": "Quebec, Canada • Pop. 86,347",
-    "type": "city",
-    "stateOrProvince": "Quebec",
-    "code": "QC",
-    "country": "Canada",
-    "countryCode": "CA",
-    "countryName": "Canada",
-    "population": 86347,
-    "lat": 45.4719,
-    "lng": -73.5899,
-    "altNames": [],
     "craftBeerHubRank": null
   },
   {
@@ -26048,26 +25113,6 @@ export const ALL_MAJOR_CITIES: CityDataRecord[] = [
     "craftBeerHubRank": null
   },
   {
-    "name": "Charlesbourg, QC, Canada",
-    "cityName": "Charlesbourg",
-    "asciiname": "Charlesbourg",
-    "subtext": "Quebec, Canada • Pop. 82,870",
-    "type": "city",
-    "stateOrProvince": "Quebec",
-    "code": "QC",
-    "country": "Canada",
-    "countryCode": "CA",
-    "countryName": "Canada",
-    "population": 82870,
-    "lat": 46.899,
-    "lng": -71.305,
-    "altNames": [
-      "Sharl'bur",
-      "sharl sbwrgh"
-    ],
-    "craftBeerHubRank": null
-  },
-  {
     "name": "Fayetteville, AR, USA",
     "cityName": "Fayetteville",
     "asciiname": "Fayetteville",
@@ -26112,25 +25157,6 @@ export const ALL_MAJOR_CITIES: CityDataRecord[] = [
       "Su Siti",
       "Su-Siti",
       "su cheng"
-    ],
-    "craftBeerHubRank": null
-  },
-  {
-    "name": "Saint-Hubert, QC, Canada",
-    "cityName": "Saint-Hubert",
-    "asciiname": "Saint-Hubert",
-    "subtext": "Quebec, Canada • Pop. 82,548",
-    "type": "city",
-    "stateOrProvince": "Quebec",
-    "code": "QC",
-    "country": "Canada",
-    "countryCode": "CA",
-    "countryName": "Canada",
-    "population": 82548,
-    "lat": 45.5001,
-    "lng": -73.4158,
-    "altNames": [
-      "sheng yu bai"
     ],
     "craftBeerHubRank": null
   },
@@ -26322,26 +25348,6 @@ export const ALL_MAJOR_CITIES: CityDataRecord[] = [
       "lai ke wu de",
       "lakywwwd",
       "leikeuudeu"
-    ],
-    "craftBeerHubRank": null
-  },
-  {
-    "name": "Beauport, QC, Canada",
-    "cityName": "Beauport",
-    "asciiname": "Beauport",
-    "subtext": "Quebec, Canada • Pop. 81,425",
-    "type": "city",
-    "stateOrProvince": "Quebec",
-    "code": "QC",
-    "country": "Canada",
-    "countryCode": "CA",
-    "countryName": "Canada",
-    "population": 81425,
-    "lat": 46.8588,
-    "lng": -71.192,
-    "altNames": [
-      "Bopor",
-      "Montmorency"
     ],
     "craftBeerHubRank": null
   },
@@ -26754,30 +25760,6 @@ export const ALL_MAJOR_CITIES: CityDataRecord[] = [
     "craftBeerHubRank": null
   },
   {
-    "name": "New Rochelle, NY, USA",
-    "cityName": "New Rochelle",
-    "asciiname": "New Rochelle",
-    "subtext": "New York, USA • Pop. 79,846",
-    "type": "city",
-    "stateOrProvince": "New York",
-    "code": "NY",
-    "country": "USA",
-    "countryCode": "US",
-    "countryName": "USA",
-    "population": 79846,
-    "lat": 40.9115,
-    "lng": -73.7823,
-    "altNames": [
-      "N'ju-Roshel'",
-      "N'ju-Roshell",
-      "Nju Roshel",
-      "Njuroshel",
-      "Nouvelle-Rochelle",
-      "Nueva Rochelle"
-    ],
-    "craftBeerHubRank": null
-  },
-  {
     "name": "Lynchburg, VA, USA",
     "cityName": "Lynchburg",
     "asciiname": "Lynchburg",
@@ -26909,25 +25891,6 @@ export const ALL_MAJOR_CITIES: CityDataRecord[] = [
       "Plezantn",
       "Plezanton",
       "blysantwn"
-    ],
-    "craftBeerHubRank": null
-  },
-  {
-    "name": "Saint-Léonard, QC, Canada",
-    "cityName": "Saint-Léonard",
-    "asciiname": "Saint-Leonard",
-    "subtext": "Quebec, Canada • Pop. 79,495",
-    "type": "city",
-    "stateOrProvince": "Quebec",
-    "code": "QC",
-    "country": "Canada",
-    "countryCode": "CA",
-    "countryName": "Canada",
-    "population": 79495,
-    "lat": 45.5877,
-    "lng": -73.595,
-    "altNames": [
-      "Saint-Leonard"
     ],
     "craftBeerHubRank": null
   },
@@ -27512,25 +26475,6 @@ export const ALL_MAJOR_CITIES: CityDataRecord[] = [
     "craftBeerHubRank": null
   },
   {
-    "name": "Les Rivières, QC, Canada",
-    "cityName": "Les Rivières",
-    "asciiname": "Les Rivieres",
-    "subtext": "Quebec, Canada • Pop. 77,000",
-    "type": "city",
-    "stateOrProvince": "Quebec",
-    "code": "QC",
-    "country": "Canada",
-    "countryCode": "CA",
-    "countryName": "Canada",
-    "population": 77000,
-    "lat": 46.8185,
-    "lng": -71.272,
-    "altNames": [
-      "Les Rivieres"
-    ],
-    "craftBeerHubRank": null
-  },
-  {
     "name": "Fishers, IN, USA",
     "cityName": "Fishers",
     "asciiname": "Fishers",
@@ -27876,25 +26820,6 @@ export const ALL_MAJOR_CITIES: CityDataRecord[] = [
     "craftBeerHubRank": null
   },
   {
-    "name": "South Ozone Park, NY, USA",
-    "cityName": "South Ozone Park",
-    "asciiname": "South Ozone Park",
-    "subtext": "New York, USA • Pop. 75,878",
-    "type": "city",
-    "stateOrProvince": "New York",
-    "code": "NY",
-    "country": "USA",
-    "countryCode": "US",
-    "countryName": "USA",
-    "population": 75878,
-    "lat": 40.6701,
-    "lng": -73.819,
-    "altNames": [
-      "Saus Ozon Park"
-    ],
-    "craftBeerHubRank": null
-  },
-  {
     "name": "Doral, FL, USA",
     "cityName": "Doral",
     "asciiname": "Doral",
@@ -28056,47 +26981,6 @@ export const ALL_MAJOR_CITIES: CityDataRecord[] = [
     "craftBeerHubRank": null
   },
   {
-    "name": "Cheektowaga, NY, USA",
-    "cityName": "Cheektowaga",
-    "asciiname": "Cheektowaga",
-    "subtext": "New York, USA • Pop. 75,178",
-    "type": "city",
-    "stateOrProvince": "New York",
-    "code": "NY",
-    "country": "USA",
-    "countryCode": "US",
-    "countryName": "USA",
-    "population": 75178,
-    "lat": 42.9034,
-    "lng": -78.7548,
-    "altNames": [
-      "Cheektowaga Station",
-      "Cheektowaga Village",
-      "Chiktovaga",
-      "Jiik-do-waah-geh"
-    ],
-    "craftBeerHubRank": null
-  },
-  {
-    "name": "Kings Bridge, NY, USA",
-    "cityName": "Kings Bridge",
-    "asciiname": "Kings Bridge",
-    "subtext": "New York, USA • Pop. 75,132",
-    "type": "city",
-    "stateOrProvince": "New York",
-    "code": "NY",
-    "country": "USA",
-    "countryCode": "US",
-    "countryName": "USA",
-    "population": 75132,
-    "lat": 40.8787,
-    "lng": -73.9051,
-    "altNames": [
-      "Kings Bridzh"
-    ],
-    "craftBeerHubRank": null
-  },
-  {
     "name": "Bismarck, ND, USA",
     "cityName": "Bismarck",
     "asciiname": "Bismarck",
@@ -28237,30 +27121,6 @@ export const ALL_MAJOR_CITIES: CityDataRecord[] = [
       "ghastwnya",
       "gstwwnya  karwlynay shmaly",
       "jia si tuo ni ya"
-    ],
-    "craftBeerHubRank": null
-  },
-  {
-    "name": "Brownsville, NY, USA",
-    "cityName": "Brownsville",
-    "asciiname": "Brownsville",
-    "subtext": "New York, USA • Pop. 74,497",
-    "type": "city",
-    "stateOrProvince": "New York",
-    "code": "NY",
-    "country": "USA",
-    "countryCode": "US",
-    "countryName": "USA",
-    "population": 74497,
-    "lat": 40.6609,
-    "lng": -73.9201,
-    "altNames": [
-      "Braounsvil",
-      "Braunsvil",
-      "Braunsvill",
-      "Brown's Village",
-      "brawnzfyl   brwklyn",
-      "brwynzwwyl"
     ],
     "craftBeerHubRank": null
   },
@@ -28683,23 +27543,6 @@ export const ALL_MAJOR_CITIES: CityDataRecord[] = [
       "dekatara",
       "di kai te"
     ],
-    "craftBeerHubRank": null
-  },
-  {
-    "name": "Pierrefonds-Roxboro, QC, Canada",
-    "cityName": "Pierrefonds-Roxboro",
-    "asciiname": "Pierrefonds-Roxboro",
-    "subtext": "Quebec, Canada • Pop. 73,194",
-    "type": "city",
-    "stateOrProvince": "Quebec",
-    "code": "QC",
-    "country": "Canada",
-    "countryCode": "CA",
-    "countryName": "Canada",
-    "population": 73194,
-    "lat": 45.5019,
-    "lng": -73.8417,
-    "altNames": [],
     "craftBeerHubRank": null
   },
   {
@@ -29916,26 +28759,6 @@ export const ALL_MAJOR_CITIES: CityDataRecord[] = [
     "craftBeerHubRank": null
   },
   {
-    "name": "Ridgewood, NY, USA",
-    "cityName": "Ridgewood",
-    "asciiname": "Ridgewood",
-    "subtext": "New York, USA • Pop. 69,317",
-    "type": "city",
-    "stateOrProvince": "New York",
-    "code": "NY",
-    "country": "USA",
-    "countryCode": "US",
-    "countryName": "USA",
-    "population": 69317,
-    "lat": 40.7001,
-    "lng": -73.9057,
-    "altNames": [
-      "Evergreen",
-      "Ridzhvud"
-    ],
-    "craftBeerHubRank": null
-  },
-  {
     "name": "Palatine, IL, USA",
     "cityName": "Palatine",
     "asciiname": "Palatine",
@@ -29954,27 +28777,6 @@ export const ALL_MAJOR_CITIES: CityDataRecord[] = [
       "Palatin",
       "Palatinas",
       "blatyn"
-    ],
-    "craftBeerHubRank": null
-  },
-  {
-    "name": "Verdun, QC, Canada",
-    "cityName": "Verdun",
-    "asciiname": "Verdun",
-    "subtext": "Quebec, Canada • Pop. 69,229",
-    "type": "city",
-    "stateOrProvince": "Quebec",
-    "code": "QC",
-    "country": "Canada",
-    "countryCode": "CA",
-    "countryName": "Canada",
-    "population": 69229,
-    "lat": 45.4601,
-    "lng": -73.5706,
-    "altNames": [
-      "Verden",
-      "Verdún",
-      "wrdn  kbk"
     ],
     "craftBeerHubRank": null
   },
@@ -30046,26 +28848,6 @@ export const ALL_MAJOR_CITIES: CityDataRecord[] = [
     "craftBeerHubRank": null
   },
   {
-    "name": "Chicoutimi, QC, Canada",
-    "cityName": "Chicoutimi",
-    "asciiname": "Chicoutimi",
-    "subtext": "Quebec, Canada • Pop. 69,004",
-    "type": "city",
-    "stateOrProvince": "Quebec",
-    "code": "QC",
-    "country": "Canada",
-    "countryCode": "CA",
-    "countryName": "Canada",
-    "population": 69004,
-    "lat": 48.4196,
-    "lng": -71.0637,
-    "altNames": [
-      "Shikutimi",
-      "Sikutimis"
-    ],
-    "craftBeerHubRank": null
-  },
-  {
     "name": "Walnut Creek, CA, USA",
     "cityName": "Walnut Creek",
     "asciiname": "Walnut Creek",
@@ -30105,30 +28887,6 @@ export const ALL_MAJOR_CITIES: CityDataRecord[] = [
     "lng": -89.7762,
     "altNames": [
       "Kordova"
-    ],
-    "craftBeerHubRank": null
-  },
-  {
-    "name": "Mount Vernon, NY, USA",
-    "cityName": "Mount Vernon",
-    "asciiname": "Mount Vernon",
-    "subtext": "New York, USA • Pop. 68,628",
-    "type": "city",
-    "stateOrProvince": "New York",
-    "code": "NY",
-    "country": "USA",
-    "countryCode": "US",
-    "countryName": "USA",
-    "population": 68628,
-    "lat": 40.9126,
-    "lng": -73.8371,
-    "altNames": [
-      "Hutchinson's",
-      "Maount Vernon",
-      "Maunt Vernon",
-      "Maunt Vurnun",
-      "Maunt-Vernan",
-      "Maunt-Vernon"
     ],
     "craftBeerHubRank": null
   },
@@ -30292,26 +29050,6 @@ export const ALL_MAJOR_CITIES: CityDataRecord[] = [
       "lei dong duo hai tan",
       "lidondobichi",
       "rdwndw bych  kalyfrnya"
-    ],
-    "craftBeerHubRank": null
-  },
-  {
-    "name": "Notre-Dame-de-Grâce, QC, Canada",
-    "cityName": "Notre-Dame-de-Grâce",
-    "asciiname": "Notre-Dame-de-Grace",
-    "subtext": "Quebec, Canada • Pop. 68,152",
-    "type": "city",
-    "stateOrProvince": "Quebec",
-    "code": "QC",
-    "country": "Canada",
-    "countryCode": "CA",
-    "countryName": "Canada",
-    "population": 68152,
-    "lat": 45.4768,
-    "lng": -73.6143,
-    "altNames": [
-      "NDG",
-      "Notre-Dame-de-Grace"
     ],
     "craftBeerHubRank": null
   },
@@ -30539,27 +29277,6 @@ export const ALL_MAJOR_CITIES: CityDataRecord[] = [
       "Santo Domingo de Tehuantepec",
       "Santo-Domingo-Teuantepek",
       "Tehuantepec"
-    ],
-    "craftBeerHubRank": null
-  },
-  {
-    "name": "Forest Hills, NY, USA",
-    "cityName": "Forest Hills",
-    "asciiname": "Forest Hills",
-    "subtext": "New York, USA • Pop. 67,714",
-    "type": "city",
-    "stateOrProvince": "New York",
-    "code": "NY",
-    "country": "USA",
-    "countryCode": "US",
-    "countryName": "USA",
-    "population": 67714,
-    "lat": 40.7162,
-    "lng": -73.8501,
-    "altNames": [
-      "Forest Hill",
-      "Forest Khills",
-      "Whitepot"
     ],
     "craftBeerHubRank": null
   },
@@ -30836,28 +29553,6 @@ export const ALL_MAJOR_CITIES: CityDataRecord[] = [
       "Santa Cruz Xoxocotlan",
       "Santa Krus Khokhokotlan",
       "Xoxocotlan"
-    ],
-    "craftBeerHubRank": null
-  },
-  {
-    "name": "Jackson Heights, NY, USA",
-    "cityName": "Jackson Heights",
-    "asciiname": "Jackson Heights",
-    "subtext": "New York, USA • Pop. 67,067",
-    "type": "city",
-    "stateOrProvince": "New York",
-    "code": "NY",
-    "country": "USA",
-    "countryCode": "US",
-    "countryName": "USA",
-    "population": 67067,
-    "lat": 40.7557,
-    "lng": -73.8854,
-    "altNames": [
-      "Dzhekson-Khajts",
-      "jaegseunhaicheu",
-      "jakswn hayts",
-      "jie ke xun gao de"
     ],
     "craftBeerHubRank": null
   },
@@ -31165,30 +29860,6 @@ export const ALL_MAJOR_CITIES: CityDataRecord[] = [
     "craftBeerHubRank": null
   },
   {
-    "name": "Bayside, NY, USA",
-    "cityName": "Bayside",
-    "asciiname": "Bayside",
-    "subtext": "New York, USA • Pop. 66,455",
-    "type": "city",
-    "stateOrProvince": "New York",
-    "code": "NY",
-    "country": "USA",
-    "countryCode": "US",
-    "countryName": "USA",
-    "population": 66455,
-    "lat": 40.7684,
-    "lng": -73.7771,
-    "altNames": [
-      "Bay Side",
-      "Behjsajd",
-      "bei sai",
-      "bei sai de",
-      "beisaido",
-      "byysyyd"
-    ],
-    "craftBeerHubRank": null
-  },
-  {
     "name": "Bayonne, NJ, USA",
     "cityName": "Bayonne",
     "asciiname": "Bayonne",
@@ -31363,23 +30034,6 @@ export const ALL_MAJOR_CITIES: CityDataRecord[] = [
     "population": 65913,
     "lat": 43.6339,
     "lng": -79.3772,
-    "altNames": [],
-    "craftBeerHubRank": null
-  },
-  {
-    "name": "Parkchester, NY, USA",
-    "cityName": "Parkchester",
-    "asciiname": "Parkchester",
-    "subtext": "New York, USA • Pop. 65,876",
-    "type": "city",
-    "stateOrProvince": "New York",
-    "code": "NY",
-    "country": "USA",
-    "countryCode": "US",
-    "countryName": "USA",
-    "population": 65876,
-    "lat": 40.839,
-    "lng": -73.8604,
     "altNames": [],
     "craftBeerHubRank": null
   },
@@ -31757,26 +30411,6 @@ export const ALL_MAJOR_CITIES: CityDataRecord[] = [
       "Ejms",
       "Ejmso",
       "ai mu si"
-    ],
-    "craftBeerHubRank": null
-  },
-  {
-    "name": "Park Slope, NY, USA",
-    "cityName": "Park Slope",
-    "asciiname": "Park Slope",
-    "subtext": "New York, USA • Pop. 65,047",
-    "type": "city",
-    "stateOrProvince": "New York",
-    "code": "NY",
-    "country": "USA",
-    "countryCode": "US",
-    "countryName": "USA",
-    "population": 65047,
-    "lat": 40.6701,
-    "lng": -73.986,
-    "altNames": [
-      "Park Slop",
-      "Prospect Hill"
     ],
     "craftBeerHubRank": null
   },
@@ -32326,23 +30960,6 @@ export const ALL_MAJOR_CITIES: CityDataRecord[] = [
     "craftBeerHubRank": null
   },
   {
-    "name": "Hull, QC, Canada",
-    "cityName": "Hull",
-    "asciiname": "Hull",
-    "subtext": "Quebec, Canada • Pop. 63,702",
-    "type": "city",
-    "stateOrProvince": "Quebec",
-    "code": "QC",
-    "country": "Canada",
-    "countryCode": "CA",
-    "countryName": "Canada",
-    "population": 63702,
-    "lat": 45.4276,
-    "lng": -75.7106,
-    "altNames": [],
-    "craftBeerHubRank": null
-  },
-  {
     "name": "Alpharetta, GA, USA",
     "cityName": "Alpharetta",
     "asciiname": "Alpharetta",
@@ -32411,26 +31028,6 @@ export const ALL_MAJOR_CITIES: CityDataRecord[] = [
       "Bowlinggreen",
       "bao ling ge lin",
       "bolling-geulin"
-    ],
-    "craftBeerHubRank": null
-  },
-  {
-    "name": "Flatlands, NY, USA",
-    "cityName": "Flatlands",
-    "asciiname": "Flatlands",
-    "subtext": "New York, USA • Pop. 63,601",
-    "type": "city",
-    "stateOrProvince": "New York",
-    "code": "NY",
-    "country": "USA",
-    "countryCode": "US",
-    "countryName": "USA",
-    "population": 63601,
-    "lat": 40.6212,
-    "lng": -73.9349,
-    "altNames": [
-      "Keskachauge",
-      "Neue Amserfoort"
     ],
     "craftBeerHubRank": null
   },
@@ -32703,27 +31300,6 @@ export const ALL_MAJOR_CITIES: CityDataRecord[] = [
       "Ensinitas",
       "ansynytas",
       "ansynytas  kalyfrnya"
-    ],
-    "craftBeerHubRank": null
-  },
-  {
-    "name": "East Village, NY, USA",
-    "cityName": "East Village",
-    "asciiname": "East Village",
-    "subtext": "New York, USA • Pop. 62,832",
-    "type": "city",
-    "stateOrProvince": "New York",
-    "code": "NY",
-    "country": "USA",
-    "countryCode": "US",
-    "countryName": "USA",
-    "population": 62832,
-    "lat": 40.7293,
-    "lng": -73.9874,
-    "altNames": [
-      "Ist-Villidzh",
-      "dong cun",
-      "iseuteubilliji"
     ],
     "craftBeerHubRank": null
   },
@@ -33432,25 +32008,6 @@ export const ALL_MAJOR_CITIES: CityDataRecord[] = [
     "craftBeerHubRank": null
   },
   {
-    "name": "Financial District, NY, USA",
-    "cityName": "Financial District",
-    "asciiname": "Financial District",
-    "subtext": "New York, USA • Pop. 60,976",
-    "type": "city",
-    "stateOrProvince": "New York",
-    "code": "NY",
-    "country": "USA",
-    "countryCode": "US",
-    "countryName": "USA",
-    "population": 60976,
-    "lat": 40.7079,
-    "lng": -74.0086,
-    "altNames": [
-      "Rajon Finansial"
-    ],
-    "craftBeerHubRank": null
-  },
-  {
     "name": "Springfield, OR, USA",
     "cityName": "Springfield",
     "asciiname": "Springfield",
@@ -33620,29 +32177,6 @@ export const ALL_MAJOR_CITIES: CityDataRecord[] = [
       "sanmarukosu",
       "sheng ma ke si",
       "sn markws  tgzas"
-    ],
-    "craftBeerHubRank": null
-  },
-  {
-    "name": "Brentwood, NY, USA",
-    "cityName": "Brentwood",
-    "asciiname": "Brentwood",
-    "subtext": "New York, USA • Pop. 60,664",
-    "type": "city",
-    "stateOrProvince": "New York",
-    "code": "NY",
-    "country": "USA",
-    "countryCode": "US",
-    "countryName": "USA",
-    "population": 60664,
-    "lat": 40.7812,
-    "lng": -73.2462,
-    "altNames": [
-      "Brentud",
-      "Brentvud",
-      "brntwwd",
-      "brntwwd  nywywrk",
-      "bryntwwd"
     ],
     "craftBeerHubRank": null
   },
@@ -34095,54 +32629,6 @@ export const ALL_MAJOR_CITIES: CityDataRecord[] = [
       "Col Nativitas",
       "Col. Nativitas",
       "Nativitas"
-    ],
-    "craftBeerHubRank": null
-  },
-  {
-    "name": "Bensonhurst, NY, USA",
-    "cityName": "Bensonhurst",
-    "asciiname": "Bensonhurst",
-    "subtext": "New York, USA • Pop. 60,000",
-    "type": "city",
-    "stateOrProvince": "New York",
-    "code": "NY",
-    "country": "USA",
-    "countryCode": "US",
-    "countryName": "USA",
-    "population": 60000,
-    "lat": 40.6018,
-    "lng": -73.994,
-    "altNames": [
-      "Benson'cherst",
-      "Bensongerst",
-      "Bensonhurst-By-The-Sea",
-      "Bensonkherst",
-      "Bensonkhjorst",
-      "ben sen she qun"
-    ],
-    "craftBeerHubRank": null
-  },
-  {
-    "name": "Coney Island, NY, USA",
-    "cityName": "Coney Island",
-    "asciiname": "Coney Island",
-    "subtext": "New York, USA • Pop. 60,000",
-    "type": "city",
-    "stateOrProvince": "New York",
-    "code": "NY",
-    "country": "USA",
-    "countryCode": "US",
-    "countryName": "USA",
-    "population": 60000,
-    "lat": 40.5779,
-    "lng": -73.994,
-    "altNames": [
-      "Coney Adasi",
-      "Conyn Island",
-      "Conyne Island",
-      "Insulo Coney",
-      "Koni-Ajlend",
-      "kang ni dao"
     ],
     "craftBeerHubRank": null
   },
@@ -34625,23 +33111,6 @@ export const ALL_MAJOR_CITIES: CityDataRecord[] = [
     "craftBeerHubRank": null
   },
   {
-    "name": "Pierrefonds, QC, Canada",
-    "cityName": "Pierrefonds",
-    "asciiname": "Pierrefonds",
-    "subtext": "Quebec, Canada • Pop. 59,093",
-    "type": "city",
-    "stateOrProvince": "Quebec",
-    "code": "QC",
-    "country": "Canada",
-    "countryCode": "CA",
-    "countryName": "Canada",
-    "population": 59093,
-    "lat": 45.4599,
-    "lng": -73.8928,
-    "altNames": [],
-    "craftBeerHubRank": null
-  },
-  {
     "name": "Noblesville, IN, USA",
     "cityName": "Noblesville",
     "asciiname": "Noblesville",
@@ -35014,30 +33483,6 @@ export const ALL_MAJOR_CITIES: CityDataRecord[] = [
     "craftBeerHubRank": null
   },
   {
-    "name": "White Plains, NY, USA",
-    "cityName": "White Plains",
-    "asciiname": "White Plains",
-    "subtext": "New York, USA • Pop. 58,459",
-    "type": "city",
-    "stateOrProvince": "New York",
-    "code": "NY",
-    "country": "USA",
-    "countryCode": "US",
-    "countryName": "USA",
-    "population": 58459,
-    "lat": 41.034,
-    "lng": -73.7629,
-    "altNames": [
-      "Quaropas",
-      "Uajt Plejns",
-      "Uajt-Plejns",
-      "Vajt Plajns",
-      "Vajt Plejns",
-      "Vajt-Plejns"
-    ],
-    "craftBeerHubRank": null
-  },
-  {
     "name": "Arcadia, CA, USA",
     "cityName": "Arcadia",
     "asciiname": "Arcadia",
@@ -35106,26 +33551,6 @@ export const ALL_MAJOR_CITIES: CityDataRecord[] = [
       "ao ka la",
       "awkala",
       "awkala  flwryda"
-    ],
-    "craftBeerHubRank": null
-  },
-  {
-    "name": "Clay, NY, USA",
-    "cityName": "Clay",
-    "asciiname": "Clay",
-    "subtext": "New York, USA • Pop. 58,206",
-    "type": "city",
-    "stateOrProvince": "New York",
-    "code": "NY",
-    "country": "USA",
-    "countryCode": "US",
-    "countryName": "USA",
-    "population": 58206,
-    "lat": 43.1859,
-    "lng": -76.1724,
-    "altNames": [
-      "Klej",
-      "West Cicero"
     ],
     "craftBeerHubRank": null
   },
@@ -35787,25 +34212,6 @@ export const ALL_MAJOR_CITIES: CityDataRecord[] = [
     "craftBeerHubRank": null
   },
   {
-    "name": "Aylmer, QC, Canada",
-    "cityName": "Aylmer",
-    "asciiname": "Aylmer",
-    "subtext": "Quebec, Canada • Pop. 56,542",
-    "type": "city",
-    "stateOrProvince": "Quebec",
-    "code": "QC",
-    "country": "Canada",
-    "countryCode": "CA",
-    "countryName": "Canada",
-    "population": 56542,
-    "lat": 45.4002,
-    "lng": -75.8064,
-    "altNames": [
-      "Ehjlmer"
-    ],
-    "craftBeerHubRank": null
-  },
-  {
     "name": "Irving Park, IL, USA",
     "cityName": "Irving Park",
     "asciiname": "Irving Park",
@@ -35819,23 +34225,6 @@ export const ALL_MAJOR_CITIES: CityDataRecord[] = [
     "population": 56520,
     "lat": 41.9534,
     "lng": -87.7365,
-    "altNames": [],
-    "craftBeerHubRank": null
-  },
-  {
-    "name": "Saint-Michel, QC, Canada",
-    "cityName": "Saint-Michel",
-    "asciiname": "Saint-Michel",
-    "subtext": "Quebec, Canada • Pop. 56,420",
-    "type": "city",
-    "stateOrProvince": "Quebec",
-    "code": "QC",
-    "country": "Canada",
-    "countryCode": "CA",
-    "countryName": "Canada",
-    "population": 56420,
-    "lat": 45.5676,
-    "lng": -73.6217,
     "altNames": [],
     "craftBeerHubRank": null
   },
@@ -36040,25 +34429,6 @@ export const ALL_MAJOR_CITIES: CityDataRecord[] = [
       "hendeoseunbil",
       "hndrsnwyl  tnsy",
       "hyndrswnfyl"
-    ],
-    "craftBeerHubRank": null
-  },
-  {
-    "name": "Morningside Heights, NY, USA",
-    "cityName": "Morningside Heights",
-    "asciiname": "Morningside Heights",
-    "subtext": "New York, USA • Pop. 55,929",
-    "type": "city",
-    "stateOrProvince": "New York",
-    "code": "NY",
-    "country": "USA",
-    "countryCode": "US",
-    "countryName": "USA",
-    "population": 55929,
-    "lat": 40.81,
-    "lng": -73.9625,
-    "altNames": [
-      "Moningsajd Khajts"
     ],
     "craftBeerHubRank": null
   },
@@ -36269,26 +34639,6 @@ export const ALL_MAJOR_CITIES: CityDataRecord[] = [
     "lng": -87.6964,
     "altNames": [
       "Chikago Lon"
-    ],
-    "craftBeerHubRank": null
-  },
-  {
-    "name": "Hempstead, NY, USA",
-    "cityName": "Hempstead",
-    "asciiname": "Hempstead",
-    "subtext": "New York, USA • Pop. 55,547",
-    "type": "city",
-    "stateOrProvince": "New York",
-    "code": "NY",
-    "country": "USA",
-    "countryCode": "US",
-    "countryName": "USA",
-    "population": 55547,
-    "lat": 40.7062,
-    "lng": -73.6187,
-    "altNames": [
-      "Hemsted",
-      "Khempsted"
     ],
     "craftBeerHubRank": null
   },
@@ -36686,26 +35036,6 @@ export const ALL_MAJOR_CITIES: CityDataRecord[] = [
     "craftBeerHubRank": null
   },
   {
-    "name": "Cypress Hills, NY, USA",
-    "cityName": "Cypress Hills",
-    "asciiname": "Cypress Hills",
-    "subtext": "New York, USA • Pop. 54,944",
-    "type": "city",
-    "stateOrProvince": "New York",
-    "code": "NY",
-    "country": "USA",
-    "countryCode": "US",
-    "countryName": "USA",
-    "population": 54944,
-    "lat": 40.6771,
-    "lng": -73.8912,
-    "altNames": [
-      "Sajpress Khills",
-      "Union Place"
-    ],
-    "craftBeerHubRank": null
-  },
-  {
     "name": "West Haven, CT, USA",
     "cityName": "West Haven",
     "asciiname": "West Haven",
@@ -36831,27 +35161,6 @@ export const ALL_MAJOR_CITIES: CityDataRecord[] = [
       "hai lan",
       "haillaendeu",
       "hayland"
-    ],
-    "craftBeerHubRank": null
-  },
-  {
-    "name": "Jonquière, QC, Canada",
-    "cityName": "Jonquière",
-    "asciiname": "Jonquiere",
-    "subtext": "Quebec, Canada • Pop. 54,842",
-    "type": "city",
-    "stateOrProvince": "Quebec",
-    "code": "QC",
-    "country": "Canada",
-    "countryCode": "CA",
-    "countryName": "Canada",
-    "population": 54842,
-    "lat": 48.4165,
-    "lng": -71.2488,
-    "altNames": [
-      "Jonquiere",
-      "XJQ",
-      "Zhonk'er"
     ],
     "craftBeerHubRank": null
   },
@@ -37253,49 +35562,6 @@ export const ALL_MAJOR_CITIES: CityDataRecord[] = [
       "Khasienda-Khajts",
       "asiendahaicheu",
       "asynda hayts  kalyfrnya"
-    ],
-    "craftBeerHubRank": null
-  },
-  {
-    "name": "Ozone Park, NY, USA",
-    "cityName": "Ozone Park",
-    "asciiname": "Ozone Park",
-    "subtext": "New York, USA • Pop. 53,985",
-    "type": "city",
-    "stateOrProvince": "New York",
-    "code": "NY",
-    "country": "USA",
-    "countryCode": "US",
-    "countryName": "USA",
-    "population": 53985,
-    "lat": 40.6768,
-    "lng": -73.8438,
-    "altNames": [
-      "Ozon Park",
-      "Ozona Parko",
-      "awzwn park  kwyynz",
-      "chou yang gong yuan"
-    ],
-    "craftBeerHubRank": null
-  },
-  {
-    "name": "Briarwood, NY, USA",
-    "cityName": "Briarwood",
-    "asciiname": "Briarwood",
-    "subtext": "New York, USA • Pop. 53,877",
-    "type": "city",
-    "stateOrProvince": "New York",
-    "code": "NY",
-    "country": "USA",
-    "countryCode": "US",
-    "countryName": "USA",
-    "population": 53877,
-    "lat": 40.7094,
-    "lng": -73.8153,
-    "altNames": [
-      "Briarvud",
-      "bu li ya wu de",
-      "buraiauddo"
     ],
     "craftBeerHubRank": null
   },
@@ -38269,7 +36535,7 @@ export const ALL_MAJOR_CITIES: CityDataRecord[] = [
     "countryName": "Canada",
     "population": 52355,
     "lat": 49.225,
-    "lng": -123.0,
+    "lng": -123,
     "altNames": [],
     "craftBeerHubRank": null
   },
@@ -38430,25 +36696,6 @@ export const ALL_MAJOR_CITIES: CityDataRecord[] = [
     "lng": -103.2285,
     "altNames": [
       "Matamoros de la Laguna"
-    ],
-    "craftBeerHubRank": null
-  },
-  {
-    "name": "Wakefield, NY, USA",
-    "cityName": "Wakefield",
-    "asciiname": "Wakefield",
-    "subtext": "New York, USA • Pop. 52,201",
-    "type": "city",
-    "stateOrProvince": "New York",
-    "code": "NY",
-    "country": "USA",
-    "countryCode": "US",
-    "countryName": "USA",
-    "population": 52201,
-    "lat": 40.8979,
-    "lng": -73.8524,
-    "altNames": [
-      "Uehjkfild"
     ],
     "craftBeerHubRank": null
   },
@@ -38643,27 +36890,6 @@ export const ALL_MAJOR_CITIES: CityDataRecord[] = [
     "craftBeerHubRank": null
   },
   {
-    "name": "Queens Village, NY, USA",
-    "cityName": "Queens Village",
-    "asciiname": "Queens Village",
-    "subtext": "New York, USA • Pop. 51,919",
-    "type": "city",
-    "stateOrProvince": "New York",
-    "code": "NY",
-    "country": "USA",
-    "countryCode": "US",
-    "countryName": "USA",
-    "population": 51919,
-    "lat": 40.7268,
-    "lng": -73.7415,
-    "altNames": [
-      "Brushville",
-      "Kvins Viladzh",
-      "Queens"
-    ],
-    "craftBeerHubRank": null
-  },
-  {
     "name": "Brookhaven, GA, USA",
     "cityName": "Brookhaven",
     "asciiname": "Brookhaven",
@@ -38684,30 +36910,6 @@ export const ALL_MAJOR_CITIES: CityDataRecord[] = [
       "North Atlanta",
       "brwk hawn  jwrjya",
       "brwkhafn"
-    ],
-    "craftBeerHubRank": null
-  },
-  {
-    "name": "Levittown, NY, USA",
-    "cityName": "Levittown",
-    "asciiname": "Levittown",
-    "subtext": "New York, USA • Pop. 51,881",
-    "type": "city",
-    "stateOrProvince": "New York",
-    "code": "NY",
-    "country": "USA",
-    "countryCode": "US",
-    "countryName": "USA",
-    "population": 51881,
-    "lat": 40.7259,
-    "lng": -73.5143,
-    "altNames": [
-      "Island Trees",
-      "Levittaun",
-      "Lewittown",
-      "lai wei dui",
-      "lai wei dun",
-      "lwyt tawn"
     ],
     "craftBeerHubRank": null
   },
@@ -38820,27 +37022,6 @@ export const ALL_MAJOR_CITIES: CityDataRecord[] = [
       "bonita springas",
       "bwnyta aspryngz  flwryda",
       "bwnyta sbrnghz"
-    ],
-    "craftBeerHubRank": null
-  },
-  {
-    "name": "Irondequoit, NY, USA",
-    "cityName": "Irondequoit",
-    "asciiname": "Irondequoit",
-    "subtext": "New York, USA • Pop. 51,692",
-    "type": "city",
-    "stateOrProvince": "New York",
-    "code": "NY",
-    "country": "USA",
-    "countryCode": "US",
-    "countryName": "USA",
-    "population": 51692,
-    "lat": 43.2134,
-    "lng": -77.5797,
-    "altNames": [
-      "Ajrondekvojt",
-      "Irondikvojt",
-      "arwndykwwyt"
     ],
     "craftBeerHubRank": null
   },
@@ -38997,25 +37178,6 @@ export const ALL_MAJOR_CITIES: CityDataRecord[] = [
     "lng": -87.5778,
     "altNames": [
       "Saus Shor"
-    ],
-    "craftBeerHubRank": null
-  },
-  {
-    "name": "Mott Haven, NY, USA",
-    "cityName": "Mott Haven",
-    "asciiname": "Mott Haven",
-    "subtext": "New York, USA • Pop. 51,450",
-    "type": "city",
-    "stateOrProvince": "New York",
-    "code": "NY",
-    "country": "USA",
-    "countryCode": "US",
-    "countryName": "USA",
-    "population": 51450,
-    "lat": 40.809,
-    "lng": -73.9229,
-    "altNames": [
-      "Mott Khaven"
     ],
     "craftBeerHubRank": null
   },
@@ -39963,5 +38125,3361 @@ export const ALL_MAJOR_CITIES: CityDataRecord[] = [
       "Stounkrest"
     ],
     "craftBeerHubRank": null
-  }
+  },
+  {
+    "name": "Burlington, VT, USA",
+    "cityName": "Burlington",
+    "asciiname": "Burlington",
+    "subtext": "Vermont, USA • Pop. 44,743 • Lake Champlain Craft Capital",
+    "type": "city",
+    "stateOrProvince": "Vermont",
+    "code": "VT",
+    "country": "USA",
+    "countryCode": "US",
+    "countryName": "United States",
+    "population": 44743,
+    "lat": 44.4759,
+    "lng": -73.2121,
+    "altNames": [
+      "Burlington VT",
+      "Burlington, Vermont"
+    ],
+    "craftBeerHubRank": "Top Craft State Capital"
+  },
+  {
+    "name": "South Burlington, VT, USA",
+    "cityName": "South Burlington",
+    "asciiname": "South Burlington",
+    "subtext": "Vermont, USA • Pop. 20,292",
+    "type": "city",
+    "stateOrProvince": "Vermont",
+    "code": "VT",
+    "country": "USA",
+    "countryCode": "US",
+    "countryName": "United States",
+    "population": 20292,
+    "lat": 44.467,
+    "lng": -73.1709,
+    "altNames": [
+      "South Burlington VT"
+    ],
+    "craftBeerHubRank": "Greater Burlington Metro"
+  },
+  {
+    "name": "Rutland, VT, USA",
+    "cityName": "Rutland",
+    "asciiname": "Rutland",
+    "subtext": "Vermont, USA • Pop. 15,807",
+    "type": "city",
+    "stateOrProvince": "Vermont",
+    "code": "VT",
+    "country": "USA",
+    "countryCode": "US",
+    "countryName": "United States",
+    "population": 15807,
+    "lat": 43.6106,
+    "lng": -72.9726,
+    "altNames": [
+      "Rutland VT"
+    ],
+    "craftBeerHubRank": "Green Mountains Hub"
+  },
+  {
+    "name": "Essex, VT, USA",
+    "cityName": "Essex",
+    "asciiname": "Essex",
+    "subtext": "Vermont, USA • Pop. 22,094",
+    "type": "city",
+    "stateOrProvince": "Vermont",
+    "code": "VT",
+    "country": "USA",
+    "countryCode": "US",
+    "countryName": "United States",
+    "population": 22094,
+    "lat": 44.5256,
+    "lng": -73.1118,
+    "altNames": [
+      "Essex Junction",
+      "Essex VT"
+    ],
+    "craftBeerHubRank": "Chittenden County"
+  },
+  {
+    "name": "Colchester, VT, USA",
+    "cityName": "Colchester",
+    "asciiname": "Colchester",
+    "subtext": "Vermont, USA • Pop. 17,524",
+    "type": "city",
+    "stateOrProvince": "Vermont",
+    "code": "VT",
+    "country": "USA",
+    "countryCode": "US",
+    "countryName": "United States",
+    "population": 17524,
+    "lat": 44.5439,
+    "lng": -73.1485,
+    "altNames": [
+      "Colchester VT"
+    ],
+    "craftBeerHubRank": "Lake Champlain Metro"
+  },
+  {
+    "name": "Bennington, VT, USA",
+    "cityName": "Bennington",
+    "asciiname": "Bennington",
+    "subtext": "Vermont, USA • Pop. 15,333",
+    "type": "city",
+    "stateOrProvince": "Vermont",
+    "code": "VT",
+    "country": "USA",
+    "countryCode": "US",
+    "countryName": "United States",
+    "population": 15333,
+    "lat": 42.8781,
+    "lng": -73.1968,
+    "altNames": [
+      "Bennington VT"
+    ],
+    "craftBeerHubRank": "Southern Vermont Hub"
+  },
+  {
+    "name": "Stowe, VT, USA",
+    "cityName": "Stowe",
+    "asciiname": "Stowe",
+    "subtext": "Vermont, USA • The Alchemist (Heady Topper) • Route 100",
+    "type": "city",
+    "stateOrProvince": "Vermont",
+    "code": "VT",
+    "country": "USA",
+    "countryCode": "US",
+    "countryName": "United States",
+    "population": 5223,
+    "lat": 44.4654,
+    "lng": -72.6874,
+    "altNames": [
+      "Stowe VT",
+      "Stowe & Waterbury"
+    ],
+    "craftBeerHubRank": "IPA Heartland"
+  },
+  {
+    "name": "Waterbury, VT, USA",
+    "cityName": "Waterbury",
+    "asciiname": "Waterbury",
+    "subtext": "Vermont, USA • Prohibition Pig, Craft Crossroads",
+    "type": "city",
+    "stateOrProvince": "Vermont",
+    "code": "VT",
+    "country": "USA",
+    "countryCode": "US",
+    "countryName": "United States",
+    "population": 5331,
+    "lat": 44.3378,
+    "lng": -72.7562,
+    "altNames": [
+      "Waterbury VT"
+    ],
+    "craftBeerHubRank": "Craft Beer Crossroads"
+  },
+  {
+    "name": "Greensboro, VT, USA",
+    "cityName": "Greensboro",
+    "asciiname": "Greensboro",
+    "subtext": "Vermont, USA • Hill Farmstead Brewery (World's Best Brewery)",
+    "type": "city",
+    "stateOrProvince": "Vermont",
+    "code": "VT",
+    "country": "USA",
+    "countryCode": "US",
+    "countryName": "United States",
+    "population": 811,
+    "lat": 44.5767,
+    "lng": -72.2965,
+    "altNames": [
+      "Greensboro VT",
+      "Northeast Kingdom"
+    ],
+    "craftBeerHubRank": "Saison & Farmhouse Mecca"
+  },
+  {
+    "name": "Waitsfield, VT, USA",
+    "cityName": "Waitsfield",
+    "asciiname": "Waitsfield",
+    "subtext": "Vermont, USA • Lawson's Finest Liquids (Sip of Sunshine)",
+    "type": "city",
+    "stateOrProvince": "Vermont",
+    "code": "VT",
+    "country": "USA",
+    "countryCode": "US",
+    "countryName": "United States",
+    "population": 1844,
+    "lat": 44.1895,
+    "lng": -72.8248,
+    "altNames": [
+      "Waitsfield VT",
+      "Mad River Valley"
+    ],
+    "craftBeerHubRank": "Mad River Valley Hub"
+  },
+  {
+    "name": "Brattleboro, VT, USA",
+    "cityName": "Brattleboro",
+    "asciiname": "Brattleboro",
+    "subtext": "Vermont, USA • Pop. 12,184 • Hermit Thrush Brewery",
+    "type": "city",
+    "stateOrProvince": "Vermont",
+    "code": "VT",
+    "country": "USA",
+    "countryCode": "US",
+    "countryName": "United States",
+    "population": 12184,
+    "lat": 42.8509,
+    "lng": -72.5579,
+    "altNames": [
+      "Brattleboro VT"
+    ],
+    "craftBeerHubRank": "Southern VT Sours"
+  },
+  {
+    "name": "Montreal, QC, Canada",
+    "cityName": "Montreal",
+    "asciiname": "Montreal",
+    "subtext": "Quebec, Canada • Pop. 1,762,949 • World Craft Capital",
+    "type": "city",
+    "stateOrProvince": "Quebec",
+    "code": "QC",
+    "country": "Canada",
+    "countryCode": "CA",
+    "countryName": "Canada",
+    "population": 1762949,
+    "lat": 45.5017,
+    "lng": -73.5673,
+    "altNames": [
+      "Montréal",
+      "Montreal QC"
+    ],
+    "craftBeerHubRank": "World Craft Capital"
+  },
+  {
+    "name": "Quebec City, QC, Canada",
+    "cityName": "Quebec City",
+    "asciiname": "Quebec City",
+    "subtext": "Quebec, Canada • Pop. 531,902 • Historic Craft Hub",
+    "type": "city",
+    "stateOrProvince": "Quebec",
+    "code": "QC",
+    "country": "Canada",
+    "countryCode": "CA",
+    "countryName": "Canada",
+    "population": 531902,
+    "lat": 46.8139,
+    "lng": -71.208,
+    "altNames": [
+      "Québec",
+      "Quebec QC",
+      "Ville de Québec"
+    ],
+    "craftBeerHubRank": "Historic Craft Hub"
+  },
+  {
+    "name": "Levis, QC, Canada",
+    "cityName": "Levis",
+    "asciiname": "Levis",
+    "subtext": "Quebec, Canada • Pop. 143,414",
+    "type": "city",
+    "stateOrProvince": "Quebec",
+    "code": "QC",
+    "country": "Canada",
+    "countryCode": "CA",
+    "countryName": "Canada",
+    "population": 143414,
+    "lat": 46.8033,
+    "lng": -71.1779,
+    "altNames": [
+      "Lévis",
+      "Levis QC"
+    ],
+    "craftBeerHubRank": "Chaudiere-Appalaches"
+  },
+  {
+    "name": "Trois-Rivieres, QC, Canada",
+    "cityName": "Trois-Rivieres",
+    "asciiname": "Trois-Rivieres",
+    "subtext": "Quebec, Canada • Pop. 144,472 • Mauricie Riverfront Hub",
+    "type": "city",
+    "stateOrProvince": "Quebec",
+    "code": "QC",
+    "country": "Canada",
+    "countryCode": "CA",
+    "countryName": "Canada",
+    "population": 144472,
+    "lat": 46.3432,
+    "lng": -72.5432,
+    "altNames": [
+      "Trois-Rivières",
+      "Trois-Rivieres QC"
+    ],
+    "craftBeerHubRank": "Mauricie Craft Trail"
+  },
+  {
+    "name": "Saint-Jerome, QC, Canada",
+    "cityName": "Saint-Jerome",
+    "asciiname": "Saint-Jerome",
+    "subtext": "Quebec, Canada • Pop. 74,346 • Gateway to Laurentians",
+    "type": "city",
+    "stateOrProvince": "Quebec",
+    "code": "QC",
+    "country": "Canada",
+    "countryCode": "CA",
+    "countryName": "Canada",
+    "population": 74346,
+    "lat": 45.7794,
+    "lng": -74.0028,
+    "altNames": [
+      "Saint-Jérôme",
+      "St-Jerome QC"
+    ],
+    "craftBeerHubRank": "Laurentians Craft Gateway"
+  },
+  {
+    "name": "Blainville, QC, Canada",
+    "cityName": "Blainville",
+    "asciiname": "Blainville",
+    "subtext": "Quebec, Canada • Pop. 56,863",
+    "type": "city",
+    "stateOrProvince": "Quebec",
+    "code": "QC",
+    "country": "Canada",
+    "countryCode": "CA",
+    "countryName": "Canada",
+    "population": 56863,
+    "lat": 45.6668,
+    "lng": -73.8825,
+    "altNames": [
+      "Blainville QC"
+    ],
+    "craftBeerHubRank": "North Shore Metro"
+  },
+  {
+    "name": "Shawinigan, QC, Canada",
+    "cityName": "Shawinigan",
+    "asciiname": "Shawinigan",
+    "subtext": "Quebec, Canada • Pop. 49,349 • Le Trou du Diable Birthplace",
+    "type": "city",
+    "stateOrProvince": "Quebec",
+    "code": "QC",
+    "country": "Canada",
+    "countryCode": "CA",
+    "countryName": "Canada",
+    "population": 49349,
+    "lat": 46.5668,
+    "lng": -72.7492,
+    "altNames": [
+      "Shawinigan QC"
+    ],
+    "craftBeerHubRank": "Birthplace of Trou du Diable"
+  },
+  {
+    "name": "Dollard-des-Ormeaux, QC, Canada",
+    "cityName": "Dollard-des-Ormeaux",
+    "asciiname": "Dollard-des-Ormeaux",
+    "subtext": "Quebec, Canada • Pop. 49,637",
+    "type": "city",
+    "stateOrProvince": "Quebec",
+    "code": "QC",
+    "country": "Canada",
+    "countryCode": "CA",
+    "countryName": "Canada",
+    "population": 49637,
+    "lat": 45.4834,
+    "lng": -73.8158,
+    "altNames": [
+      "DDO"
+    ],
+    "craftBeerHubRank": "West Island Metro"
+  },
+  {
+    "name": "Rimouski, QC, Canada",
+    "cityName": "Rimouski",
+    "asciiname": "Rimouski",
+    "subtext": "Quebec, Canada • Pop. 48,664 • Bas-Saint-Laurent Coastal Hub",
+    "type": "city",
+    "stateOrProvince": "Quebec",
+    "code": "QC",
+    "country": "Canada",
+    "countryCode": "CA",
+    "countryName": "Canada",
+    "population": 48664,
+    "lat": 48.4488,
+    "lng": -68.524,
+    "altNames": [
+      "Rimouski QC"
+    ],
+    "craftBeerHubRank": "Bas-Saint-Laurent Craft"
+  },
+  {
+    "name": "Chateauguay, QC, Canada",
+    "cityName": "Chateauguay",
+    "asciiname": "Chateauguay",
+    "subtext": "Quebec, Canada • Pop. 47,906",
+    "type": "city",
+    "stateOrProvince": "Quebec",
+    "code": "QC",
+    "country": "Canada",
+    "countryCode": "CA",
+    "countryName": "Canada",
+    "population": 47906,
+    "lat": 45.3592,
+    "lng": -73.7488,
+    "altNames": [
+      "Châteauguay QC"
+    ],
+    "craftBeerHubRank": "Roussillon Craft"
+  },
+  {
+    "name": "Victoriaville, QC, Canada",
+    "cityName": "Victoriaville",
+    "asciiname": "Victoriaville",
+    "subtext": "Quebec, Canada • Pop. 46,130",
+    "type": "city",
+    "stateOrProvince": "Quebec",
+    "code": "QC",
+    "country": "Canada",
+    "countryCode": "CA",
+    "countryName": "Canada",
+    "population": 46130,
+    "lat": 46.0501,
+    "lng": -71.9658,
+    "altNames": [
+      "Victoriaville QC"
+    ],
+    "craftBeerHubRank": "Bois-Francs Craft Hub"
+  },
+  {
+    "name": "Saint-Eustache, QC, Canada",
+    "cityName": "Saint-Eustache",
+    "asciiname": "Saint-Eustache",
+    "subtext": "Quebec, Canada • Pop. 44,154",
+    "type": "city",
+    "stateOrProvince": "Quebec",
+    "code": "QC",
+    "country": "Canada",
+    "countryCode": "CA",
+    "countryName": "Canada",
+    "population": 44154,
+    "lat": 45.5668,
+    "lng": -73.9158,
+    "altNames": [
+      "St-Eustache QC"
+    ],
+    "craftBeerHubRank": "Deux-Montagnes Craft"
+  },
+  {
+    "name": "Mascouche, QC, Canada",
+    "cityName": "Mascouche",
+    "asciiname": "Mascouche",
+    "subtext": "Quebec, Canada • Pop. 42,298",
+    "type": "city",
+    "stateOrProvince": "Quebec",
+    "code": "QC",
+    "country": "Canada",
+    "countryCode": "CA",
+    "countryName": "Canada",
+    "population": 42298,
+    "lat": 45.7499,
+    "lng": -73.6001,
+    "altNames": [
+      "Mascouche QC"
+    ],
+    "craftBeerHubRank": "Moulins Craft"
+  },
+  {
+    "name": "Mirabel, QC, Canada",
+    "cityName": "Mirabel",
+    "asciiname": "Mirabel",
+    "subtext": "Quebec, Canada • Pop. 41,957",
+    "type": "city",
+    "stateOrProvince": "Quebec",
+    "code": "QC",
+    "country": "Canada",
+    "countryCode": "CA",
+    "countryName": "Canada",
+    "population": 41957,
+    "lat": 45.6501,
+    "lng": -74.0825,
+    "altNames": [
+      "Mirabel QC"
+    ],
+    "craftBeerHubRank": "Laurentians Plains"
+  },
+  {
+    "name": "Rouyn-Noranda, QC, Canada",
+    "cityName": "Rouyn-Noranda",
+    "asciiname": "Rouyn-Noranda",
+    "subtext": "Quebec, Canada • Pop. 41,012 • Abitibi Craft Pioneer",
+    "type": "city",
+    "stateOrProvince": "Quebec",
+    "code": "QC",
+    "country": "Canada",
+    "countryCode": "CA",
+    "countryName": "Canada",
+    "population": 41012,
+    "lat": 48.2432,
+    "lng": -79.0253,
+    "altNames": [
+      "Rouyn-Noranda QC"
+    ],
+    "craftBeerHubRank": "Abitibi-Temiscamingue Hub"
+  },
+  {
+    "name": "Boucherville, QC, Canada",
+    "cityName": "Boucherville",
+    "asciiname": "Boucherville",
+    "subtext": "Quebec, Canada • Pop. 40,753",
+    "type": "city",
+    "stateOrProvince": "Quebec",
+    "code": "QC",
+    "country": "Canada",
+    "countryCode": "CA",
+    "countryName": "Canada",
+    "population": 40753,
+    "lat": 45.5979,
+    "lng": -73.4549,
+    "altNames": [
+      "Boucherville QC"
+    ],
+    "craftBeerHubRank": "South Shore Craft"
+  },
+  {
+    "name": "Salaberry-de-Valleyfield, QC, Canada",
+    "cityName": "Salaberry-de-Valleyfield",
+    "asciiname": "Salaberry-de-Valleyfield",
+    "subtext": "Quebec, Canada • Pop. 40,047",
+    "type": "city",
+    "stateOrProvince": "Quebec",
+    "code": "QC",
+    "country": "Canada",
+    "countryCode": "CA",
+    "countryName": "Canada",
+    "population": 40047,
+    "lat": 45.2501,
+    "lng": -74.1325,
+    "altNames": [
+      "Valleyfield",
+      "Salaberry QC"
+    ],
+    "craftBeerHubRank": "Haut-Saint-Laurent Craft"
+  },
+  {
+    "name": "Vaudreuil-Dorion, QC, Canada",
+    "cityName": "Vaudreuil-Dorion",
+    "asciiname": "Vaudreuil-Dorion",
+    "subtext": "Quebec, Canada • Pop. 38,117",
+    "type": "city",
+    "stateOrProvince": "Quebec",
+    "code": "QC",
+    "country": "Canada",
+    "countryCode": "CA",
+    "countryName": "Canada",
+    "population": 38117,
+    "lat": 45.4001,
+    "lng": -74.0325,
+    "altNames": [
+      "Vaudreuil QC"
+    ],
+    "craftBeerHubRank": "Vaudreuil-Soulanges Hub"
+  },
+  {
+    "name": "Sorel-Tracy, QC, Canada",
+    "cityName": "Sorel-Tracy",
+    "asciiname": "Sorel-Tracy",
+    "subtext": "Quebec, Canada • Pop. 34,755",
+    "type": "city",
+    "stateOrProvince": "Quebec",
+    "code": "QC",
+    "country": "Canada",
+    "countryCode": "CA",
+    "countryName": "Canada",
+    "population": 34755,
+    "lat": 46.0333,
+    "lng": -73.1167,
+    "altNames": [
+      "Sorel QC"
+    ],
+    "craftBeerHubRank": "Richelieu Confluence"
+  },
+  {
+    "name": "Saint-Georges, QC, Canada",
+    "cityName": "Saint-Georges",
+    "asciiname": "Saint-Georges",
+    "subtext": "Quebec, Canada • Pop. 32,513 • Beauce Craft Hub",
+    "type": "city",
+    "stateOrProvince": "Quebec",
+    "code": "QC",
+    "country": "Canada",
+    "countryCode": "CA",
+    "countryName": "Canada",
+    "population": 32513,
+    "lat": 46.1168,
+    "lng": -70.6658,
+    "altNames": [
+      "Saint-Georges-de-Beauce"
+    ],
+    "craftBeerHubRank": "Beauce Craft Capital"
+  },
+  {
+    "name": "Val-d'Or, QC, Canada",
+    "cityName": "Val-d'Or",
+    "asciiname": "Val-d'Or",
+    "subtext": "Quebec, Canada • Pop. 32,491 • Northern Gold Trail",
+    "type": "city",
+    "stateOrProvince": "Quebec",
+    "code": "QC",
+    "country": "Canada",
+    "countryCode": "CA",
+    "countryName": "Canada",
+    "population": 32491,
+    "lat": 48.1001,
+    "lng": -77.7825,
+    "altNames": [
+      "Val d'Or QC"
+    ],
+    "craftBeerHubRank": "Northern Gold Trail"
+  },
+  {
+    "name": "Alma, QC, Canada",
+    "cityName": "Alma",
+    "asciiname": "Alma",
+    "subtext": "Quebec, Canada • Pop. 30,904 • Lac Saint-Jean Craft Trail",
+    "type": "city",
+    "stateOrProvince": "Quebec",
+    "code": "QC",
+    "country": "Canada",
+    "countryCode": "CA",
+    "countryName": "Canada",
+    "population": 30904,
+    "lat": 48.5501,
+    "lng": -71.6492,
+    "altNames": [
+      "Alma QC",
+      "Riverbend"
+    ],
+    "craftBeerHubRank": "Lac-Saint-Jean Trail"
+  },
+  {
+    "name": "Sainte-Julie, QC, Canada",
+    "cityName": "Sainte-Julie",
+    "asciiname": "Sainte-Julie",
+    "subtext": "Quebec, Canada • Pop. 30,104",
+    "type": "city",
+    "stateOrProvince": "Quebec",
+    "code": "QC",
+    "country": "Canada",
+    "countryCode": "CA",
+    "countryName": "Canada",
+    "population": 30104,
+    "lat": 45.5833,
+    "lng": -73.3333,
+    "altNames": [
+      "Ste-Julie QC"
+    ],
+    "craftBeerHubRank": "Monteregie East"
+  },
+  {
+    "name": "Chambly, QC, Canada",
+    "cityName": "Chambly",
+    "asciiname": "Chambly",
+    "subtext": "Quebec, Canada • Pop. 29,120 • Historic Fort & Canal Brewing",
+    "type": "city",
+    "stateOrProvince": "Quebec",
+    "code": "QC",
+    "country": "Canada",
+    "countryCode": "CA",
+    "countryName": "Canada",
+    "population": 29120,
+    "lat": 45.4494,
+    "lng": -73.2878,
+    "altNames": [
+      "Chambly QC"
+    ],
+    "craftBeerHubRank": "Canal & Fort Brewing"
+  },
+  {
+    "name": "Magog, QC, Canada",
+    "cityName": "Magog",
+    "asciiname": "Magog",
+    "subtext": "Quebec, Canada • Pop. 26,669 • Lake Memphremagog Craft Scene",
+    "type": "city",
+    "stateOrProvince": "Quebec",
+    "code": "QC",
+    "country": "Canada",
+    "countryCode": "CA",
+    "countryName": "Canada",
+    "population": 26669,
+    "lat": 45.2668,
+    "lng": -72.1492,
+    "altNames": [
+      "Magog QC"
+    ],
+    "craftBeerHubRank": "Memphremagog Craft Scene"
+  },
+  {
+    "name": "Saint-Bruno-de-Montarville, QC, Canada",
+    "cityName": "Saint-Bruno-de-Montarville",
+    "asciiname": "Saint-Bruno-de-Montarville",
+    "subtext": "Quebec, Canada • Pop. 26,107",
+    "type": "city",
+    "stateOrProvince": "Quebec",
+    "code": "QC",
+    "country": "Canada",
+    "countryCode": "CA",
+    "countryName": "Canada",
+    "population": 26107,
+    "lat": 45.5342,
+    "lng": -73.3444,
+    "altNames": [
+      "Saint-Bruno QC"
+    ],
+    "craftBeerHubRank": "Mont-Saint-Bruno Craft"
+  },
+  {
+    "name": "Thetford Mines, QC, Canada",
+    "cityName": "Thetford Mines",
+    "asciiname": "Thetford Mines",
+    "subtext": "Quebec, Canada • Pop. 25,403",
+    "type": "city",
+    "stateOrProvince": "Quebec",
+    "code": "QC",
+    "country": "Canada",
+    "countryCode": "CA",
+    "countryName": "Canada",
+    "population": 25403,
+    "lat": 46.0834,
+    "lng": -71.3158,
+    "altNames": [
+      "Thetford Mines QC"
+    ],
+    "craftBeerHubRank": "Appalaches Craft"
+  },
+  {
+    "name": "Sept-Iles, QC, Canada",
+    "cityName": "Sept-Iles",
+    "asciiname": "Sept-Iles",
+    "subtext": "Quebec, Canada • Pop. 25,400 • Cote-Nord Craft",
+    "type": "city",
+    "stateOrProvince": "Quebec",
+    "code": "QC",
+    "country": "Canada",
+    "countryCode": "CA",
+    "countryName": "Canada",
+    "population": 25400,
+    "lat": 50.2001,
+    "lng": -66.3825,
+    "altNames": [
+      "Sept-Îles QC"
+    ],
+    "craftBeerHubRank": "Cote-Nord Craft Pioneer"
+  },
+  {
+    "name": "Joliette, QC, Canada",
+    "cityName": "Joliette",
+    "asciiname": "Joliette",
+    "subtext": "Quebec, Canada • Pop. 20,484 • Lanaudiere Cultural Craft",
+    "type": "city",
+    "stateOrProvince": "Quebec",
+    "code": "QC",
+    "country": "Canada",
+    "countryCode": "CA",
+    "countryName": "Canada",
+    "population": 20484,
+    "lat": 46.0168,
+    "lng": -73.4325,
+    "altNames": [
+      "Joliette QC"
+    ],
+    "craftBeerHubRank": "Lanaudiere Heartland"
+  },
+  {
+    "name": "Riviere-du-Loup, QC, Canada",
+    "cityName": "Riviere-du-Loup",
+    "asciiname": "Riviere-du-Loup",
+    "subtext": "Quebec, Canada • Pop. 20,118 • St. Lawrence River Craft",
+    "type": "city",
+    "stateOrProvince": "Quebec",
+    "code": "QC",
+    "country": "Canada",
+    "countryCode": "CA",
+    "countryName": "Canada",
+    "population": 20118,
+    "lat": 47.8334,
+    "lng": -69.5325,
+    "altNames": [
+      "Rivière-du-Loup QC"
+    ],
+    "craftBeerHubRank": "St. Lawrence River Route"
+  },
+  {
+    "name": "Baie-Comeau, QC, Canada",
+    "cityName": "Baie-Comeau",
+    "asciiname": "Baie-Comeau",
+    "subtext": "Quebec, Canada • Pop. 21,536 • Manicouagan Coastal Craft",
+    "type": "city",
+    "stateOrProvince": "Quebec",
+    "code": "QC",
+    "country": "Canada",
+    "countryCode": "CA",
+    "countryName": "Canada",
+    "population": 21536,
+    "lat": 49.2168,
+    "lng": -68.1492,
+    "altNames": [
+      "Baie-Comeau QC"
+    ],
+    "craftBeerHubRank": "Manicouagan Craft"
+  },
+  {
+    "name": "Gaspe, QC, Canada",
+    "cityName": "Gaspe",
+    "asciiname": "Gaspe",
+    "subtext": "Quebec, Canada • Pop. 15,163 • Gaspesie Peninsula Coastal Trail",
+    "type": "city",
+    "stateOrProvince": "Quebec",
+    "code": "QC",
+    "country": "Canada",
+    "countryCode": "CA",
+    "countryName": "Canada",
+    "population": 15163,
+    "lat": 48.8334,
+    "lng": -64.4825,
+    "altNames": [
+      "Gaspé QC",
+      "Gaspesie"
+    ],
+    "craftBeerHubRank": "Gaspesie Craft Hub"
+  },
+  {
+    "name": "Cowansville, QC, Canada",
+    "cityName": "Cowansville",
+    "asciiname": "Cowansville",
+    "subtext": "Quebec, Canada • Pop. 15,052 • Brome-Missisquoi Craft Route",
+    "type": "city",
+    "stateOrProvince": "Quebec",
+    "code": "QC",
+    "country": "Canada",
+    "countryCode": "CA",
+    "countryName": "Canada",
+    "population": 15052,
+    "lat": 45.2001,
+    "lng": -72.7492,
+    "altNames": [
+      "Cowansville QC",
+      "Dunham Route"
+    ],
+    "craftBeerHubRank": "Brome-Missisquoi Craft"
+  },
+  {
+    "name": "Troy, NY, USA",
+    "cityName": "Troy",
+    "asciiname": "Troy",
+    "subtext": "New York, USA • Pop. 51,401 • Rare Form Brewing, Brown's Brewing",
+    "type": "city",
+    "stateOrProvince": "New York",
+    "code": "NY",
+    "country": "USA",
+    "countryCode": "US",
+    "countryName": "United States",
+    "population": 51401,
+    "lat": 42.7284,
+    "lng": -73.6918,
+    "altNames": [
+      "Troy NY"
+    ],
+    "craftBeerHubRank": "Hudson River Craft"
+  },
+  {
+    "name": "Niagara Falls, NY, USA",
+    "cityName": "Niagara Falls",
+    "asciiname": "Niagara Falls",
+    "subtext": "New York, USA • Pop. 48,671",
+    "type": "city",
+    "stateOrProvince": "New York",
+    "code": "NY",
+    "country": "USA",
+    "countryCode": "US",
+    "countryName": "United States",
+    "population": 48671,
+    "lat": 43.0962,
+    "lng": -79.0377,
+    "altNames": [
+      "Niagara Falls NY"
+    ],
+    "craftBeerHubRank": "Niagara Frontier"
+  },
+  {
+    "name": "Binghamton, NY, USA",
+    "cityName": "Binghamton",
+    "asciiname": "Binghamton",
+    "subtext": "New York, USA • Pop. 47,969 • Water Street Brewing, Beer Tree",
+    "type": "city",
+    "stateOrProvince": "New York",
+    "code": "NY",
+    "country": "USA",
+    "countryCode": "US",
+    "countryName": "United States",
+    "population": 47969,
+    "lat": 42.0987,
+    "lng": -75.918,
+    "altNames": [
+      "Binghamton NY"
+    ],
+    "craftBeerHubRank": "Southern Tier Craft Hub"
+  },
+  {
+    "name": "Ithaca, NY, USA",
+    "cityName": "Ithaca",
+    "asciiname": "Ithaca",
+    "subtext": "New York, USA • Pop. 32,108 • Ithaca Beer Co (Flower Power)",
+    "type": "city",
+    "stateOrProvince": "New York",
+    "code": "NY",
+    "country": "USA",
+    "countryCode": "US",
+    "countryName": "United States",
+    "population": 32108,
+    "lat": 42.444,
+    "lng": -76.5019,
+    "altNames": [
+      "Ithaca NY",
+      "Finger Lakes"
+    ],
+    "craftBeerHubRank": "Finger Lakes Craft Hub"
+  },
+  {
+    "name": "Poughkeepsie, NY, USA",
+    "cityName": "Poughkeepsie",
+    "asciiname": "Poughkeepsie",
+    "subtext": "New York, USA • Pop. 31,577 • King's Court, Mill House Brewing",
+    "type": "city",
+    "stateOrProvince": "New York",
+    "code": "NY",
+    "country": "USA",
+    "countryCode": "US",
+    "countryName": "United States",
+    "population": 31577,
+    "lat": 41.7004,
+    "lng": -73.921,
+    "altNames": [
+      "Poughkeepsie NY"
+    ],
+    "craftBeerHubRank": "Mid-Hudson Craft"
+  },
+  {
+    "name": "Middletown, NY, USA",
+    "cityName": "Middletown",
+    "asciiname": "Middletown",
+    "subtext": "New York, USA • Pop. 30,345 • Equilibrium Brewery",
+    "type": "city",
+    "stateOrProvince": "New York",
+    "code": "NY",
+    "country": "USA",
+    "countryCode": "US",
+    "countryName": "United States",
+    "population": 30345,
+    "lat": 41.4459,
+    "lng": -74.4229,
+    "altNames": [
+      "Middletown NY"
+    ],
+    "craftBeerHubRank": "Equilibrium Hazy Mecca"
+  },
+  {
+    "name": "Newburgh, NY, USA",
+    "cityName": "Newburgh",
+    "asciiname": "Newburgh",
+    "subtext": "New York, USA • Pop. 28,856 • Newburgh Brewing Company",
+    "type": "city",
+    "stateOrProvince": "New York",
+    "code": "NY",
+    "country": "USA",
+    "countryCode": "US",
+    "countryName": "United States",
+    "population": 28856,
+    "lat": 41.5034,
+    "lng": -74.0104,
+    "altNames": [
+      "Newburgh NY"
+    ],
+    "craftBeerHubRank": "Hudson Riverfront Taprooms"
+  },
+  {
+    "name": "Saratoga Springs, NY, USA",
+    "cityName": "Saratoga Springs",
+    "asciiname": "Saratoga Springs",
+    "subtext": "New York, USA • Pop. 28,491 • Druthers Brewing, Whitman Brewing",
+    "type": "city",
+    "stateOrProvince": "New York",
+    "code": "NY",
+    "country": "USA",
+    "countryCode": "US",
+    "countryName": "United States",
+    "population": 28491,
+    "lat": 43.0831,
+    "lng": -73.7846,
+    "altNames": [
+      "Saratoga Springs NY",
+      "Saratoga"
+    ],
+    "craftBeerHubRank": "Spa City Craft Hub"
+  },
+  {
+    "name": "Jamestown, NY, USA",
+    "cityName": "Jamestown",
+    "asciiname": "Jamestown",
+    "subtext": "New York, USA • Pop. 28,712 • Southern Tier Brewing region",
+    "type": "city",
+    "stateOrProvince": "New York",
+    "code": "NY",
+    "country": "USA",
+    "countryCode": "US",
+    "countryName": "United States",
+    "population": 28712,
+    "lat": 42.097,
+    "lng": -79.2353,
+    "altNames": [
+      "Jamestown NY"
+    ],
+    "craftBeerHubRank": "Chautauqua Craft"
+  },
+  {
+    "name": "Auburn, NY, USA",
+    "cityName": "Auburn",
+    "asciiname": "Auburn",
+    "subtext": "New York, USA • Pop. 26,866 • Prison City Brewing (Mass Riot)",
+    "type": "city",
+    "stateOrProvince": "New York",
+    "code": "NY",
+    "country": "USA",
+    "countryCode": "US",
+    "countryName": "United States",
+    "population": 26866,
+    "lat": 42.9317,
+    "lng": -76.5661,
+    "altNames": [
+      "Auburn NY"
+    ],
+    "craftBeerHubRank": "GABF Gold Hazy Pioneer"
+  },
+  {
+    "name": "Elmira, NY, USA",
+    "cityName": "Elmira",
+    "asciiname": "Elmira",
+    "subtext": "New York, USA • Pop. 26,523 • Upstate Brewing",
+    "type": "city",
+    "stateOrProvince": "New York",
+    "code": "NY",
+    "country": "USA",
+    "countryCode": "US",
+    "countryName": "United States",
+    "population": 26523,
+    "lat": 42.0898,
+    "lng": -76.8077,
+    "altNames": [
+      "Elmira NY"
+    ],
+    "craftBeerHubRank": "Chemung Valley Craft"
+  },
+  {
+    "name": "Watertown, NY, USA",
+    "cityName": "Watertown",
+    "asciiname": "Watertown",
+    "subtext": "New York, USA • Pop. 24,685 • Thousand Islands Brewing Corridor",
+    "type": "city",
+    "stateOrProvince": "New York",
+    "code": "NY",
+    "country": "USA",
+    "countryCode": "US",
+    "countryName": "United States",
+    "population": 24685,
+    "lat": 43.9748,
+    "lng": -75.9108,
+    "altNames": [
+      "Watertown NY"
+    ],
+    "craftBeerHubRank": "North Country Gateway"
+  },
+  {
+    "name": "Kingston, NY, USA",
+    "cityName": "Kingston",
+    "asciiname": "Kingston",
+    "subtext": "New York, USA • Pop. 24,069 • Keegan Ales, Kingston Standard",
+    "type": "city",
+    "stateOrProvince": "New York",
+    "code": "NY",
+    "country": "USA",
+    "countryCode": "US",
+    "countryName": "United States",
+    "population": 24069,
+    "lat": 41.927,
+    "lng": -73.9974,
+    "altNames": [
+      "Kingston NY"
+    ],
+    "craftBeerHubRank": "Catskills & Hudson Portal"
+  },
+  {
+    "name": "Plattsburgh, NY, USA",
+    "cityName": "Plattsburgh",
+    "asciiname": "Plattsburgh",
+    "subtext": "New York, USA • Pop. 19,841 • Valcour Brewing, Oval Craft",
+    "type": "city",
+    "stateOrProvince": "New York",
+    "code": "NY",
+    "country": "USA",
+    "countryCode": "US",
+    "countryName": "United States",
+    "population": 19841,
+    "lat": 44.6995,
+    "lng": -73.4529,
+    "altNames": [
+      "Plattsburgh NY"
+    ],
+    "craftBeerHubRank": "Lake Champlain West Shore"
+  },
+  {
+    "name": "Cortland, NY, USA",
+    "cityName": "Cortland",
+    "asciiname": "Cortland",
+    "subtext": "New York, USA • Pop. 19,204 • Cortland Beer Company",
+    "type": "city",
+    "stateOrProvince": "New York",
+    "code": "NY",
+    "country": "USA",
+    "countryCode": "US",
+    "countryName": "United States",
+    "population": 19204,
+    "lat": 42.6012,
+    "lng": -76.1808,
+    "altNames": [
+      "Cortland NY"
+    ],
+    "craftBeerHubRank": "Crown City Brewing"
+  },
+  {
+    "name": "Amsterdam, NY, USA",
+    "cityName": "Amsterdam",
+    "asciiname": "Amsterdam",
+    "subtext": "New York, USA • Pop. 18,219",
+    "type": "city",
+    "stateOrProvince": "New York",
+    "code": "NY",
+    "country": "USA",
+    "countryCode": "US",
+    "countryName": "United States",
+    "population": 18219,
+    "lat": 42.9376,
+    "lng": -74.1907,
+    "altNames": [
+      "Amsterdam NY"
+    ],
+    "craftBeerHubRank": "Mohawk Valley"
+  },
+  {
+    "name": "Oswego, NY, USA",
+    "cityName": "Oswego",
+    "asciiname": "Oswego",
+    "subtext": "New York, USA • Pop. 16,921",
+    "type": "city",
+    "stateOrProvince": "New York",
+    "code": "NY",
+    "country": "USA",
+    "countryCode": "US",
+    "countryName": "United States",
+    "population": 16921,
+    "lat": 43.4553,
+    "lng": -76.5105,
+    "altNames": [
+      "Oswego NY"
+    ],
+    "craftBeerHubRank": "Lake Ontario Port"
+  },
+  {
+    "name": "Batavia, NY, USA",
+    "cityName": "Batavia",
+    "asciiname": "Batavia",
+    "subtext": "New York, USA • Pop. 15,465 • Eli Fish Brewing",
+    "type": "city",
+    "stateOrProvince": "New York",
+    "code": "NY",
+    "country": "USA",
+    "countryCode": "US",
+    "countryName": "United States",
+    "population": 15465,
+    "lat": 42.9981,
+    "lng": -78.1875,
+    "altNames": [
+      "Batavia NY"
+    ],
+    "craftBeerHubRank": "Genesee County Craft"
+  },
+  {
+    "name": "Glens Falls, NY, USA",
+    "cityName": "Glens Falls",
+    "asciiname": "Glens Falls",
+    "subtext": "New York, USA • Pop. 14,830 • Common Roots, Mean Max",
+    "type": "city",
+    "stateOrProvince": "New York",
+    "code": "NY",
+    "country": "USA",
+    "countryCode": "US",
+    "countryName": "United States",
+    "population": 14830,
+    "lat": 43.3095,
+    "lng": -73.644,
+    "altNames": [
+      "Glens Falls NY",
+      "South Glens Falls"
+    ],
+    "craftBeerHubRank": "Adirondack Foothills Craft"
+  },
+  {
+    "name": "Oneonta, NY, USA",
+    "cityName": "Oneonta",
+    "asciiname": "Oneonta",
+    "subtext": "New York, USA • Pop. 14,000 • Brewery Ommegang Corridor",
+    "type": "city",
+    "stateOrProvince": "New York",
+    "code": "NY",
+    "country": "USA",
+    "countryCode": "US",
+    "countryName": "United States",
+    "population": 14000,
+    "lat": 42.4529,
+    "lng": -75.0638,
+    "altNames": [
+      "Oneonta NY",
+      "Cooperstown Corridor"
+    ],
+    "craftBeerHubRank": "Ommegang Belgian Trail"
+  },
+  {
+    "name": "Beacon, NY, USA",
+    "cityName": "Beacon",
+    "asciiname": "Beacon",
+    "subtext": "New York, USA • Hudson Valley Brewery • Sours & Hazies",
+    "type": "city",
+    "stateOrProvince": "New York",
+    "code": "NY",
+    "country": "USA",
+    "countryCode": "US",
+    "countryName": "United States",
+    "population": 14000,
+    "lat": 41.5048,
+    "lng": -73.9696,
+    "altNames": [
+      "Beacon NY",
+      "Hudson Valley Brewery"
+    ],
+    "craftBeerHubRank": "Sour IPA Sanctuary"
+  },
+  {
+    "name": "Hudson, NY, USA",
+    "cityName": "Hudson",
+    "asciiname": "Hudson",
+    "subtext": "New York, USA • Suarez Family Brewery • World-Class Lagers",
+    "type": "city",
+    "stateOrProvince": "New York",
+    "code": "NY",
+    "country": "USA",
+    "countryCode": "US",
+    "countryName": "United States",
+    "population": 6500,
+    "lat": 42.2529,
+    "lng": -73.791,
+    "altNames": [
+      "Hudson NY",
+      "Suarez Family"
+    ],
+    "craftBeerHubRank": "Artisanal Lager Mecca"
+  },
+  {
+    "name": "Lake Placid, NY, USA",
+    "cityName": "Lake Placid",
+    "asciiname": "Lake Placid",
+    "subtext": "New York, USA • Big Slide, Lake Placid Pub & Brewery",
+    "type": "city",
+    "stateOrProvince": "New York",
+    "code": "NY",
+    "country": "USA",
+    "countryCode": "US",
+    "countryName": "United States",
+    "population": 2521,
+    "lat": 44.2795,
+    "lng": -73.9799,
+    "altNames": [
+      "Lake Placid NY",
+      "Adirondacks"
+    ],
+    "craftBeerHubRank": "Adirondacks Craft Center"
+  },
+{
+  "name": "Hartford, VT, USA",
+  "cityName": "Hartford",
+  "asciiname": "Hartford",
+  "subtext": "Windsor County, Vermont \u2022 Pop. 10,686 (Upper Valley > 75,000)",
+  "type": "city",
+  "stateOrProvince": "Vermont",
+  "code": "VT",
+  "country": "USA",
+  "countryCode": "US",
+  "countryName": "United States",
+  "population": 10686,
+  "lat": 43.6534,
+  "lng": -72.3787,
+  "altNames": [
+    "White River Junction",
+    "WRJ",
+    "Upper Valley"
+  ],
+  "craftBeerHubRank": "Upper Valley Craft"
+},
+{
+  "name": "Barre, VT, USA",
+  "cityName": "Barre",
+  "asciiname": "Barre",
+  "subtext": "Washington County, Vermont \u2022 Pop. 17,200",
+  "type": "city",
+  "stateOrProvince": "Vermont",
+  "code": "VT",
+  "country": "USA",
+  "countryCode": "US",
+  "countryName": "United States",
+  "population": 17200,
+  "lat": 44.197,
+  "lng": -72.502,
+  "altNames": [
+    "Granite City"
+  ],
+  "craftBeerHubRank": null
+},
+{
+  "name": "Montpelier, VT, USA",
+  "cityName": "Montpelier",
+  "asciiname": "Montpelier",
+  "subtext": "Washington County, Vermont \u2022 Pop. 8,074 (Metro > 59,000)",
+  "type": "city",
+  "stateOrProvince": "Vermont",
+  "code": "VT",
+  "country": "USA",
+  "countryCode": "US",
+  "countryName": "United States",
+  "population": 8074,
+  "lat": 44.2601,
+  "lng": -72.5754,
+  "altNames": [
+    "State Capital"
+  ],
+  "craftBeerHubRank": "Capital Craft Scene"
+},
+{
+  "name": "Milton, VT, USA",
+  "cityName": "Milton",
+  "asciiname": "Milton",
+  "subtext": "Chittenden County, Vermont \u2022 Pop. 10,723 (Area > 210,000)",
+  "type": "city",
+  "stateOrProvince": "Vermont",
+  "code": "VT",
+  "country": "USA",
+  "countryCode": "US",
+  "countryName": "United States",
+  "population": 10723,
+  "lat": 44.6367,
+  "lng": -73.1107,
+  "altNames": [],
+  "craftBeerHubRank": null
+},
+{
+  "name": "Williston, VT, USA",
+  "cityName": "Williston",
+  "asciiname": "Williston",
+  "subtext": "Chittenden County, Vermont \u2022 Pop. 10,103 (Area > 210,000)",
+  "type": "city",
+  "stateOrProvince": "Vermont",
+  "code": "VT",
+  "country": "USA",
+  "countryCode": "US",
+  "countryName": "United States",
+  "population": 10103,
+  "lat": 44.4367,
+  "lng": -73.0696,
+  "altNames": [],
+  "craftBeerHubRank": null
+},
+{
+  "name": "Middlebury, VT, USA",
+  "cityName": "Middlebury",
+  "asciiname": "Middlebury",
+  "subtext": "Addison County, Vermont \u2022 Pop. 9,152 (Area > 37,000)",
+  "type": "city",
+  "stateOrProvince": "Vermont",
+  "code": "VT",
+  "country": "USA",
+  "countryCode": "US",
+  "countryName": "United States",
+  "population": 9152,
+  "lat": 44.0153,
+  "lng": -73.1673,
+  "altNames": [
+    "Addison Craft Trail"
+  ],
+  "craftBeerHubRank": "Otter Creek Valley"
+},
+{
+  "name": "St. Albans, VT, USA",
+  "cityName": "St. Albans",
+  "asciiname": "St. Albans",
+  "subtext": "Franklin County, Vermont \u2022 Pop. 13,800 (Area > 49,000)",
+  "type": "city",
+  "stateOrProvince": "Vermont",
+  "code": "VT",
+  "country": "USA",
+  "countryCode": "US",
+  "countryName": "United States",
+  "population": 13800,
+  "lat": 44.8109,
+  "lng": -73.0832,
+  "altNames": [
+    "Saint Albans",
+    "Rail City"
+  ],
+  "craftBeerHubRank": "Northern Lake Champlain"
+},
+{
+  "name": "St. Johnsbury, VT, USA",
+  "cityName": "St. Johnsbury",
+  "asciiname": "St. Johnsbury",
+  "subtext": "Caledonia County, Vermont \u2022 Pop. 7,364 (Area > 31,000)",
+  "type": "city",
+  "stateOrProvince": "Vermont",
+  "code": "VT",
+  "country": "USA",
+  "countryCode": "US",
+  "countryName": "United States",
+  "population": 7364,
+  "lat": 44.4192,
+  "lng": -72.0165,
+  "altNames": [
+    "Saint Johnsbury",
+    "Northeast Kingdom"
+  ],
+  "craftBeerHubRank": "NEK Trail Gateway"
+},
+{
+  "name": "Beloeil, QC, Canada",
+  "cityName": "Beloeil",
+  "asciiname": "Beloeil",
+  "subtext": "La Vall\u00e9e-du-Richelieu, Quebec \u2022 Pop. 22,500",
+  "type": "city",
+  "stateOrProvince": "Quebec",
+  "code": "QC",
+  "country": "Canada",
+  "countryCode": "CA",
+  "countryName": "Canada",
+  "population": 22500,
+  "lat": 45.5667,
+  "lng": -73.2,
+  "altNames": [
+    "Mont-Saint-Hilaire Metro"
+  ],
+  "craftBeerHubRank": null
+},
+{
+  "name": "Mont-Saint-Hilaire, QC, Canada",
+  "cityName": "Mont-Saint-Hilaire",
+  "asciiname": "Mont-Saint-Hilaire",
+  "subtext": "La Vall\u00e9e-du-Richelieu, Quebec \u2022 Pop. 19,000",
+  "type": "city",
+  "stateOrProvince": "Quebec",
+  "code": "QC",
+  "country": "Canada",
+  "countryCode": "CA",
+  "countryName": "Canada",
+  "population": 19000,
+  "lat": 45.562,
+  "lng": -73.191,
+  "altNames": [],
+  "craftBeerHubRank": null
+},
+{
+  "name": "Saint-Lambert, QC, Canada",
+  "cityName": "Saint-Lambert",
+  "asciiname": "Saint-Lambert",
+  "subtext": "Mont\u00e9r\u00e9gie, Quebec \u2022 Pop. 22,000",
+  "type": "city",
+  "stateOrProvince": "Quebec",
+  "code": "QC",
+  "country": "Canada",
+  "countryCode": "CA",
+  "countryName": "Canada",
+  "population": 22000,
+  "lat": 45.5,
+  "lng": -73.5167,
+  "altNames": [
+    "St-Lambert"
+  ],
+  "craftBeerHubRank": null
+},
+{
+  "name": "Sainte-Th\u00e9r\u00e8se, QC, Canada",
+  "cityName": "Sainte-Th\u00e9r\u00e8se",
+  "asciiname": "Sainte-Therese",
+  "subtext": "Th\u00e9r\u00e8se-De Blainville, Quebec \u2022 Pop. 26,500",
+  "type": "city",
+  "stateOrProvince": "Quebec",
+  "code": "QC",
+  "country": "Canada",
+  "countryCode": "CA",
+  "countryName": "Canada",
+  "population": 26500,
+  "lat": 45.6333,
+  "lng": -73.85,
+  "altNames": [
+    "Ste-Therese",
+    "Sainte Therese"
+  ],
+  "craftBeerHubRank": null
+},
+{
+  "name": "Deux-Montagnes, QC, Canada",
+  "cityName": "Deux-Montagnes",
+  "asciiname": "Deux-Montagnes",
+  "subtext": "Deux-Montagnes, Quebec \u2022 Pop. 18,000",
+  "type": "city",
+  "stateOrProvince": "Quebec",
+  "code": "QC",
+  "country": "Canada",
+  "countryCode": "CA",
+  "countryName": "Canada",
+  "population": 18000,
+  "lat": 45.5333,
+  "lng": -73.8833,
+  "altNames": [],
+  "craftBeerHubRank": null
+},
+{
+  "name": "Candiac, QC, Canada",
+  "cityName": "Candiac",
+  "asciiname": "Candiac",
+  "subtext": "Roussillon, Quebec \u2022 Pop. 21,000",
+  "type": "city",
+  "stateOrProvince": "Quebec",
+  "code": "QC",
+  "country": "Canada",
+  "countryCode": "CA",
+  "countryName": "Canada",
+  "population": 21000,
+  "lat": 45.3833,
+  "lng": -73.5167,
+  "altNames": [
+    "South Shore"
+  ],
+  "craftBeerHubRank": null
+},
+{
+  "name": "Saint-Constant, QC, Canada",
+  "cityName": "Saint-Constant",
+  "asciiname": "Saint-Constant",
+  "subtext": "Roussillon, Quebec \u2022 Pop. 29,000",
+  "type": "city",
+  "stateOrProvince": "Quebec",
+  "code": "QC",
+  "country": "Canada",
+  "countryCode": "CA",
+  "countryName": "Canada",
+  "population": 29000,
+  "lat": 45.3667,
+  "lng": -73.5667,
+  "altNames": [
+    "St-Constant"
+  ],
+  "craftBeerHubRank": null
+},
+{
+  "name": "Sainte-Catherine, QC, Canada",
+  "cityName": "Sainte-Catherine",
+  "asciiname": "Sainte-Catherine",
+  "subtext": "Roussillon, Quebec \u2022 Pop. 17,500",
+  "type": "city",
+  "stateOrProvince": "Quebec",
+  "code": "QC",
+  "country": "Canada",
+  "countryCode": "CA",
+  "countryName": "Canada",
+  "population": 17500,
+  "lat": 45.4,
+  "lng": -73.5833,
+  "altNames": [
+    "Ste-Catherine"
+  ],
+  "craftBeerHubRank": null
+},
+{
+  "name": "La Prairie, QC, Canada",
+  "cityName": "La Prairie",
+  "asciiname": "La Prairie",
+  "subtext": "Roussillon, Quebec \u2022 Pop. 26,500",
+  "type": "city",
+  "stateOrProvince": "Quebec",
+  "code": "QC",
+  "country": "Canada",
+  "countryCode": "CA",
+  "countryName": "Canada",
+  "population": 26500,
+  "lat": 45.4167,
+  "lng": -73.5,
+  "altNames": [],
+  "craftBeerHubRank": null
+},
+{
+  "name": "Varennes, QC, Canada",
+  "cityName": "Varennes",
+  "asciiname": "Varennes",
+  "subtext": "Marguerite-D'Youville, Quebec \u2022 Pop. 21,500",
+  "type": "city",
+  "stateOrProvince": "Quebec",
+  "code": "QC",
+  "country": "Canada",
+  "countryCode": "CA",
+  "countryName": "Canada",
+  "population": 21500,
+  "lat": 45.6833,
+  "lng": -73.4333,
+  "altNames": [],
+  "craftBeerHubRank": null
+},
+{
+  "name": "Saint-Lazare, QC, Canada",
+  "cityName": "Saint-Lazare",
+  "asciiname": "Saint-Lazare",
+  "subtext": "Vaudreuil-Soulanges, Quebec \u2022 Pop. 22,000",
+  "type": "city",
+  "stateOrProvince": "Quebec",
+  "code": "QC",
+  "country": "Canada",
+  "countryCode": "CA",
+  "countryName": "Canada",
+  "population": 22000,
+  "lat": 45.4,
+  "lng": -74.1333,
+  "altNames": [
+    "St-Lazare"
+  ],
+  "craftBeerHubRank": null
+},
+{
+  "name": "Pincourt, QC, Canada",
+  "cityName": "Pincourt",
+  "asciiname": "Pincourt",
+  "subtext": "Vaudreuil-Soulanges, Quebec \u2022 Pop. 15,500",
+  "type": "city",
+  "stateOrProvince": "Quebec",
+  "code": "QC",
+  "country": "Canada",
+  "countryCode": "CA",
+  "countryName": "Canada",
+  "population": 15500,
+  "lat": 45.3833,
+  "lng": -73.9833,
+  "altNames": [
+    "\u00cele Perrot"
+  ],
+  "craftBeerHubRank": null
+},
+{
+  "name": "L'Assomption, QC, Canada",
+  "cityName": "L'Assomption",
+  "asciiname": "L'Assomption",
+  "subtext": "Lanaudi\u00e8re, Quebec \u2022 Pop. 22,500",
+  "type": "city",
+  "stateOrProvince": "Quebec",
+  "code": "QC",
+  "country": "Canada",
+  "countryCode": "CA",
+  "countryName": "Canada",
+  "population": 22500,
+  "lat": 45.8333,
+  "lng": -73.4167,
+  "altNames": [
+    "Assomption"
+  ],
+  "craftBeerHubRank": null
+},
+{
+  "name": "Saint-Lin-Laurentides, QC, Canada",
+  "cityName": "Saint-Lin-Laurentides",
+  "asciiname": "Saint-Lin-Laurentides",
+  "subtext": "Montcalm, Quebec \u2022 Pop. 24,000",
+  "type": "city",
+  "stateOrProvince": "Quebec",
+  "code": "QC",
+  "country": "Canada",
+  "countryCode": "CA",
+  "countryName": "Canada",
+  "population": 24000,
+  "lat": 45.85,
+  "lng": -73.75,
+  "altNames": [
+    "Saint-Lin"
+  ],
+  "craftBeerHubRank": null
+},
+{
+  "name": "Saint-Colomban, QC, Canada",
+  "cityName": "Saint-Colomban",
+  "asciiname": "Saint-Colomban",
+  "subtext": "La Rivi\u00e8re-du-Nord, Quebec \u2022 Pop. 17,500",
+  "type": "city",
+  "stateOrProvince": "Quebec",
+  "code": "QC",
+  "country": "Canada",
+  "countryCode": "CA",
+  "countryName": "Canada",
+  "population": 17500,
+  "lat": 45.7333,
+  "lng": -74.1333,
+  "altNames": [],
+  "craftBeerHubRank": null
+},
+{
+  "name": "Sainte-Marthe-sur-le-Lac, QC, Canada",
+  "cityName": "Sainte-Marthe-sur-le-Lac",
+  "asciiname": "Sainte-Marthe-sur-le-Lac",
+  "subtext": "Deux-Montagnes, Quebec \u2022 Pop. 19,500",
+  "type": "city",
+  "stateOrProvince": "Quebec",
+  "code": "QC",
+  "country": "Canada",
+  "countryCode": "CA",
+  "countryName": "Canada",
+  "population": 19500,
+  "lat": 45.5333,
+  "lng": -73.9333,
+  "altNames": [
+    "Ste-Marthe-sur-le-Lac"
+  ],
+  "craftBeerHubRank": null
+},
+{
+  "name": "Saint-Basile-le-Grand, QC, Canada",
+  "cityName": "Saint-Basile-le-Grand",
+  "asciiname": "Saint-Basile-le-Grand",
+  "subtext": "La Vall\u00e9e-du-Richelieu, Quebec \u2022 Pop. 17,000",
+  "type": "city",
+  "stateOrProvince": "Quebec",
+  "code": "QC",
+  "country": "Canada",
+  "countryCode": "CA",
+  "countryName": "Canada",
+  "population": 17000,
+  "lat": 45.5333,
+  "lng": -73.2833,
+  "altNames": [
+    "St-Basile"
+  ],
+  "craftBeerHubRank": null
+},
+{
+  "name": "Sainte-Agathe-des-Monts, QC, Canada",
+  "cityName": "Sainte-Agathe-des-Monts",
+  "asciiname": "Sainte-Agathe-des-Monts",
+  "subtext": "Les Laurentides, Quebec \u2022 Pop. 11,000 (Area > 45,000)",
+  "type": "city",
+  "stateOrProvince": "Quebec",
+  "code": "QC",
+  "country": "Canada",
+  "countryCode": "CA",
+  "countryName": "Canada",
+  "population": 11000,
+  "lat": 46.046,
+  "lng": -74.281,
+  "altNames": [
+    "Sainte-Agathe",
+    "Ste-Agathe-des-Monts"
+  ],
+  "craftBeerHubRank": "Laurentians Craft Gateway"
+},
+{
+  "name": "Mont-Tremblant, QC, Canada",
+  "cityName": "Mont-Tremblant",
+  "asciiname": "Mont-Tremblant",
+  "subtext": "Les Laurentides, Quebec \u2022 Pop. 10,000 (Area > 40,000)",
+  "type": "city",
+  "stateOrProvince": "Quebec",
+  "code": "QC",
+  "country": "Canada",
+  "countryCode": "CA",
+  "countryName": "Canada",
+  "population": 10000,
+  "lat": 46.1167,
+  "lng": -74.6,
+  "altNames": [
+    "Tremblant"
+  ],
+  "craftBeerHubRank": "Alpine Craft Haven"
+},
+{
+  "name": "Matane, QC, Canada",
+  "cityName": "Matane",
+  "asciiname": "Matane",
+  "subtext": "La Matanie, Quebec \u2022 Pop. 14,000 (Area > 25,000)",
+  "type": "city",
+  "stateOrProvince": "Quebec",
+  "code": "QC",
+  "country": "Canada",
+  "countryCode": "CA",
+  "countryName": "Canada",
+  "population": 14000,
+  "lat": 48.85,
+  "lng": -67.5333,
+  "altNames": [
+    "Gasp\u00e9sie Gateway"
+  ],
+  "craftBeerHubRank": "St. Lawrence Craft Port"
+},
+{
+  "name": "Amos, QC, Canada",
+  "cityName": "Amos",
+  "asciiname": "Amos",
+  "subtext": "Abitibi, Quebec \u2022 Pop. 12,500 (Area > 25,000)",
+  "type": "city",
+  "stateOrProvince": "Quebec",
+  "code": "QC",
+  "country": "Canada",
+  "countryCode": "CA",
+  "countryName": "Canada",
+  "population": 12500,
+  "lat": 48.5667,
+  "lng": -78.1167,
+  "altNames": [],
+  "craftBeerHubRank": "Abitibi Brewing"
+},
+{
+  "name": "Rome, NY, USA",
+  "cityName": "Rome",
+  "asciiname": "Rome",
+  "subtext": "Oneida County, New York \u2022 Pop. 32,125",
+  "type": "city",
+  "stateOrProvince": "New York",
+  "code": "NY",
+  "country": "USA",
+  "countryCode": "US",
+  "countryName": "United States",
+  "population": 32125,
+  "lat": 43.2128,
+  "lng": -75.4557,
+  "altNames": [
+    "Copper City"
+  ],
+  "craftBeerHubRank": null
+},
+{
+  "name": "North Tonawanda, NY, USA",
+  "cityName": "North Tonawanda",
+  "asciiname": "North Tonawanda",
+  "subtext": "Niagara County, New York \u2022 Pop. 30,496",
+  "type": "city",
+  "stateOrProvince": "New York",
+  "code": "NY",
+  "country": "USA",
+  "countryCode": "US",
+  "countryName": "United States",
+  "population": 30496,
+  "lat": 43.0381,
+  "lng": -78.8642,
+  "altNames": [
+    "Lumber City"
+  ],
+  "craftBeerHubRank": null
+},
+{
+  "name": "Lockport, NY, USA",
+  "cityName": "Lockport",
+  "asciiname": "Lockport",
+  "subtext": "Niagara County, New York \u2022 Pop. 20,876",
+  "type": "city",
+  "stateOrProvince": "New York",
+  "code": "NY",
+  "country": "USA",
+  "countryCode": "US",
+  "countryName": "United States",
+  "population": 20876,
+  "lat": 43.1706,
+  "lng": -78.6903,
+  "altNames": [
+    "Erie Canal Locks"
+  ],
+  "craftBeerHubRank": null
+},
+{
+  "name": "Geneva, NY, USA",
+  "cityName": "Geneva",
+  "asciiname": "Geneva",
+  "subtext": "Ontario County, New York \u2022 Pop. 12,800 (Area > 80,000)",
+  "type": "city",
+  "stateOrProvince": "New York",
+  "code": "NY",
+  "country": "USA",
+  "countryCode": "US",
+  "countryName": "United States",
+  "population": 12800,
+  "lat": 42.8687,
+  "lng": -76.9777,
+  "altNames": [
+    "Seneca Lake"
+  ],
+  "craftBeerHubRank": "Finger Lakes Heart"
+},
+{
+  "name": "Olean, NY, USA",
+  "cityName": "Olean",
+  "asciiname": "Olean",
+  "subtext": "Cattaraugus County, New York \u2022 Pop. 13,400 (Area > 50,000)",
+  "type": "city",
+  "stateOrProvince": "New York",
+  "code": "NY",
+  "country": "USA",
+  "countryCode": "US",
+  "countryName": "United States",
+  "population": 13400,
+  "lat": 42.0776,
+  "lng": -78.4297,
+  "altNames": [
+    "Enchanted Mountains"
+  ],
+  "craftBeerHubRank": null
+},
+{
+  "name": "Dunkirk, NY, USA",
+  "cityName": "Dunkirk",
+  "asciiname": "Dunkirk",
+  "subtext": "Chautauqua County, New York \u2022 Pop. 12,500 (Area > 70,000)",
+  "type": "city",
+  "stateOrProvince": "New York",
+  "code": "NY",
+  "country": "USA",
+  "countryCode": "US",
+  "countryName": "United States",
+  "population": 12500,
+  "lat": 42.4795,
+  "lng": -79.3339,
+  "altNames": [
+    "Lake Erie Trail"
+  ],
+  "craftBeerHubRank": null
+},
+{
+  "name": "Fredonia, NY, USA",
+  "cityName": "Fredonia",
+  "asciiname": "Fredonia",
+  "subtext": "Chautauqua County, New York \u2022 Pop. 10,500 (Area > 70,000)",
+  "type": "city",
+  "stateOrProvince": "New York",
+  "code": "NY",
+  "country": "USA",
+  "countryCode": "US",
+  "countryName": "United States",
+  "population": 10500,
+  "lat": 42.4401,
+  "lng": -79.3317,
+  "altNames": [],
+  "craftBeerHubRank": null
+},
+{
+  "name": "Canandaigua, NY, USA",
+  "cityName": "Canandaigua",
+  "asciiname": "Canandaigua",
+  "subtext": "Ontario County, New York \u2022 Pop. 10,500 (Area > 150,000)",
+  "type": "city",
+  "stateOrProvince": "New York",
+  "code": "NY",
+  "country": "USA",
+  "countryCode": "US",
+  "countryName": "United States",
+  "population": 10500,
+  "lat": 42.8876,
+  "lng": -77.2819,
+  "altNames": [
+    "Chosen Spot",
+    "Canandaigua Lake"
+  ],
+  "craftBeerHubRank": "FLX Craft Gateway"
+},
+{
+  "name": "Corning, NY, USA",
+  "cityName": "Corning",
+  "asciiname": "Corning",
+  "subtext": "Steuben County, New York \u2022 Pop. 10,600 (Area > 90,000)",
+  "type": "city",
+  "stateOrProvince": "New York",
+  "code": "NY",
+  "country": "USA",
+  "countryCode": "US",
+  "countryName": "United States",
+  "population": 10600,
+  "lat": 42.1428,
+  "lng": -77.0547,
+  "altNames": [
+    "Crystal City",
+    "Market Street"
+  ],
+  "craftBeerHubRank": "Southern Tier Craft"
+},
+{
+  "name": "Fulton, NY, USA",
+  "cityName": "Fulton",
+  "asciiname": "Fulton",
+  "subtext": "Oswego County, New York \u2022 Pop. 11,400 (Area > 120,000)",
+  "type": "city",
+  "stateOrProvince": "New York",
+  "code": "NY",
+  "country": "USA",
+  "countryCode": "US",
+  "countryName": "United States",
+  "population": 11400,
+  "lat": 43.3223,
+  "lng": -76.4172,
+  "altNames": [
+    "Oswego River"
+  ],
+  "craftBeerHubRank": null
+},
+{
+  "name": "Massena, NY, USA",
+  "cityName": "Massena",
+  "asciiname": "Massena",
+  "subtext": "St. Lawrence County, New York \u2022 Pop. 10,150 (Area > 35,000)",
+  "type": "city",
+  "stateOrProvince": "New York",
+  "code": "NY",
+  "country": "USA",
+  "countryCode": "US",
+  "countryName": "United States",
+  "population": 10150,
+  "lat": 44.9281,
+  "lng": -74.8927,
+  "altNames": [
+    "St. Lawrence Seaway"
+  ],
+  "craftBeerHubRank": null
+},
+{
+  "name": "Ogdensburg, NY, USA",
+  "cityName": "Ogdensburg",
+  "asciiname": "Ogdensburg",
+  "subtext": "St. Lawrence County, New York \u2022 Pop. 10,000 (Area > 30,000)",
+  "type": "city",
+  "stateOrProvince": "New York",
+  "code": "NY",
+  "country": "USA",
+  "countryCode": "US",
+  "countryName": "United States",
+  "population": 10000,
+  "lat": 44.6942,
+  "lng": -75.4866,
+  "altNames": [],
+  "craftBeerHubRank": null
+},
+{
+  "name": "Cooperstown, NY, USA",
+  "cityName": "Cooperstown",
+  "asciiname": "Cooperstown",
+  "subtext": "Otsego County, New York \u2022 Pop. 1,800 (Area > 50,000)",
+  "type": "city",
+  "stateOrProvince": "New York",
+  "code": "NY",
+  "country": "USA",
+  "countryCode": "US",
+  "countryName": "United States",
+  "population": 1800,
+  "lat": 42.7006,
+  "lng": -74.9243,
+  "altNames": [
+    "Baseball Hall of Fame",
+    "Otsego Lake"
+  ],
+  "craftBeerHubRank": "Belgian Farmhouse Mecca (Ommegang)"
+}
+,
+{
+  "name": "Chatham-Kent, ON, Canada",
+  "cityName": "Chatham-Kent",
+  "asciiname": "Chatham-Kent",
+  "subtext": "Ontario, Canada • Pop. 104,316",
+  "type": "city",
+  "stateOrProvince": "Ontario",
+  "code": "ON",
+  "country": "Canada",
+  "countryCode": "CA",
+  "countryName": "Canada",
+  "population": 104316,
+  "lat": 42.4048,
+  "lng": -82.191,
+  "altNames": [
+    "Chatham",
+    "Wallaceburg",
+    "Blenheim",
+    "Erieau",
+    "Tilbury"
+  ],
+  "craftBeerHubRank": "Sons of Kent & Bayside Craft"
+},
+{
+  "name": "Clarington, ON, Canada",
+  "cityName": "Clarington",
+  "asciiname": "Clarington",
+  "subtext": "Ontario, Canada • Pop. 101,427",
+  "type": "city",
+  "stateOrProvince": "Ontario",
+  "code": "ON",
+  "country": "Canada",
+  "countryCode": "CA",
+  "countryName": "Canada",
+  "population": 101427,
+  "lat": 43.935,
+  "lng": -78.608,
+  "altNames": [
+    "Bowmanville",
+    "Courtice",
+    "Newcastle",
+    "Orono"
+  ],
+  "craftBeerHubRank": "Bowmanville Craft Belt"
+},
+{
+  "name": "Kawartha Lakes, ON, Canada",
+  "cityName": "Kawartha Lakes",
+  "asciiname": "Kawartha Lakes",
+  "subtext": "Ontario, Canada • Pop. 79,247",
+  "type": "city",
+  "stateOrProvince": "Ontario",
+  "code": "ON",
+  "country": "Canada",
+  "countryCode": "CA",
+  "countryName": "Canada",
+  "population": 79247,
+  "lat": 44.3565,
+  "lng": -78.7402,
+  "altNames": [
+    "Lindsay",
+    "Bobcaygeon",
+    "Fenelon Falls",
+    "Omemee"
+  ],
+  "craftBeerHubRank": "Pie Eyed Monk & Kawartha Lakes Craft"
+},
+{
+  "name": "Cornwall, ON, Canada",
+  "cityName": "Cornwall",
+  "asciiname": "Cornwall",
+  "subtext": "Ontario, Canada • Pop. 47,845",
+  "type": "city",
+  "stateOrProvince": "Ontario",
+  "code": "ON",
+  "country": "Canada",
+  "countryCode": "CA",
+  "countryName": "Canada",
+  "population": 47845,
+  "lat": 45.0213,
+  "lng": -74.7303,
+  "altNames": [
+    "Cornwall ON",
+    "St. Lawrence Seaway",
+    "Stormont"
+  ],
+  "craftBeerHubRank": "Rurban Brewing & Seaway Craft"
+},
+{
+  "name": "St. Thomas, ON, Canada",
+  "cityName": "St. Thomas",
+  "asciiname": "St. Thomas",
+  "subtext": "Ontario, Canada • Pop. 42,891",
+  "type": "city",
+  "stateOrProvince": "Ontario",
+  "code": "ON",
+  "country": "Canada",
+  "countryCode": "CA",
+  "countryName": "Canada",
+  "population": 42891,
+  "lat": 42.7788,
+  "lng": -81.1837,
+  "altNames": [
+    "St Thomas",
+    "Railway Capital of Canada",
+    "Elgin County"
+  ],
+  "craftBeerHubRank": "Railway City Brewing Co."
+},
+{
+  "name": "Woodstock, ON, Canada",
+  "cityName": "Woodstock",
+  "asciiname": "Woodstock",
+  "subtext": "Ontario, Canada • Pop. 46,705",
+  "type": "city",
+  "stateOrProvince": "Ontario",
+  "code": "ON",
+  "country": "Canada",
+  "countryCode": "CA",
+  "countryName": "Canada",
+  "population": 46705,
+  "lat": 43.1315,
+  "lng": -80.7467,
+  "altNames": [
+    "The Friendly City",
+    "Oxford County"
+  ],
+  "craftBeerHubRank": "Upper Thames Brewing Co."
+},
+{
+  "name": "Brant, ON, Canada",
+  "cityName": "Brant",
+  "asciiname": "Brant",
+  "subtext": "Ontario, Canada • Pop. 39,474",
+  "type": "city",
+  "stateOrProvince": "Ontario",
+  "code": "ON",
+  "country": "Canada",
+  "countryCode": "CA",
+  "countryName": "Canada",
+  "population": 39474,
+  "lat": 43.195,
+  "lng": -80.3844,
+  "altNames": [
+    "Paris",
+    "County of Brant",
+    "St. George",
+    "Burford"
+  ],
+  "craftBeerHubRank": "Paris Beer Co. & Grand River"
+},
+{
+  "name": "Quinte West, ON, Canada",
+  "cityName": "Quinte West",
+  "asciiname": "Quinte West",
+  "subtext": "Ontario, Canada • Pop. 46,483",
+  "type": "city",
+  "stateOrProvince": "Ontario",
+  "code": "ON",
+  "country": "Canada",
+  "countryCode": "CA",
+  "countryName": "Canada",
+  "population": 46483,
+  "lat": 44.103,
+  "lng": -77.5772,
+  "altNames": [
+    "Trenton",
+    "Frankford",
+    "CFB Trenton",
+    "Bay of Quinte"
+  ],
+  "craftBeerHubRank": "Wild Card Brewing & Trent River"
+},
+{
+  "name": "New Tecumseth, ON, Canada",
+  "cityName": "New Tecumseth",
+  "asciiname": "New Tecumseth",
+  "subtext": "Ontario, Canada • Pop. 43,948",
+  "type": "city",
+  "stateOrProvince": "Ontario",
+  "code": "ON",
+  "country": "Canada",
+  "countryCode": "CA",
+  "countryName": "Canada",
+  "population": 43948,
+  "lat": 44.1534,
+  "lng": -79.8706,
+  "altNames": [
+    "Alliston",
+    "Tottenham",
+    "Beeton"
+  ],
+  "craftBeerHubRank": null
+},
+{
+  "name": "Innisfil, ON, Canada",
+  "cityName": "Innisfil",
+  "asciiname": "Innisfil",
+  "subtext": "Ontario, Canada • Pop. 43,326",
+  "type": "city",
+  "stateOrProvince": "Ontario",
+  "code": "ON",
+  "country": "Canada",
+  "countryCode": "CA",
+  "countryName": "Canada",
+  "population": 43326,
+  "lat": 44.3,
+  "lng": -79.5833,
+  "altNames": [
+    "Alcona",
+    "Cookstown",
+    "Lake Simcoe Shore"
+  ],
+  "craftBeerHubRank": null
+},
+{
+  "name": "Timmins, ON, Canada",
+  "cityName": "Timmins",
+  "asciiname": "Timmins",
+  "subtext": "Ontario, Canada • Pop. 41,145",
+  "type": "city",
+  "stateOrProvince": "Ontario",
+  "code": "ON",
+  "country": "Canada",
+  "countryCode": "CA",
+  "countryName": "Canada",
+  "population": 41145,
+  "lat": 48.4758,
+  "lng": -81.3304,
+  "altNames": [
+    "City with the Heart of Gold",
+    "Porcupine",
+    "South Porcupine"
+  ],
+  "craftBeerHubRank": "Full Beard Brewing & Northern Craft"
+},
+{
+  "name": "East Gwillimbury, ON, Canada",
+  "cityName": "East Gwillimbury",
+  "asciiname": "East Gwillimbury",
+  "subtext": "Ontario, Canada • Pop. 34,637",
+  "type": "city",
+  "stateOrProvince": "Ontario",
+  "code": "ON",
+  "country": "Canada",
+  "countryCode": "CA",
+  "countryName": "Canada",
+  "population": 34637,
+  "lat": 44.1333,
+  "lng": -79.4333,
+  "altNames": [
+    "Sharon",
+    "Queensville",
+    "Mount Albert"
+  ],
+  "craftBeerHubRank": null
+},
+{
+  "name": "Bradford West Gwillimbury, ON, Canada",
+  "cityName": "Bradford West Gwillimbury",
+  "asciiname": "Bradford West Gwillimbury",
+  "subtext": "Ontario, Canada • Pop. 42,880",
+  "type": "city",
+  "stateOrProvince": "Ontario",
+  "code": "ON",
+  "country": "Canada",
+  "countryCode": "CA",
+  "countryName": "Canada",
+  "population": 42880,
+  "lat": 44.1167,
+  "lng": -79.5667,
+  "altNames": [
+    "Bradford",
+    "Holland Marsh",
+    "BWG"
+  ],
+  "craftBeerHubRank": null
+},
+{
+  "name": "Leamington, ON, Canada",
+  "cityName": "Leamington",
+  "asciiname": "Leamington",
+  "subtext": "Ontario, Canada • Pop. 29,680",
+  "type": "city",
+  "stateOrProvince": "Ontario",
+  "code": "ON",
+  "country": "Canada",
+  "countryCode": "CA",
+  "countryName": "Canada",
+  "population": 29680,
+  "lat": 42.0532,
+  "lng": -82.5998,
+  "altNames": [
+    "Point Pelee",
+    "Tomato Capital of Canada"
+  ],
+  "craftBeerHubRank": "Essex County Southernmost Craft"
+},
+{
+  "name": "Kingsville, ON, Canada",
+  "cityName": "Kingsville",
+  "asciiname": "Kingsville",
+  "subtext": "Ontario, Canada • Pop. 22,119",
+  "type": "city",
+  "stateOrProvince": "Ontario",
+  "code": "ON",
+  "country": "Canada",
+  "countryCode": "CA",
+  "countryName": "Canada",
+  "population": 22119,
+  "lat": 42.0381,
+  "lng": -82.7389,
+  "altNames": [
+    "Kingsville ON",
+    "Lake Erie Shore"
+  ],
+  "craftBeerHubRank": "Banded Goose Brewing Co."
+},
+{
+  "name": "Tecumseh, ON, Canada",
+  "cityName": "Tecumseh",
+  "asciiname": "Tecumseh",
+  "subtext": "Ontario, Canada • Pop. 23,300",
+  "type": "city",
+  "stateOrProvince": "Ontario",
+  "code": "ON",
+  "country": "Canada",
+  "countryCode": "CA",
+  "countryName": "Canada",
+  "population": 23300,
+  "lat": 42.3167,
+  "lng": -82.8833,
+  "altNames": [
+    "St. Clair Beach",
+    "Tecumseh ON"
+  ],
+  "craftBeerHubRank": "Frank Brewing Co."
+},
+{
+  "name": "LaSalle, ON, Canada",
+  "cityName": "LaSalle",
+  "asciiname": "LaSalle",
+  "subtext": "Ontario, Canada • Pop. 32,721",
+  "type": "city",
+  "stateOrProvince": "Ontario",
+  "code": "ON",
+  "country": "Canada",
+  "countryCode": "CA",
+  "countryName": "Canada",
+  "population": 32721,
+  "lat": 42.2167,
+  "lng": -83.0667,
+  "altNames": [
+    "Detroit River Craft Corridor"
+  ],
+  "craftBeerHubRank": null
+},
+{
+  "name": "Amherstburg, ON, Canada",
+  "cityName": "Amherstburg",
+  "asciiname": "Amherstburg",
+  "subtext": "Ontario, Canada • Pop. 23,524",
+  "type": "city",
+  "stateOrProvince": "Ontario",
+  "code": "ON",
+  "country": "Canada",
+  "countryCode": "CA",
+  "countryName": "Canada",
+  "population": 23524,
+  "lat": 42.1,
+  "lng": -83.1,
+  "altNames": [
+    "Fort Malden",
+    "Historic Amherstburg"
+  ],
+  "craftBeerHubRank": "GL Heritage Brewing Co."
+},
+{
+  "name": "Lakeshore, ON, Canada",
+  "cityName": "Lakeshore",
+  "asciiname": "Lakeshore",
+  "subtext": "Ontario, Canada • Pop. 40,410",
+  "type": "city",
+  "stateOrProvince": "Ontario",
+  "code": "ON",
+  "country": "Canada",
+  "countryCode": "CA",
+  "countryName": "Canada",
+  "population": 40410,
+  "lat": 42.2833,
+  "lng": -82.6833,
+  "altNames": [
+    "Belle River",
+    "Comber",
+    "Lake St. Clair Shore"
+  ],
+  "craftBeerHubRank": null
+},
+{
+  "name": "Stratford, ON, Canada",
+  "cityName": "Stratford",
+  "asciiname": "Stratford",
+  "subtext": "Ontario, Canada • Pop. 33,232",
+  "type": "city",
+  "stateOrProvince": "Ontario",
+  "code": "ON",
+  "country": "Canada",
+  "countryCode": "CA",
+  "countryName": "Canada",
+  "population": 33232,
+  "lat": 43.37,
+  "lng": -80.9822,
+  "altNames": [
+    "Stratford Festival",
+    "Perth County",
+    "Avon River"
+  ],
+  "craftBeerHubRank": "Black Swan & Heritage Hops"
+},
+{
+  "name": "Orangeville, ON, Canada",
+  "cityName": "Orangeville",
+  "asciiname": "Orangeville",
+  "subtext": "Ontario, Canada • Pop. 30,167",
+  "type": "city",
+  "stateOrProvince": "Ontario",
+  "code": "ON",
+  "country": "Canada",
+  "countryCode": "CA",
+  "countryName": "Canada",
+  "population": 30167,
+  "lat": 43.9167,
+  "lng": -80.1167,
+  "altNames": [
+    "Dufferin County",
+    "Hockley Valley",
+    "Headwaters"
+  ],
+  "craftBeerHubRank": "Badlands & GoodLot Farmstead Gateway"
+},
+{
+  "name": "Orillia, ON, Canada",
+  "cityName": "Orillia",
+  "asciiname": "Orillia",
+  "subtext": "Ontario, Canada • Pop. 33,411",
+  "type": "city",
+  "stateOrProvince": "Ontario",
+  "code": "ON",
+  "country": "Canada",
+  "countryCode": "CA",
+  "countryName": "Canada",
+  "population": 33411,
+  "lat": 44.6087,
+  "lng": -79.4208,
+  "altNames": [
+    "The Sunshine City",
+    "Lake Couchiching",
+    "Lake Simcoe North"
+  ],
+  "craftBeerHubRank": "Couchiching Craft Brewing Co."
+},
+{
+  "name": "Owen Sound, ON, Canada",
+  "cityName": "Owen Sound",
+  "asciiname": "Owen Sound",
+  "subtext": "Ontario, Canada • Pop. 21,612",
+  "type": "city",
+  "stateOrProvince": "Ontario",
+  "code": "ON",
+  "country": "Canada",
+  "countryCode": "CA",
+  "countryName": "Canada",
+  "population": 21612,
+  "lat": 44.5678,
+  "lng": -80.943,
+  "altNames": [
+    "The Scenic City",
+    "Grey County",
+    "Georgian Bay Port"
+  ],
+  "craftBeerHubRank": "Mudtown Station Brewery"
+},
+{
+  "name": "Centre Wellington, ON, Canada",
+  "cityName": "Centre Wellington",
+  "asciiname": "Centre Wellington",
+  "subtext": "Ontario, Canada • Pop. 31,093",
+  "type": "city",
+  "stateOrProvince": "Ontario",
+  "code": "ON",
+  "country": "Canada",
+  "countryCode": "CA",
+  "countryName": "Canada",
+  "population": 31093,
+  "lat": 43.7,
+  "lng": -80.4333,
+  "altNames": [
+    "Fergus",
+    "Elora",
+    "Elora Gorge",
+    "Grand River Gorge"
+  ],
+  "craftBeerHubRank": "Elora Brewing Company"
+},
+{
+  "name": "Prince Edward County, ON, Canada",
+  "cityName": "Prince Edward County",
+  "asciiname": "Prince Edward County",
+  "subtext": "Ontario, Canada • Pop. 25,704",
+  "type": "city",
+  "stateOrProvince": "Ontario",
+  "code": "ON",
+  "country": "Canada",
+  "countryCode": "CA",
+  "countryName": "Canada",
+  "population": 25704,
+  "lat": 43.9922,
+  "lng": -77.1428,
+  "altNames": [
+    "PEC",
+    "Picton",
+    "Wellington ON",
+    "Bloomfield",
+    "Sandbanks"
+  ],
+  "craftBeerHubRank": "Slake, Parsons & Prince Eddy's Hub"
+},
+{
+  "name": "Woolwich, ON, Canada",
+  "cityName": "Woolwich",
+  "asciiname": "Woolwich",
+  "subtext": "Ontario, Canada • Pop. 26,999",
+  "type": "city",
+  "stateOrProvince": "Ontario",
+  "code": "ON",
+  "country": "Canada",
+  "countryCode": "CA",
+  "countryName": "Canada",
+  "population": 26999,
+  "lat": 43.5667,
+  "lng": -80.55,
+  "altNames": [
+    "Elmira",
+    "St. Jacobs",
+    "Conestogo",
+    "Waterloo Rural Belt"
+  ],
+  "craftBeerHubRank": "Block Three Brewing Co."
+},
+{
+  "name": "Wilmot, ON, Canada",
+  "cityName": "Wilmot",
+  "asciiname": "Wilmot",
+  "subtext": "Ontario, Canada • Pop. 21,427",
+  "type": "city",
+  "stateOrProvince": "Ontario",
+  "code": "ON",
+  "country": "Canada",
+  "countryCode": "CA",
+  "countryName": "Canada",
+  "population": 21427,
+  "lat": 43.4,
+  "lng": -80.65,
+  "altNames": [
+    "New Hamburg",
+    "Baden",
+    "Castle Kilbride"
+  ],
+  "craftBeerHubRank": null
+},
+{
+  "name": "Springwater, ON, Canada",
+  "cityName": "Springwater",
+  "asciiname": "Springwater",
+  "subtext": "Ontario, Canada • Pop. 21,701",
+  "type": "city",
+  "stateOrProvince": "Ontario",
+  "code": "ON",
+  "country": "Canada",
+  "countryCode": "CA",
+  "countryName": "Canada",
+  "population": 21701,
+  "lat": 44.4333,
+  "lng": -79.7333,
+  "altNames": [
+    "Elmvale",
+    "Minesing",
+    "Midhurst",
+    "Simcoe County"
+  ],
+  "craftBeerHubRank": null
+},
+{
+  "name": "Wasaga Beach, ON, Canada",
+  "cityName": "Wasaga Beach",
+  "asciiname": "Wasaga Beach",
+  "subtext": "Ontario, Canada • Pop. 24,862",
+  "type": "city",
+  "stateOrProvince": "Ontario",
+  "code": "ON",
+  "country": "Canada",
+  "countryCode": "CA",
+  "countryName": "Canada",
+  "population": 24862,
+  "lat": 44.5206,
+  "lng": -80.0167,
+  "altNames": [
+    "Longest freshwater beach in the world",
+    "Nottawasaga Bay"
+  ],
+  "craftBeerHubRank": "Wasaga Beach Brewing Company"
+},
+{
+  "name": "Collingwood, ON, Canada",
+  "cityName": "Collingwood",
+  "asciiname": "Collingwood",
+  "subtext": "Ontario, Canada • Pop. 24,811",
+  "type": "city",
+  "stateOrProvince": "Ontario",
+  "code": "ON",
+  "country": "Canada",
+  "countryCode": "CA",
+  "countryName": "Canada",
+  "population": 24811,
+  "lat": 44.5,
+  "lng": -80.2167,
+  "altNames": [
+    "South Georgian Bay",
+    "Blue Mountain Craft Hub"
+  ],
+  "craftBeerHubRank": "The Collingwood Brewery, Side Launch & Black Bellows"
+},
+{
+  "name": "The Blue Mountains, ON, Canada",
+  "cityName": "The Blue Mountains",
+  "asciiname": "The Blue Mountains",
+  "subtext": "Ontario, Canada • Pop. 9,390 (Corridor > 35,000)",
+  "type": "city",
+  "stateOrProvince": "Ontario",
+  "code": "ON",
+  "country": "Canada",
+  "countryCode": "CA",
+  "countryName": "Canada",
+  "population": 9390,
+  "lat": 44.55,
+  "lng": -80.35,
+  "altNames": [
+    "Thornbury",
+    "Blue Mountain Resort",
+    "Beaver Valley",
+    "Clarksburg"
+  ],
+  "craftBeerHubRank": "Thornbury Craft & Blue Mountain Trails"
+},
+{
+  "name": "Cobourg, ON, Canada",
+  "cityName": "Cobourg",
+  "asciiname": "Cobourg",
+  "subtext": "Ontario, Canada • Pop. 20,519",
+  "type": "city",
+  "stateOrProvince": "Ontario",
+  "code": "ON",
+  "country": "Canada",
+  "countryCode": "CA",
+  "countryName": "Canada",
+  "population": 20519,
+  "lat": 43.9598,
+  "lng": -78.1654,
+  "altNames": [
+    "The Feel Fine Town",
+    "Northumberland County",
+    "Victoria Hall"
+  ],
+  "craftBeerHubRank": "Northumberland Hills Brewery"
+},
+{
+  "name": "Port Hope, ON, Canada",
+  "cityName": "Port Hope",
+  "asciiname": "Port Hope",
+  "subtext": "Ontario, Canada • Pop. 17,294",
+  "type": "city",
+  "stateOrProvince": "Ontario",
+  "code": "ON",
+  "country": "Canada",
+  "countryCode": "CA",
+  "countryName": "Canada",
+  "population": 17294,
+  "lat": 43.95,
+  "lng": -78.3,
+  "altNames": [
+    "Historic Port Hope",
+    "Ganaraska River"
+  ],
+  "craftBeerHubRank": "Ganaraska Brewing Company"
+},
+{
+  "name": "Brockville, ON, Canada",
+  "cityName": "Brockville",
+  "asciiname": "Brockville",
+  "subtext": "Ontario, Canada • Pop. 21,854",
+  "type": "city",
+  "stateOrProvince": "Ontario",
+  "code": "ON",
+  "country": "Canada",
+  "countryCode": "CA",
+  "countryName": "Canada",
+  "population": 21854,
+  "lat": 44.5895,
+  "lng": -75.6843,
+  "altNames": [
+    "City of the 1000 Islands",
+    "St. Lawrence River"
+  ],
+  "craftBeerHubRank": "1000 Islands Brewing Company"
+},
+{
+  "name": "Midland, ON, Canada",
+  "cityName": "Midland",
+  "asciiname": "Midland",
+  "subtext": "Ontario, Canada • Pop. 27,894 (Urban Area)",
+  "type": "city",
+  "stateOrProvince": "Ontario",
+  "code": "ON",
+  "country": "Canada",
+  "countryCode": "CA",
+  "countryName": "Canada",
+  "population": 27894,
+  "lat": 44.75,
+  "lng": -79.8833,
+  "altNames": [
+    "Penetanguishene",
+    "Midland-Penetanguishene",
+    "Georgian Bay 30,000 Islands"
+  ],
+  "craftBeerHubRank": "Grounded Brewery & Georgian Bay Craft"
+},
+{
+  "name": "Fort Erie, ON, Canada",
+  "cityName": "Fort Erie",
+  "asciiname": "Fort Erie",
+  "subtext": "Ontario, Canada • Pop. 32,901",
+  "type": "city",
+  "stateOrProvince": "Ontario",
+  "code": "ON",
+  "country": "Canada",
+  "countryCode": "CA",
+  "countryName": "Canada",
+  "population": 32901,
+  "lat": 42.9,
+  "lng": -78.9333,
+  "altNames": [
+    "Ridgeway",
+    "Crystal Beach",
+    "Peace Bridge"
+  ],
+  "craftBeerHubRank": "Brimstone Brewing Company"
+},
+{
+  "name": "Grimsby, ON, Canada",
+  "cityName": "Grimsby",
+  "asciiname": "Grimsby",
+  "subtext": "Ontario, Canada • Pop. 28,883",
+  "type": "city",
+  "stateOrProvince": "Ontario",
+  "code": "ON",
+  "country": "Canada",
+  "countryCode": "CA",
+  "countryName": "Canada",
+  "population": 28883,
+  "lat": 43.1932,
+  "lng": -79.5606,
+  "altNames": [
+    "Gateway to Niagara",
+    "Grimsby Beach",
+    "Escarpment Ridge"
+  ],
+  "craftBeerHubRank": null
+},
+{
+  "name": "Lincoln, ON, Canada",
+  "cityName": "Lincoln",
+  "asciiname": "Lincoln",
+  "subtext": "Ontario, Canada • Pop. 25,719",
+  "type": "city",
+  "stateOrProvince": "Ontario",
+  "code": "ON",
+  "country": "Canada",
+  "countryCode": "CA",
+  "countryName": "Canada",
+  "population": 25719,
+  "lat": 43.1667,
+  "lng": -79.4333,
+  "altNames": [
+    "Beamsville",
+    "Vineland",
+    "Jordan Station",
+    "Twenty Valley"
+  ],
+  "craftBeerHubRank": "Bench Brewing Company"
+},
+{
+  "name": "Niagara-on-the-Lake, ON, Canada",
+  "cityName": "Niagara-on-the-Lake",
+  "asciiname": "Niagara-on-the-Lake",
+  "subtext": "Ontario, Canada • Pop. 19,147",
+  "type": "city",
+  "stateOrProvince": "Ontario",
+  "code": "ON",
+  "country": "Canada",
+  "countryCode": "CA",
+  "countryName": "Canada",
+  "population": 19147,
+  "lat": 43.2553,
+  "lng": -79.0717,
+  "altNames": [
+    "NOTL",
+    "Old Town",
+    "Queenston",
+    "Niagara Farmhouse Craft"
+  ],
+  "craftBeerHubRank": "Niagara Oast House, Silversmith & Exchange"
+},
+{
+  "name": "Pelham, ON, Canada",
+  "cityName": "Pelham",
+  "asciiname": "Pelham",
+  "subtext": "Ontario, Canada • Pop. 18,192",
+  "type": "city",
+  "stateOrProvince": "Ontario",
+  "code": "ON",
+  "country": "Canada",
+  "countryCode": "CA",
+  "countryName": "Canada",
+  "population": 18192,
+  "lat": 43.05,
+  "lng": -79.2833,
+  "altNames": [
+    "Fonthill",
+    "Fenwick",
+    "Short Hills"
+  ],
+  "craftBeerHubRank": "Kame & Kettle Beer Works"
+},
+{
+  "name": "Port Colborne, ON, Canada",
+  "cityName": "Port Colborne",
+  "asciiname": "Port Colborne",
+  "subtext": "Ontario, Canada • Pop. 20,033",
+  "type": "city",
+  "stateOrProvince": "Ontario",
+  "code": "ON",
+  "country": "Canada",
+  "countryCode": "CA",
+  "countryName": "Canada",
+  "population": 20033,
+  "lat": 42.8833,
+  "lng": -79.25,
+  "altNames": [
+    "Welland Canal Lock 8",
+    "Lake Erie Port"
+  ],
+  "craftBeerHubRank": "Breakwall Brewing Company"
+},
+{
+  "name": "Thorold, ON, Canada",
+  "cityName": "Thorold",
+  "asciiname": "Thorold",
+  "subtext": "Ontario, Canada • Pop. 23,816",
+  "type": "city",
+  "stateOrProvince": "Ontario",
+  "code": "ON",
+  "country": "Canada",
+  "countryCode": "CA",
+  "countryName": "Canada",
+  "population": 23816,
+  "lat": 43.1236,
+  "lng": -79.1989,
+  "altNames": [
+    "Where Ships Climb The Mountain",
+    "Welland Canal Twin Flight Locks"
+  ],
+  "craftBeerHubRank": null
+},
+{
+  "name": "Tillsonburg, ON, Canada",
+  "cityName": "Tillsonburg",
+  "asciiname": "Tillsonburg",
+  "subtext": "Ontario, Canada • Pop. 18,615",
+  "type": "city",
+  "stateOrProvince": "Ontario",
+  "code": "ON",
+  "country": "Canada",
+  "countryCode": "CA",
+  "countryName": "Canada",
+  "population": 18615,
+  "lat": 42.86,
+  "lng": -80.73,
+  "altNames": [
+    "Oxford County South",
+    "Lake Lisgar"
+  ],
+  "craftBeerHubRank": null
+},
+{
+  "name": "Ingersoll, ON, Canada",
+  "cityName": "Ingersoll",
+  "asciiname": "Ingersoll",
+  "subtext": "Ontario, Canada • Pop. 13,693 (Radius > 18,000)",
+  "type": "city",
+  "stateOrProvince": "Ontario",
+  "code": "ON",
+  "country": "Canada",
+  "countryCode": "CA",
+  "countryName": "Canada",
+  "population": 13693,
+  "lat": 43.04,
+  "lng": -80.88,
+  "altNames": [
+    "Oxford County Craft Belt"
+  ],
+  "craftBeerHubRank": null
+},
+{
+  "name": "Strathroy-Caradoc, ON, Canada",
+  "cityName": "Strathroy-Caradoc",
+  "asciiname": "Strathroy-Caradoc",
+  "subtext": "Ontario, Canada • Pop. 23,871",
+  "type": "city",
+  "stateOrProvince": "Ontario",
+  "code": "ON",
+  "country": "Canada",
+  "countryCode": "CA",
+  "countryName": "Canada",
+  "population": 23871,
+  "lat": 42.9567,
+  "lng": -81.6217,
+  "altNames": [
+    "Strathroy",
+    "Mount Brydges",
+    "Middlesex County"
+  ],
+  "craftBeerHubRank": "Strathroy Brewing Company"
+},
+{
+  "name": "Middlesex Centre, ON, Canada",
+  "cityName": "Middlesex Centre",
+  "asciiname": "Middlesex Centre",
+  "subtext": "Ontario, Canada • Pop. 18,928",
+  "type": "city",
+  "stateOrProvince": "Ontario",
+  "code": "ON",
+  "country": "Canada",
+  "countryCode": "CA",
+  "countryName": "Canada",
+  "population": 18928,
+  "lat": 43.05,
+  "lng": -81.45,
+  "altNames": [
+    "Komoka",
+    "Ilderton",
+    "Delaware ON"
+  ],
+  "craftBeerHubRank": null
+},
+{
+  "name": "Clarence-Rockland, ON, Canada",
+  "cityName": "Clarence-Rockland",
+  "asciiname": "Clarence-Rockland",
+  "subtext": "Ontario, Canada • Pop. 26,505",
+  "type": "city",
+  "stateOrProvince": "Ontario",
+  "code": "ON",
+  "country": "Canada",
+  "countryCode": "CA",
+  "countryName": "Canada",
+  "population": 26505,
+  "lat": 45.55,
+  "lng": -75.2833,
+  "altNames": [
+    "Rockland",
+    "Bourget",
+    "Ottawa Valley East"
+  ],
+  "craftBeerHubRank": null
+},
+{
+  "name": "Russell, ON, Canada",
+  "cityName": "Russell",
+  "asciiname": "Russell",
+  "subtext": "Ontario, Canada • Pop. 19,598",
+  "type": "city",
+  "stateOrProvince": "Ontario",
+  "code": "ON",
+  "country": "Canada",
+  "countryCode": "CA",
+  "countryName": "Canada",
+  "population": 19598,
+  "lat": 45.2667,
+  "lng": -75.35,
+  "altNames": [
+    "Embrun",
+    "Russell Township",
+    "Prescott and Russell"
+  ],
+  "craftBeerHubRank": null
+},
+{
+  "name": "Carleton Place, ON, Canada",
+  "cityName": "Carleton Place",
+  "asciiname": "Carleton Place",
+  "subtext": "Ontario, Canada • Pop. 12,517 (Radius > 22,000)",
+  "type": "city",
+  "stateOrProvince": "Ontario",
+  "code": "ON",
+  "country": "Canada",
+  "countryCode": "CA",
+  "countryName": "Canada",
+  "population": 12517,
+  "lat": 45.14,
+  "lng": -76.14,
+  "altNames": [
+    "Mississippi River",
+    "Lanark County Gateway"
+  ],
+  "craftBeerHubRank": "Braumeister Brewing & Ashton Brewing"
+},
+{
+  "name": "Mississippi Mills, ON, Canada",
+  "cityName": "Mississippi Mills",
+  "asciiname": "Mississippi Mills",
+  "subtext": "Ontario, Canada • Pop. 14,740 (Radius > 18,000)",
+  "type": "city",
+  "stateOrProvince": "Ontario",
+  "code": "ON",
+  "country": "Canada",
+  "countryCode": "CA",
+  "countryName": "Canada",
+  "population": 14740,
+  "lat": 45.2286,
+  "lng": -76.195,
+  "altNames": [
+    "Almonte",
+    "Pakenham",
+    "Ramsay"
+  ],
+  "craftBeerHubRank": "Crooked Mile Brewing Co."
+},
+{
+  "name": "Petawawa, ON, Canada",
+  "cityName": "Petawawa",
+  "asciiname": "Petawawa",
+  "subtext": "Ontario, Canada • Pop. 18,160",
+  "type": "city",
+  "stateOrProvince": "Ontario",
+  "code": "ON",
+  "country": "Canada",
+  "countryCode": "CA",
+  "countryName": "Canada",
+  "population": 18160,
+  "lat": 45.9,
+  "lng": -77.2833,
+  "altNames": [
+    "Garrison Petawawa",
+    "Upper Ottawa Valley"
+  ],
+  "craftBeerHubRank": "Square Timber & Whitewater Gateway"
+},
+{
+  "name": "Pembroke, ON, Canada",
+  "cityName": "Pembroke",
+  "asciiname": "Pembroke",
+  "subtext": "Ontario, Canada • Pop. 14,364 (Area > 24,000)",
+  "type": "city",
+  "stateOrProvince": "Ontario",
+  "code": "ON",
+  "country": "Canada",
+  "countryCode": "CA",
+  "countryName": "Canada",
+  "population": 14364,
+  "lat": 45.8267,
+  "lng": -77.1117,
+  "altNames": [
+    "Heart of the Ottawa Valley",
+    "Renfrew County"
+  ],
+  "craftBeerHubRank": "Square Timber Brewing Co."
+},
+{
+  "name": "Bracebridge, ON, Canada",
+  "cityName": "Bracebridge",
+  "asciiname": "Bracebridge",
+  "subtext": "Ontario, Canada • Pop. 17,305",
+  "type": "city",
+  "stateOrProvince": "Ontario",
+  "code": "ON",
+  "country": "Canada",
+  "countryCode": "CA",
+  "countryName": "Canada",
+  "population": 17305,
+  "lat": 45.0333,
+  "lng": -79.3167,
+  "altNames": [
+    "The Heart of Muskoka",
+    "Muskoka Falls"
+  ],
+  "craftBeerHubRank": "Muskoka Brewery Home"
+},
+{
+  "name": "Huntsville, ON, Canada",
+  "cityName": "Huntsville",
+  "asciiname": "Huntsville",
+  "subtext": "Ontario, Canada • Pop. 21,147",
+  "type": "city",
+  "stateOrProvince": "Ontario",
+  "code": "ON",
+  "country": "Canada",
+  "countryCode": "CA",
+  "countryName": "Canada",
+  "population": 21147,
+  "lat": 45.3333,
+  "lng": -79.2167,
+  "altNames": [
+    "Gateway to Algonquin",
+    "Muskoka North",
+    "Arrowhead"
+  ],
+  "craftBeerHubRank": "Canvas Brewing Co."
+},
+{
+  "name": "Gravenhurst, ON, Canada",
+  "cityName": "Gravenhurst",
+  "asciiname": "Gravenhurst",
+  "subtext": "Ontario, Canada • Pop. 13,157 (Radius > 16,000)",
+  "type": "city",
+  "stateOrProvince": "Ontario",
+  "code": "ON",
+  "country": "Canada",
+  "countryCode": "CA",
+  "countryName": "Canada",
+  "population": 13157,
+  "lat": 44.9167,
+  "lng": -79.3667,
+  "altNames": [
+    "Gateway to Muskoka Lakes",
+    "Muskoka Wharf",
+    "Steamship Segwun"
+  ],
+  "craftBeerHubRank": "Sawdust City Brewing Co."
+},
+{
+  "name": "Kenora, ON, Canada",
+  "cityName": "Kenora",
+  "asciiname": "Kenora",
+  "subtext": "Ontario, Canada • Pop. 14,967 (Area > 17,000)",
+  "type": "city",
+  "stateOrProvince": "Ontario",
+  "code": "ON",
+  "country": "Canada",
+  "countryCode": "CA",
+  "countryName": "Canada",
+  "population": 14967,
+  "lat": 49.7667,
+  "lng": -94.4833,
+  "altNames": [
+    "Lake of the Woods",
+    "Northwestern Ontario Craft",
+    "Rat Portage"
+  ],
+  "craftBeerHubRank": "Lake of the Woods Brewing Co."
+},
+{
+  "name": "Scugog, ON, Canada",
+  "cityName": "Scugog",
+  "asciiname": "Scugog",
+  "subtext": "Ontario, Canada • Pop. 22,466",
+  "type": "city",
+  "stateOrProvince": "Ontario",
+  "code": "ON",
+  "country": "Canada",
+  "countryCode": "CA",
+  "countryName": "Canada",
+  "population": 22466,
+  "lat": 44.1,
+  "lng": -78.9333,
+  "altNames": [
+    "Port Perry",
+    "Lake Scugog",
+    "Durham Region North"
+  ],
+  "craftBeerHubRank": null
+},
+{
+  "name": "Uxbridge, ON, Canada",
+  "cityName": "Uxbridge",
+  "asciiname": "Uxbridge",
+  "subtext": "Ontario, Canada • Pop. 21,556",
+  "type": "city",
+  "stateOrProvince": "Ontario",
+  "code": "ON",
+  "country": "Canada",
+  "countryCode": "CA",
+  "countryName": "Canada",
+  "population": 21556,
+  "lat": 44.1083,
+  "lng": -79.12,
+  "altNames": [
+    "Trail Capital of Canada",
+    "Oak Ridges Moraine"
+  ],
+  "craftBeerHubRank": null
+},
+{
+  "name": "Whitchurch-Stouffville, ON, Canada",
+  "cityName": "Whitchurch-Stouffville",
+  "asciiname": "Whitchurch-Stouffville",
+  "subtext": "Ontario, Canada • Pop. 49,864",
+  "type": "city",
+  "stateOrProvince": "Ontario",
+  "code": "ON",
+  "country": "Canada",
+  "countryCode": "CA",
+  "countryName": "Canada",
+  "population": 49864,
+  "lat": 43.9667,
+  "lng": -79.25,
+  "altNames": [
+    "Stouffville",
+    "York Region Craft Belt"
+  ],
+  "craftBeerHubRank": null
+},
+{
+  "name": "King, ON, Canada",
+  "cityName": "King",
+  "asciiname": "King",
+  "subtext": "Ontario, Canada • Pop. 27,333",
+  "type": "city",
+  "stateOrProvince": "Ontario",
+  "code": "ON",
+  "country": "Canada",
+  "countryCode": "CA",
+  "countryName": "Canada",
+  "population": 27333,
+  "lat": 43.9667,
+  "lng": -79.5333,
+  "altNames": [
+    "King City",
+    "Nobleton",
+    "Schomberg"
+  ],
+  "craftBeerHubRank": null
+},
+{
+  "name": "Selwyn, ON, Canada",
+  "cityName": "Selwyn",
+  "asciiname": "Selwyn",
+  "subtext": "Ontario, Canada • Pop. 18,653",
+  "type": "city",
+  "stateOrProvince": "Ontario",
+  "code": "ON",
+  "country": "Canada",
+  "countryCode": "CA",
+  "countryName": "Canada",
+  "population": 18653,
+  "lat": 44.4167,
+  "lng": -78.3333,
+  "altNames": [
+    "Lakefield",
+    "Smith-Ennismore-Lakefield",
+    "Kawarthas"
+  ],
+  "craftBeerHubRank": null
+}
 ];

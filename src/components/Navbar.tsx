@@ -14,6 +14,7 @@ import {
   Info,
 } from 'lucide-react';
 import { HopIcon } from './HopIcon';
+import { BrandLogo } from './BrandLogo';
 import { AuthUser, AppPageView } from '../types';
 
 interface NavbarProps {
@@ -81,30 +82,17 @@ export const Navbar: React.FC<NavbarProps> = ({
             <Menu className="w-5 h-5 text-[#66DE37]" />
           </button>
 
-          {/* Brand Logo & Editorial Title */}
-          <a
+          {/* Brand Logo with Crafty Typography & Slogan */}
+          <BrandLogo
+            size="md"
+            darkMode={true}
+            slogan="CRAFT BEER TRAILS"
             href="/"
-            id="brand-header-link"
             onClick={(e) => {
               e.preventDefault();
               onNavigate('home');
             }}
-            className="flex items-center gap-2 sm:gap-3 cursor-pointer group shrink-0 select-none py-1"
-          >
-            <div className="flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:rotate-6 transition-all duration-200">
-              <HopIcon className="w-8 h-8 sm:w-10 sm:h-10 text-[#66DE37] drop-shadow-[0_2px_10px_rgba(102,222,55,0.4)]" filled />
-            </div>
-            <div className="flex flex-col justify-center">
-              <div className="flex items-baseline gap-2">
-                <span className="font-black text-xl sm:text-2xl tracking-wide text-white drop-shadow-xs font-brand leading-none">
-                  BREWHOP
-                </span>
-              </div>
-              <p className="text-[10px] sm:text-xs text-[#C6E2BD] font-semibold tracking-normal mt-0.5 leading-tight">
-                Fresh Hop Routes!
-              </p>
-            </div>
-          </a>
+          />
         </div>
 
         {/* Center: Desktop Navigation Links */}

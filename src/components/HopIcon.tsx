@@ -22,6 +22,7 @@ interface HopIconProps extends React.SVGProps<SVGSVGElement> {
 export const HopIcon: React.FC<HopIconProps> = ({
   className = 'w-7 h-7',
   size,
+  filled,
   variant = 'route',
   showRays = true,
   ...props

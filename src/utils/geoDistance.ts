@@ -159,25 +159,108 @@ const CITY_COORDINATES: Record<string, LatLng> = {
   'kingston': { lat: 44.2312, lng: -76.4860 },
   'kingston, on': { lat: 44.2312, lng: -76.4860 },
   'prince edward county': { lat: 43.9931, lng: -77.2344 },
+  'prince edward county, on': { lat: 43.9931, lng: -77.2344 },
   'picton, on': { lat: 44.0083, lng: -77.1394 },
   'belleville, on': { lat: 44.1628, lng: -77.3832 },
   'peterborough, on': { lat: 44.3091, lng: -78.3197 },
   'toronto': { lat: 43.6532, lng: -79.3832 },
   'toronto, on': { lat: 43.6532, lng: -79.3832 },
   'mississauga': { lat: 43.5890, lng: -79.6441 },
+  'mississauga, on': { lat: 43.5890, lng: -79.6441 },
+  'brampton, on': { lat: 43.7315, lng: -79.7624 },
   'oakville, on': { lat: 43.4675, lng: -79.6877 },
   'burlington, on': { lat: 43.3255, lng: -79.7990 },
   'hamilton': { lat: 43.2557, lng: -79.8711 },
+  'hamilton, on': { lat: 43.2557, lng: -79.8711 },
+  'markham, on': { lat: 43.8561, lng: -79.3370 },
+  'vaughan, on': { lat: 43.8563, lng: -79.5085 },
+  'richmond hill, on': { lat: 43.8828, lng: -79.4403 },
+  'milton, on': { lat: 43.5183, lng: -79.8774 },
+  'oshawa, on': { lat: 43.8971, lng: -78.8658 },
+  'whitby, on': { lat: 43.8975, lng: -78.9429 },
+  'ajax, on': { lat: 43.8509, lng: -79.0204 },
+  'pickering, on': { lat: 43.8384, lng: -79.0868 },
+  'newmarket, on': { lat: 44.0592, lng: -79.4613 },
+  'aurora, on': { lat: 44.0000, lng: -79.4667 },
+  'caledon, on': { lat: 43.8644, lng: -79.9989 },
+  'halton hills, on': { lat: 43.6486, lng: -79.9247 },
+  'georgetown, on': { lat: 43.6486, lng: -79.9247 },
   'niagara falls, on': { lat: 43.0896, lng: -79.0849 },
+  'niagara-on-the-lake, on': { lat: 43.2553, lng: -79.0717 },
   'st. catharines, on': { lat: 43.1594, lng: -79.2469 },
+  'st catharines, on': { lat: 43.1594, lng: -79.2469 },
+  'welland, on': { lat: 42.9922, lng: -79.2483 },
+  'fort erie, on': { lat: 42.9000, lng: -78.9333 },
+  'grimsby, on': { lat: 43.1932, lng: -79.5606 },
+  'lincoln, on': { lat: 43.1667, lng: -79.4333 },
+  'beamsville, on': { lat: 43.1667, lng: -79.4833 },
+  'pelham, on': { lat: 43.0500, lng: -79.2833 },
+  'port colborne, on': { lat: 42.8833, lng: -79.2500 },
+  'thorold, on': { lat: 43.1236, lng: -79.1989 },
   'kitchener, on': { lat: 43.4516, lng: -80.4925 },
   'waterloo, on': { lat: 43.4643, lng: -80.5204 },
+  'cambridge, on': { lat: 43.3616, lng: -80.3144 },
   'guelph, on': { lat: 43.5448, lng: -80.2482 },
+  'brantford, on': { lat: 43.1394, lng: -80.2644 },
+  'brant, on': { lat: 43.1950, lng: -80.3844 },
+  'paris, on': { lat: 43.1950, lng: -80.3844 },
+  'woodstock, on': { lat: 43.1315, lng: -80.7467 },
+  'stratford, on': { lat: 43.3700, lng: -80.9822 },
   'london, on': { lat: 42.9849, lng: -81.2453 },
+  'st. thomas, on': { lat: 42.7788, lng: -81.1837 },
+  'st thomas, on': { lat: 42.7788, lng: -81.1837 },
   'windsor, on': { lat: 42.3149, lng: -83.0364 },
+  'chatham-kent, on': { lat: 42.4048, lng: -82.1910 },
+  'chatham, on': { lat: 42.4048, lng: -82.1910 },
+  'leamington, on': { lat: 42.0532, lng: -82.5998 },
+  'kingsville, on': { lat: 42.0381, lng: -82.7389 },
+  'tecumseh, on': { lat: 42.3167, lng: -82.8833 },
+  'lasalle, on': { lat: 42.2167, lng: -83.0667 },
+  'amherstburg, on': { lat: 42.1000, lng: -83.1000 },
+  'lakeshore, on': { lat: 42.2833, lng: -82.6833 },
+  'sarnia, on': { lat: 42.9745, lng: -82.4066 },
   'barrie, on': { lat: 44.3894, lng: -79.6903 },
+  'orillia, on': { lat: 44.6087, lng: -79.4208 },
+  'collingwood, on': { lat: 44.5000, lng: -80.2167 },
+  'the blue mountains, on': { lat: 44.5500, lng: -80.3500 },
+  'thornbury, on': { lat: 44.5500, lng: -80.3500 },
+  'wasaga beach, on': { lat: 44.5206, lng: -80.0167 },
+  'midland, on': { lat: 44.7500, lng: -79.8833 },
+  'owen sound, on': { lat: 44.5678, lng: -80.9430 },
+  'orangeville, on': { lat: 43.9167, lng: -80.1167 },
+  'clarington, on': { lat: 43.9350, lng: -78.6080 },
+  'bowmanville, on': { lat: 43.9125, lng: -78.6872 },
+  'port hope, on': { lat: 43.9500, lng: -78.3000 },
+  'cobourg, on': { lat: 43.9598, lng: -78.1654 },
+  'kawartha lakes, on': { lat: 44.3565, lng: -78.7402 },
+  'lindsay, on': { lat: 44.3565, lng: -78.7402 },
+  'quinte west, on': { lat: 44.1030, lng: -77.5772 },
+  'trenton, on': { lat: 44.1030, lng: -77.5772 },
+  'brockville, on': { lat: 44.5895, lng: -75.6843 },
+  'cornwall, on': { lat: 45.0213, lng: -74.7303 },
+  'carleton place, on': { lat: 45.1400, lng: -76.1400 },
+  'almonte, on': { lat: 45.2286, lng: -76.1950 },
+  'mississippi mills, on': { lat: 45.2286, lng: -76.1950 },
+  'pembroke, on': { lat: 45.8267, lng: -77.1117 },
+  'petawawa, on': { lat: 45.9000, lng: -77.2833 },
+  'bracebridge, on': { lat: 45.0333, lng: -79.3167 },
+  'huntsville, on': { lat: 45.3333, lng: -79.2167 },
+  'gravenhurst, on': { lat: 44.9167, lng: -79.3667 },
   'sudbury, on': { lat: 46.4917, lng: -80.9930 },
+  'greater sudbury, on': { lat: 46.4917, lng: -80.9930 },
+  'north bay, on': { lat: 46.3091, lng: -79.4608 },
+  'sault ste. marie, on': { lat: 46.5136, lng: -84.3358 },
+  'timmins, on': { lat: 48.4758, lng: -81.3304 },
   'thunder bay, on': { lat: 48.3809, lng: -89.2477 },
+  'kenora, on': { lat: 49.7667, lng: -94.4833 },
+  'simcoe, on': { lat: 42.8361, lng: -80.3069 },
+  'norfolk county, on': { lat: 42.8361, lng: -80.3069 },
+  'tillsonburg, on': { lat: 42.8600, lng: -80.7300 },
+  'ingersoll, on': { lat: 43.0400, lng: -80.8800 },
+  'strathroy, on': { lat: 42.9567, lng: -81.6217 },
+  'centre wellington, on': { lat: 43.7000, lng: -80.4333 },
+  'elora, on': { lat: 43.6833, lng: -80.4333 },
+  'fergus, on': { lat: 43.7042, lng: -80.3775 },
   'halifax': { lat: 44.6488, lng: -63.5752 },
   'fredericton': { lat: 45.9636, lng: -66.6431 },
   'moncton': { lat: 46.0878, lng: -64.7782 },
@@ -540,22 +623,31 @@ export function resolveCoordinates(locationStr: string, fallbackCoord?: LatLng):
   }
 
   // 3. Search ALL_MAJOR_CITIES (1,739 major world cities with accurate lat/lng)
+  const stripDiacritics = (str: string) => str.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
   const clean = trimmed.toLowerCase();
   const cleanNoComma = clean.replace(/,/g, ' ').replace(/\s+/g, ' ').trim();
   const cleanFirstPart = clean.split(',')[0].trim();
+  const cleanFirstPartNorm = stripDiacritics(cleanFirstPart);
+  const cleanNorm = stripDiacritics(clean);
 
   const majorCityMatch = ALL_MAJOR_CITIES.find((c) => {
     const cName = c.cityName.toLowerCase();
     const cAscii = c.asciiname.toLowerCase();
     const fullName = c.name.toLowerCase();
+    const cNameNorm = stripDiacritics(cName);
+    const cAsciiNorm = stripDiacritics(cAscii);
+    const fullNameNorm = stripDiacritics(fullName);
 
-    // Exact city name or full string match
-    if (cName === clean || cAscii === clean || fullName === clean) return true;
-    if (cName === cleanFirstPart || cAscii === cleanFirstPart) return true;
+    // Exact city name or full string match (with & without diacritics)
+    if (cName === clean || cAscii === clean || fullName === clean || cNameNorm === cleanNorm || fullNameNorm === cleanNorm) return true;
+    if (cName === cleanFirstPart || cAscii === cleanFirstPart || cNameNorm === cleanFirstPartNorm || cAsciiNorm === cleanFirstPartNorm) return true;
     if (cName === cleanNoComma || cAscii === cleanNoComma) return true;
 
-    // Check alternate names (e.g. München, Praha, Wien)
-    if (c.altNames && c.altNames.some(alt => alt.toLowerCase() === clean || alt.toLowerCase() === cleanFirstPart)) {
+    // Check alternate names (e.g. München, Praha, Wien, Gaspé)
+    if (c.altNames && c.altNames.some(alt => {
+      const a = alt.toLowerCase();
+      return a === clean || a === cleanFirstPart || stripDiacritics(a) === cleanFirstPartNorm;
+    })) {
       return true;
     }
 

@@ -461,6 +461,7 @@ export function validateBreweryStyleMatch(
   preferredStyles: string[]
 ): {
   hasPreferredStyle: boolean;
+  isAlternativeStyleStop?: boolean;
   matchedStyles: string[];
   styleNotice?: string;
   styleVerificationSources?: {
@@ -507,16 +508,18 @@ export function validateBreweryStyleMatch(
     };
   }
 
+  const requestedStylesStr = preferredStyles.join(', ');
   return {
     hasPreferredStyle: false,
+    isAlternativeStyleStop: true,
     matchedStyles: [],
     styleNotice:
-      'No preferred style was found on their official website taplist, Untappd, or RateBeer, but we suggest it strongly based on high ratings.',
+      `Added to complete your trail: While this acclaimed brewery specializes in other craft styles rather than your selected ${requestedStylesStr}, it is included for its exceptional ratings and outstanding craft brewing reputation.`,
     styleVerificationSources: {
       websiteVerified: !!brewery.websiteUrl,
       untappdVerified: true,
       rateBeerVerified: true,
-      details: 'Checked official website taplist, Untappd & RateBeer. Recommended based on exceptional overall ratings.',
+      details: 'Checked official website taplist, Untappd & RateBeer. Acclaimed top-ranked brewery added to complete trail.',
     },
   };
 }
@@ -575,8 +578,9 @@ export function enrichAndValidateRoute(
         ...brewery,
         beerHighlights: sortedBeerHighlights,
         hasPreferredStyle: validation.hasPreferredStyle,
+        isAlternativeStyleStop: brewery.isAlternativeStyleStop || validation.isAlternativeStyleStop,
         matchedStyles: validation.matchedStyles,
-        styleNotice: validation.styleNotice,
+        styleNotice: brewery.styleNotice || validation.styleNotice,
         untappdUrl,
         rateBeerUrl,
         websiteUrl,

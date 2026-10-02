@@ -49,6 +49,7 @@ export interface BreweryStop {
   ratings: ReviewRatings;
   beerHighlights: BeerHighlight[];
   hasPreferredStyle?: boolean; // Validates if brewery features at least one selected style
+  isAlternativeStyleStop?: boolean; // True if brewery was added to complete the trail because not enough matching breweries were found
   styleNotice?: string; // Message if no preferred style was found for this brewery
   matchedStyles?: string[]; // Styles that matched the user's preferences
   foodHighlights: string;
@@ -56,6 +57,7 @@ export interface BreweryStop {
   suggestedDurationMin: number;
   bestTimeToVisit: string;
   websiteUrl?: string;
+  logoUrl?: string; // Official brand logo or high-res brewery mark
   untappdUrl?: string;
   rateBeerUrl?: string;
   beerAdvocateUrl?: string;

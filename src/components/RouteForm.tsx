@@ -168,6 +168,10 @@ export const RouteForm: React.FC<RouteFormProps> = ({
     };
 
     onSubmit(params);
+    const submitBtn = document.getElementById('generate-route-submit-btn');
+    if (submitBtn) {
+      submitBtn.focus({ preventScroll: true });
+    }
   };
 
   const hasAnyInput = Boolean(
@@ -269,6 +273,200 @@ export const RouteForm: React.FC<RouteFormProps> = ({
                 darkMode={true}
               />
             </div>
+
+            {/* If NY state is selected, add smaller cities in the breweries finder */}
+            {(() => {
+              const d = destinationArea.trim().toLowerCase();
+              const isNY =
+                d === 'new york' ||
+                d === 'new york, usa' ||
+                d === 'new york state' ||
+                d === 'ny' ||
+                d === 'ny, usa' ||
+                d.startsWith('new york, usa (state)');
+
+              if (!isNY) return null;
+
+              return (
+                <div className="p-3.5 rounded-2xl bg-[#161616] border border-[#58A72F]/40 space-y-2.5 animate-in fade-in slide-in-from-top-2 duration-200">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2 text-xs font-bold text-[#A3D98E] font-brand">
+                      <MapPin className="w-3.5 h-3.5 text-[#58A72F]" />
+                      <span>New York State Selected — Breweries Finder Cities:</span>
+                    </div>
+                    <span className="text-[10px] text-[#888888] font-mono">1-tap select or explore entire state</span>
+                  </div>
+                  <div className="flex flex-wrap gap-1.5 max-h-40 overflow-y-auto pr-1">
+                    {[
+                      { name: 'New York City, NY, USA', label: 'New York City' },
+                      { name: 'Yonkers & Westchester, NY, USA', label: 'Yonkers & Westchester' },
+                      { name: 'Long Island, NY, USA', label: 'Long Island' },
+                      { name: 'Hudson Valley & Beacon, NY, USA', label: 'Beacon & Hudson' },
+                      { name: 'Finger Lakes & Ithaca, NY, USA', label: 'Ithaca & FLX' },
+                      { name: 'Saratoga Springs & Glens Falls, NY, USA', label: 'Saratoga & Glens Falls' },
+                      { name: 'Lake Placid & Adirondacks, NY, USA', label: 'Lake Placid & Adirondacks' },
+                      { name: 'Cooperstown & Oneonta, NY, USA', label: 'Cooperstown (Ommegang)' },
+                      { name: 'Buffalo, NY, USA', label: 'Buffalo' },
+                      { name: 'Rochester, NY, USA', label: 'Rochester' },
+                      { name: 'Syracuse, NY, USA', label: 'Syracuse' },
+                      { name: 'Albany, NY, USA', label: 'Albany' },
+                      { name: 'Utica & Rome, NY, USA', label: 'Utica & Rome' },
+                      { name: 'Binghamton, NY, USA', label: 'Binghamton' },
+                      { name: 'Corning & Elmira, NY, USA', label: 'Corning & Elmira' },
+                      { name: 'Geneva & Seneca Lake, NY, USA', label: 'Geneva & Seneca Lake' },
+                      { name: 'Poughkeepsie & Kingston, NY, USA', label: 'Poughkeepsie & Kingston' },
+                      { name: 'Newburgh & Middletown, NY, USA', label: 'Newburgh & Middletown' },
+                      { name: 'Niagara Falls & Lockport, NY, USA', label: 'Niagara Falls & Lockport' },
+                      { name: 'Plattsburgh, NY, USA', label: 'Plattsburgh' },
+                      { name: 'Watertown & Thousand Islands, NY, USA', label: 'Watertown & 1000 Islands' },
+                      { name: 'Jamestown & Chautauqua, NY, USA', label: 'Jamestown' },
+                      { name: 'Auburn, NY, USA', label: 'Auburn' },
+                      { name: 'Cortland, NY, USA', label: 'Cortland' },
+                      { name: 'Oswego, NY, USA', label: 'Oswego' },
+                      { name: 'Batavia, NY, USA', label: 'Batavia' },
+                    ].map((city) => (
+                      <button
+                        key={city.name}
+                        type="button"
+                        onClick={() => {
+                          setValidationError(null);
+                          setDestinationArea(city.name);
+                        }}
+                        className="px-2.5 py-1 rounded-full text-xs font-semibold bg-[#222222] hover:bg-[#1E3B18] hover:text-[#DDF1D2] hover:border-[#58A72F] text-[#CCCCCC] border border-[#333333] transition-all cursor-pointer min-h-[28px]"
+                      >
+                        {city.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              );
+            })()}
+
+            {/* If VT state is selected, add smaller cities in the breweries finder */}
+            {(() => {
+              const d = destinationArea.trim().toLowerCase();
+              const isVT =
+                d === 'vermont' ||
+                d === 'vermont, usa' ||
+                d === 'vermont state' ||
+                d === 'vt' ||
+                d === 'vt, usa';
+
+              if (!isVT) return null;
+
+              return (
+                <div className="p-3.5 rounded-2xl bg-[#161616] border border-[#58A72F]/40 space-y-2.5 animate-in fade-in slide-in-from-top-2 duration-200">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2 text-xs font-bold text-[#A3D98E] font-brand">
+                      <MapPin className="w-3.5 h-3.5 text-[#58A72F]" />
+                      <span>Vermont State Selected — Breweries Finder Cities:</span>
+                    </div>
+                    <span className="text-[10px] text-[#888888] font-mono">1-tap select or explore entire state</span>
+                  </div>
+                  <div className="flex flex-wrap gap-1.5 max-h-40 overflow-y-auto pr-1">
+                    {[
+                      { name: 'Burlington, VT, USA', label: 'Burlington' },
+                      { name: 'South Burlington, VT, USA', label: 'South Burlington' },
+                      { name: 'Stowe & Waterbury, VT, USA', label: 'Stowe & Waterbury' },
+                      { name: 'Greensboro & Northeast Kingdom, VT, USA', label: 'Greensboro (Hill Farmstead)' },
+                      { name: 'Warren & Mad River Valley, VT, USA', label: 'Mad River Valley (Lawson’s)' },
+                      { name: 'Rutland, VT, USA', label: 'Rutland' },
+                      { name: 'Bennington, VT, USA', label: 'Bennington' },
+                      { name: 'Brattleboro, VT, USA', label: 'Brattleboro (Hermit Thrush)' },
+                      { name: 'Hartford & White River Junction, VT, USA', label: 'White River Junction' },
+                      { name: 'Montpelier & Barre, VT, USA', label: 'Montpelier & Barre' },
+                      { name: 'Middlebury, VT, USA', label: 'Middlebury' },
+                      { name: 'St. Albans, VT, USA', label: 'St. Albans' },
+                      { name: 'Essex & Colchester, VT, USA', label: 'Essex & Colchester' },
+                      { name: 'St. Johnsbury, VT, USA', label: 'St. Johnsbury' },
+                    ].map((city) => (
+                      <button
+                        key={city.name}
+                        type="button"
+                        onClick={() => {
+                          setValidationError(null);
+                          setDestinationArea(city.name);
+                        }}
+                        className="px-2.5 py-1 rounded-full text-xs font-semibold bg-[#222222] hover:bg-[#1E3B18] hover:text-[#DDF1D2] hover:border-[#58A72F] text-[#CCCCCC] border border-[#333333] transition-all cursor-pointer min-h-[28px]"
+                      >
+                        {city.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              );
+            })()}
+
+            {/* If QC province is selected, add smaller cities in the breweries finder */}
+            {(() => {
+              const d = destinationArea.trim().toLowerCase();
+              const isQC =
+                d === 'quebec' ||
+                d === 'quebec, canada' ||
+                d === 'québec' ||
+                d === 'québec, canada' ||
+                d === 'qc' ||
+                d === 'qc, canada';
+
+              if (!isQC) return null;
+
+              return (
+                <div className="p-3.5 rounded-2xl bg-[#161616] border border-[#58A72F]/40 space-y-2.5 animate-in fade-in slide-in-from-top-2 duration-200">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2 text-xs font-bold text-[#A3D98E] font-brand">
+                      <MapPin className="w-3.5 h-3.5 text-[#58A72F]" />
+                      <span>Quebec Province Selected — Breweries Finder Cities:</span>
+                    </div>
+                    <span className="text-[10px] text-[#888888] font-mono">1-tap select or explore entire province</span>
+                  </div>
+                  <div className="flex flex-wrap gap-1.5 max-h-40 overflow-y-auto pr-1">
+                    {[
+                      { name: 'Montreal, QC, Canada', label: 'Montreal' },
+                      { name: 'Quebec City, QC, Canada', label: 'Quebec City' },
+                      { name: 'Laval, QC, Canada', label: 'Laval' },
+                      { name: 'Gatineau, QC, Canada', label: 'Gatineau' },
+                      { name: 'Sherbrooke, QC, Canada', label: 'Sherbrooke' },
+                      { name: 'Trois-Rivieres, QC, Canada', label: 'Trois-Rivières' },
+                      { name: 'Saguenay, QC, Canada', label: 'Saguenay' },
+                      { name: 'Saint-Jean-sur-Richelieu, QC, Canada', label: 'Saint-Jean' },
+                      { name: 'Saint-Jerome, QC, Canada', label: 'Saint-Jérôme (DDC)' },
+                      { name: 'Saint-Eustache & Blainville, QC, Canada', label: 'Saint-Eustache' },
+                      { name: 'Eastern Townships & Dunham, QC, Canada', label: 'Dunham & Magog' },
+                      { name: 'Shawinigan, QC, Canada', label: 'Shawinigan (Trou du Diable)' },
+                      { name: 'Drummondville, QC, Canada', label: 'Drummondville' },
+                      { name: 'Granby, QC, Canada', label: 'Granby' },
+                      { name: 'Saint-Hyacinthe, QC, Canada', label: 'Saint-Hyacinthe' },
+                      { name: 'Victoriaville, QC, Canada', label: 'Victoriaville' },
+                      { name: 'Terrebonne & Mascouche, QC, Canada', label: 'Terrebonne' },
+                      { name: 'Salaberry-de-Valleyfield, QC, Canada', label: 'Valleyfield' },
+                      { name: 'Sorel-Tracy, QC, Canada', label: 'Sorel-Tracy' },
+                      { name: 'Saint-Georges, QC, Canada', label: 'Saint-Georges' },
+                      { name: 'Val-d’Or & Rouyn-Noranda, QC, Canada', label: 'Val-d’Or' },
+                      { name: 'Alma, QC, Canada', label: 'Alma' },
+                      { name: 'Sept-Iles & Baie-Comeau, QC, Canada', label: 'Côte-Nord' },
+                      { name: 'Joliette, QC, Canada', label: 'Joliette' },
+                      { name: 'Riviere-du-Loup, QC, Canada', label: 'Rivière-du-Loup' },
+                      { name: 'Rimouski, QC, Canada', label: 'Rimouski' },
+                      { name: 'Gaspe & Perce, QC, Canada', label: 'Gaspé (Pit Caribou)' },
+                      { name: 'Mont-Tremblant & Sainte-Agathe, QC, Canada', label: 'Mont-Tremblant' },
+                      { name: 'Matane, QC, Canada', label: 'Matane' },
+                    ].map((city) => (
+                      <button
+                        key={city.name}
+                        type="button"
+                        onClick={() => {
+                          setValidationError(null);
+                          setDestinationArea(city.name);
+                        }}
+                        className="px-2.5 py-1 rounded-full text-xs font-semibold bg-[#222222] hover:bg-[#1E3B18] hover:text-[#DDF1D2] hover:border-[#58A72F] text-[#CCCCCC] border border-[#333333] transition-all cursor-pointer min-h-[28px]"
+                      >
+                        {city.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              );
+            })()}
           </div>
 
           {/* STEP 2: Preferred Beer Styles */}
@@ -646,6 +844,7 @@ export const RouteForm: React.FC<RouteFormProps> = ({
               type="submit"
               id="generate-route-submit-btn"
               disabled={isLoading}
+              aria-busy={isLoading}
               style={{
                 background: `linear-gradient(135deg, ${activeThemeConfig.primaryColor} 0%, ${activeThemeConfig.accentColor} 100%)`,
                 boxShadow: `0 10px 25px -5px ${activeThemeConfig.primaryColor}55, 0 4px 12px -2px ${activeThemeConfig.accentColor}44`,

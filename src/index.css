@@ -98,6 +98,17 @@
     font-weight: 900;
   }
 
+  .font-crafty {
+    font-family: 'Pacifico', 'Yellowtail', cursive, sans-serif;
+  }
+
+  .font-crafty-slogan {
+    font-family: 'Barlow Semi Condensed', 'Plus Jakarta Sans', sans-serif;
+    letter-spacing: 0.22em;
+    font-weight: 900;
+    text-transform: uppercase;
+  }
+
   .font-impact {
     font-family: 'Syne', 'Barlow Semi Condensed', sans-serif;
     font-weight: 800;

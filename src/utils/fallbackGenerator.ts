@@ -132,72 +132,100 @@ export function generateClientFallbackRoute(params: RouteParameters): BrewTravel
     }
   }
 
-  // Rank candidate breweries using 5-platform composite rating and beer style preferences
-  if (candidateBreweries.length > 1) {
-    if (destinationCityInfo.isCity) {
-      const firstBrewery = candidateBreweries[0];
-      const rest = candidateBreweries.slice(1).sort((a, b) => {
-        const aMatches = (a.beerHighlights || []).some((bh) =>
-          params.beerStyles.some((st) => checkBeerMatchesStyle(bh, st))
-        );
-        const bMatches = (b.beerHighlights || []).some((bh) =>
-          params.beerStyles.some((st) => checkBeerMatchesStyle(bh, st))
-        );
-        if (aMatches && !bMatches) return -1;
-        if (!aMatches && bMatches) return 1;
+  // STRICT BEER TYPE SELECTION:
+  // Enforce the user's Beer Type choices when finding breweries.
+  // Only and only if none or insufficient matching breweries are found to complete the trail,
+  // add top-ranked, well-reviewed breweries proposing other beer types, with an explicit note.
+  const targetTotalBreweries = Math.min(dayCount * 3, Math.max(dayCount * 2, Math.min(candidateBreweries.length, 3)));
 
-        const scoreA = calculate5PlatformComposite(a);
-        const scoreB = calculate5PlatformComposite(b);
-        return scoreB - scoreA;
+  const matchesPreferredStyles = (b: RealBreweryRecord): boolean => {
+    if (!styles || styles.length === 0) return true;
+    return (b.beerHighlights || []).some((bh) =>
+      styles.some((st) => checkBeerMatchesStyle(bh, st))
+    );
+  };
+
+  const matchingCandidates = candidateBreweries.filter(matchesPreferredStyles);
+  const otherCandidates = candidateBreweries
+    .filter((b) => !matchesPreferredStyles(b))
+    .sort((a, b) => calculate5PlatformComposite(b) - calculate5PlatformComposite(a));
+
+  const chosenTrailRecords: RealBreweryRecord[] = [];
+  const alternativeRecordNames = new Set<string>();
+
+  // If there are enough matching breweries in candidate pool to complete the full trail:
+  if (matchingCandidates.length >= targetTotalBreweries) {
+    // Strictly and exclusively use breweries with preferred beer styles!
+    let sortedMatching = [...matchingCandidates];
+    if (destinationCityInfo.isCity && destinationCityInfo.coords) {
+      sortedMatching.sort((a, b) => {
+        const distA = calculateHaversineKm(destinationCityInfo.coords!, { lat: a.lat, lng: a.lng });
+        const distB = calculateHaversineKm(destinationCityInfo.coords!, { lat: b.lat, lng: b.lng });
+        return distA - distB;
       });
-      candidateBreweries = [firstBrewery, ...rest];
     } else {
-      candidateBreweries = [...candidateBreweries].sort((a, b) => {
-        const aMatches = (a.beerHighlights || []).some((bh) =>
-          params.beerStyles.some((st) => checkBeerMatchesStyle(bh, st))
-        );
-        const bMatches = (b.beerHighlights || []).some((bh) =>
-          params.beerStyles.some((st) => checkBeerMatchesStyle(bh, st))
-        );
-        if (aMatches && !bMatches) return -1;
-        if (!aMatches && bMatches) return 1;
+      sortedMatching.sort((a, b) => calculate5PlatformComposite(b) - calculate5PlatformComposite(a));
+    }
 
-        const scoreA = calculate5PlatformComposite(a);
-        const scoreB = calculate5PlatformComposite(b);
-        return scoreB - scoreA;
+    const regenOffset = (params.regenerationCount || 0) * 2;
+    for (let i = 0; i < targetTotalBreweries; i++) {
+      const rec = sortedMatching[(i + regenOffset) % sortedMatching.length];
+      if (!chosenTrailRecords.some((existing) => existing.name === rec.name)) {
+        chosenTrailRecords.push(rec);
+      }
+    }
+    // Fill remaining if needed
+    for (const rec of sortedMatching) {
+      if (chosenTrailRecords.length >= targetTotalBreweries) break;
+      if (!chosenTrailRecords.some((existing) => existing.name === rec.name)) {
+        chosenTrailRecords.push(rec);
+      }
+    }
+  } else {
+    // Insufficient or zero matching breweries found to complete the entire trail:
+    // 1. Add all available matching breweries first
+    let sortedMatching = [...matchingCandidates];
+    if (destinationCityInfo.isCity && destinationCityInfo.coords) {
+      sortedMatching.sort((a, b) => {
+        const distA = calculateHaversineKm(destinationCityInfo.coords!, { lat: a.lat, lng: a.lng });
+        const distB = calculateHaversineKm(destinationCityInfo.coords!, { lat: b.lat, lng: b.lng });
+        return distA - distB;
       });
+    }
+    chosenTrailRecords.push(...sortedMatching);
+
+    // 2. Only and only because none/insufficient are found to complete the trail,
+    // add top-ranked alternative breweries with stellar reviews to complete the trail
+    for (const alt of otherCandidates) {
+      if (chosenTrailRecords.length >= targetTotalBreweries) break;
+      if (!chosenTrailRecords.some((existing) => existing.name === alt.name)) {
+        chosenTrailRecords.push(alt);
+        alternativeRecordNames.add(alt.name.toLowerCase().trim());
+      }
     }
   }
 
   // Calculate real driving transit from Starting Location to Day 1 Stop 1
   const originCoords = resolveCoordinates(startLoc);
-  const firstCand = candidateBreweries[0] || matchedRegion.breweries[0];
+  const firstCand = chosenTrailRecords[0] || candidateBreweries[0] || matchedRegion.breweries[0];
   const departureEst = calculateDrivingTransit(originCoords, { lat: firstCand.lat, lng: firstCand.lng });
   const departureDriveTimeMin = departureEst.driveTimeMin;
   const departureDistanceMiles = departureEst.distanceMiles;
   let returnHomeDriveTimeMin = departureDriveTimeMin;
   let returnHomeDistanceMiles = departureDistanceMiles;
 
-  const regenOffset = (params.regenerationCount || 0) * 2;
-
   const days: DayItinerary[] = Array.from({ length: dayCount }, (_, dayIdx) => {
     const dayNum = dayIdx + 1;
     const isFirstDay = dayNum === 1;
     const isLastDay = dayNum === dayCount;
 
-    // Pick 2-3 real breweries per day from the candidate list (strictly max 3)
-    // For city trips on Day 1, always anchor to startIndex = 0 so Stop 1 is within 10km!
-    const startIndex = (destinationCityInfo.isCity && dayIdx === 0)
-      ? 0
-      : (dayIdx * 3 + regenOffset) % candidateBreweries.length;
-    const dayBreweryRecords: RealBreweryRecord[] = [];
-    const breweriesPerDay = Math.min(3, Math.max(2, candidateBreweries.length - dayBreweryRecords.length));
-
-    for (let i = 0; i < breweriesPerDay; i++) {
-      const bRecord = candidateBreweries[(startIndex + i) % candidateBreweries.length];
-      if (!dayBreweryRecords.some((existing) => existing.name === bRecord.name)) {
-        dayBreweryRecords.push(bRecord);
-      }
+    // Distribute chosen records across dayCount days
+    const breweriesPerDay = Math.ceil(chosenTrailRecords.length / dayCount);
+    const startIdx = dayIdx * breweriesPerDay;
+    const endIdx = dayIdx === dayCount - 1 ? chosenTrailRecords.length : Math.min(startIdx + breweriesPerDay, chosenTrailRecords.length);
+    let dayBreweryRecords = chosenTrailRecords.slice(startIdx, endIdx);
+    if (dayBreweryRecords.length === 0 && chosenTrailRecords.length > 0) {
+      dayBreweryRecords = [chosenTrailRecords[dayIdx % chosenTrailRecords.length]];
     }
 
     const breweries: BreweryStop[] = dayBreweryRecords.map((bRecord, bIdx) => {
@@ -248,10 +276,16 @@ export function generateClientFallbackRoute(params: RouteParameters): BrewTravel
         googleMapsUrl: `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(`${bRecord.name}, ${bRecord.address}`)}&travelmode=driving`,
       };
 
+      const isAlternative = alternativeRecordNames.has(bRecord.name.toLowerCase().trim());
       const styleCheck = validateBreweryStyleMatch(stop, params.beerStyles || []);
-      stop.hasPreferredStyle = styleCheck.hasPreferredStyle;
-      stop.matchedStyles = styleCheck.matchedStyles;
-      stop.styleNotice = styleCheck.styleNotice;
+      stop.hasPreferredStyle = !isAlternative && styleCheck.hasPreferredStyle;
+      stop.isAlternativeStyleStop = isAlternative || (!stop.hasPreferredStyle && (params.beerStyles || []).length > 0);
+      stop.matchedStyles = isAlternative ? [] : styleCheck.matchedStyles;
+      if (stop.isAlternativeStyleStop) {
+        stop.styleNotice = `Added to complete your trail: While this acclaimed brewery specializes in other craft styles rather than your selected ${(params.beerStyles || []).join(', ')}, it is included for its exceptional ratings (Untappd ${bRecord.untappdScore.toFixed(2)} ★, Google ${bRecord.googleScore.toFixed(1)} ★) and outstanding craft brewing reputation.`;
+      } else {
+        stop.styleNotice = styleCheck.styleNotice;
+      }
 
       return stop;
     });

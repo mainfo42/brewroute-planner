@@ -123,15 +123,22 @@ export function detectDestinationCity(areaInput: string): DestinationCityInfo {
   }
 
   // Rule 4: Comma-separated format e.g. "Stowe, VT" or "Burlington, VT, USA" or "Sherbrooke, QC"
+  const stripDiacritics = (str: string) => str.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
   if (clean.includes(',')) {
     const firstPart = clean.split(',')[0].trim();
-    if (!STATE_OR_REGION_KEYWORDS.has(firstPart)) {
+    const firstPartNorm = stripDiacritics(firstPart);
+    if (!STATE_OR_REGION_KEYWORDS.has(firstPart) && !STATE_OR_REGION_KEYWORDS.has(firstPartNorm)) {
       // Find candidate city records matching firstPart
       const cityCandidates = ALL_MAJOR_CITIES.filter(
         (c) =>
           c.cityName.toLowerCase() === firstPart ||
           c.asciiname.toLowerCase() === firstPart ||
-          (c.altNames && c.altNames.some((alt) => alt.toLowerCase() === firstPart))
+          stripDiacritics(c.cityName.toLowerCase()) === firstPartNorm ||
+          stripDiacritics(c.asciiname.toLowerCase()) === firstPartNorm ||
+          (c.altNames && c.altNames.some((alt) => {
+            const a = alt.toLowerCase();
+            return a === firstPart || stripDiacritics(a) === firstPartNorm;
+          }))
       );
 
       const suggestionCandidates = ALL_LOCATION_SUGGESTIONS.filter(
@@ -139,7 +146,8 @@ export function detectDestinationCity(areaInput: string): DestinationCityInfo {
           s.type === 'city' &&
           (s.name.toLowerCase().startsWith(firstPart + ',') ||
             s.name.toLowerCase().includes(firstPart) ||
-            (s.cityName && s.cityName.toLowerCase() === firstPart))
+            stripDiacritics(s.name.toLowerCase()).startsWith(firstPartNorm + ',') ||
+            (s.cityName && (s.cityName.toLowerCase() === firstPart || stripDiacritics(s.cityName.toLowerCase()) === firstPartNorm)))
       );
 
       // Best match matching the state / code / country in clean

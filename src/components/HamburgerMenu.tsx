@@ -17,6 +17,7 @@ import {
   Mail,
 } from 'lucide-react';
 import { HopIcon } from './HopIcon';
+import { BrandLogo } from './BrandLogo';
 import { AppPageView, AuthUser } from '../types';
 
 interface HamburgerMenuProps {
@@ -93,19 +94,12 @@ export const HamburgerMenu: React.FC<HamburgerMenuProps> = ({
       >
         {/* Drawer Header */}
         <div className="p-5 sm:p-6 border-b border-[#213B1E] flex items-center justify-between bg-[#162D15]/90 sticky top-0 z-10">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-[#1E3B18] border border-[#58A72F]/50 flex items-center justify-center text-[#66DE37] shadow-inner">
-              <HopIcon className="w-6 h-6 text-[#66DE37]" filled />
-            </div>
-            <div>
-              <span className="font-black text-xl tracking-wider font-brand text-white block leading-tight">
-                BREWHOP
-              </span>
-              <span className="text-[11px] text-[#A6D496] font-medium block">
-                Microbrewery Trail Architect
-              </span>
-            </div>
-          </div>
+          <BrandLogo
+            size="md"
+            darkMode={true}
+            slogan="CRAFT BEER TRAILS"
+            onClick={onClose}
+          />
 
           <button
             type="button"

@@ -15,7 +15,7 @@ import {
   getBeerAdvocateScore,
   convertRealBreweryToStop,
 } from '../src/data/verifiedRealBreweries';
-import { enrichAndValidateRoute, validateBreweryStyleMatch, checkStyleMatch } from '../src/utils/styleMatcher';
+import { enrichAndValidateRoute, validateBreweryStyleMatch, checkStyleMatch, checkBeerMatchesStyle } from '../src/utils/styleMatcher';
 import { CURATED_BEER_NEWS, getDynamicCuratedBeerNews } from '../src/data/beerNewsData';
 import {
   detectDestinationCity,
@@ -72,6 +72,26 @@ const getGeminiClient = () => {
     },
   });
 };
+
+// Safe model invoker with tiered model fallback (handles quota/rate-limit errors gracefully)
+async function callGeminiWithModelFallback(ai: any, contents: any, config: any) {
+  // Use gemini-3.1-flash-lite as first choice, with fallback to gemini-flash-latest and gemini-3.8-flash
+  const candidateModels = ['gemini-3.1-flash-lite', 'gemini-flash-latest', 'gemini-3.8-flash'];
+  let lastErr: any = null;
+  for (const model of candidateModels) {
+    try {
+      return await ai.models.generateContent({
+        model,
+        contents,
+        config,
+      });
+    } catch (err: any) {
+      lastErr = err;
+      console.warn(`[Gemini API] Model ${model} returned error (quota/rate-limit/transient), trying next model:`, err?.message || err);
+    }
+  }
+  throw lastErr || new Error('All Gemini models exhausted');
+}
 
 const apiRouter = express.Router();
 
@@ -168,12 +188,8 @@ Each item must have:
         };
 
         const response = await withTimeout(
-          ai.models.generateContent({
-            model: 'gemini-2.5-flash',
-            contents: prompt,
-            config: {
-              responseMimeType: 'application/json',
-            },
+          callGeminiWithModelFallback(ai, prompt, {
+            responseMimeType: 'application/json',
           }),
           15000
         );
@@ -551,13 +567,47 @@ apiRouter.post('/generate-route', async (req, res) => {
     return res.json(emptyRoute);
   }
 
-  const destinationSpecificGrounding = verifiedCandidates.length > 0
-    ? `AUTHENTIC VERIFIED PHYSICAL CRAFT BREWERIES IN THIS DESTINATION (${params.destinationArea}):
-You MUST choose exclusively from the following VERIFIED real-world operating physical craft breweries for "${params.destinationArea}":
-${verifiedCandidates.map(b => `- "${b.name}" located at "${b.address}", ${b.city}, ${b.state}. Ratings: Google ${b.googleScore}, Untappd ${b.untappdScore}, RateBeer ${b.rateBeerScore}, TripAdvisor ${b.tripAdvisorScore}, BeerAdvocate ${b.beerAdvocateScore || 4.5}. Flagships: ${(b.beerHighlights || []).map(bh => `${bh.name} (${bh.style})`).join(', ')}`).join('\n')}
-CRITICAL: You are strictly forbidden from inventing, estimating, or altering brewery names outside this verified physical registry.`
-    : `CRITICAL REAL-WORLD ENTITY VERIFICATION DIRECTIVE:
+  // Strictly enforce user's Beer Type choices
+  const requestedStyles = params.beerStyles || [];
+  const minBreweriesNeeded = Math.min(dayCount * 3, Math.max(dayCount * 2, 2));
+
+  const isMatchingStyle = (b: RealBreweryRecord): boolean => {
+    if (requestedStyles.length === 0) return true;
+    return (b.beerHighlights || []).some(bh =>
+      requestedStyles.some(st => checkBeerMatchesStyle(bh, st))
+    );
+  };
+
+  const styleMatchingCandidates = verifiedCandidates.filter(isMatchingStyle);
+  const otherRankedCandidates = verifiedCandidates
+    .filter(b => !isMatchingStyle(b))
+    .sort((a, b) => calculate5PlatformComposite(b) - calculate5PlatformComposite(a));
+
+  const hasEnoughMatching = styleMatchingCandidates.length >= minBreweriesNeeded;
+
+  let destinationSpecificGrounding = '';
+  if (verifiedCandidates.length === 0) {
+    destinationSpecificGrounding = `CRITICAL REAL-WORLD ENTITY VERIFICATION DIRECTIVE:
 Every brewery MUST be an actual, currently operating, physical craft brewery located in or directly adjacent to "${params.destinationArea}". DO NOT hallucinate, invent, or estimate brewery names or addresses under any circumstances. If no verifiable physical craft breweries operate in "${params.destinationArea}", return an empty array for days.breweries.`;
+  } else if (hasEnoughMatching) {
+    destinationSpecificGrounding = `AUTHENTIC VERIFIED PHYSICAL CRAFT BREWERIES IN THIS DESTINATION (${params.destinationArea}):
+CRITICAL BEER TYPE ENFORCEMENT DIRECTIVE:
+The user specifically requested preferred Beer Types: [${requestedStyles.join(', ')}].
+Sufficient verified operating breweries brewing these exact requested styles exist in ${params.destinationArea} (${styleMatchingCandidates.length} matching breweries found).
+You MUST choose ONLY and EXCLUSIVELY breweries that brew and feature the user's requested beer styles:
+${styleMatchingCandidates.map(b => `- "${b.name}" located at "${b.address}", ${b.city}, ${b.state}. Ratings: Google ${b.googleScore}, Untappd ${b.untappdScore}, RateBeer ${b.rateBeerScore}, TripAdvisor ${b.tripAdvisorScore}, BeerAdvocate ${b.beerAdvocateScore || 4.5}. Flagships: ${(b.beerHighlights || []).map(bh => `${bh.name} (${bh.style})`).join(', ')}`).join('\n')}
+CRITICAL: You are strictly forbidden from including any breweries outside this matching registry. Every stop in the itinerary must feature their on-tap beers matching [${requestedStyles.join(', ')}].`;
+  } else {
+    destinationSpecificGrounding = `AUTHENTIC VERIFIED PHYSICAL CRAFT BREWERIES IN THIS DESTINATION (${params.destinationArea}):
+CRITICAL BEER TYPE ENFORCEMENT & TRAIL COMPLETION DIRECTIVE:
+The user requested preferred Beer Types: [${requestedStyles.join(', ')}].
+Only ${styleMatchingCandidates.length} matching brewery/breweries were found in this area:
+${styleMatchingCandidates.map(b => `- "${b.name}" (BREWS REQUESTED STYLES: ${(b.beerHighlights || []).map(bh => `${bh.name} [${bh.style}]`).join(', ')})`).join('\n')}
+TRAIL COMPLETION RULE:
+Only and only because none/insufficient breweries were found to complete the entire trail (${minBreweriesNeeded} needed), you MUST include all matching breweries above first, and you may fill the remaining trail stop(s) ONLY with these top-ranked, highly reviewed alternative breweries:
+${otherRankedCandidates.slice(0, minBreweriesNeeded - styleMatchingCandidates.length).map(b => `- "${b.name}" located at "${b.address}", ${b.city}, ${b.state}. Ratings: Google ${b.googleScore}, Untappd ${b.untappdScore}, RateBeer ${b.rateBeerScore}. Flagships: ${(b.beerHighlights || []).map(bh => `${bh.name} (${bh.style})`).join(', ')}`).join('\n')}
+For each alternative brewery added, you MUST set "isAlternativeStyleStop": true, and set "styleNotice": "Added to complete your trail: While this acclaimed brewery specializes in other craft styles rather than your selected ${requestedStyles.join(', ')}, it was selected for its exceptional certified 5-platform ratings and outstanding craft reputation."`;
+  }
 
   const stayRequirement = wantsStay
     ? `Since trip length is ${params.tripLength} (${dayCount} days) and stay type is ${params.stayType}, you MUST include an overnight "stay" recommendation object ONLY between active tour days.
@@ -636,17 +686,14 @@ Return a strictly valid JSON object matching the JSON schema.`;
 
   try {
     if (ai) {
-      const response = await ai.models.generateContent({
-        model: 'gemini-2.5-flash',
-        contents: prompt,
-        config: {
-          responseMimeType: 'application/json',
-          responseSchema: {
-            type: Type.OBJECT,
-            properties: {
-              id: { type: Type.STRING },
-              title: { type: Type.STRING },
-              region: { type: Type.STRING },
+      const response = await callGeminiWithModelFallback(ai, prompt, {
+        responseMimeType: 'application/json',
+        responseSchema: {
+          type: Type.OBJECT,
+          properties: {
+            id: { type: Type.STRING },
+            title: { type: Type.STRING },
+            region: { type: Type.STRING },
               summary: { type: Type.STRING },
               totalBreweries: { type: Type.INTEGER },
               totalTravelTimeMin: { type: Type.INTEGER },
@@ -780,6 +827,7 @@ Return a strictly valid JSON object matching the JSON schema.`;
                           suggestedDurationMin: { type: Type.INTEGER },
                           bestTimeToVisit: { type: Type.STRING },
                           hasPreferredStyle: { type: Type.BOOLEAN },
+                          isAlternativeStyleStop: { type: Type.BOOLEAN },
                           styleNotice: { type: Type.STRING },
                           matchedStyles: {
                             type: Type.ARRAY,
@@ -844,8 +892,7 @@ Return a strictly valid JSON object matching the JSON schema.`;
             },
             required: ['title', 'region', 'summary', 'days'],
           },
-        },
-      });
+        });
 
       const rawText = response.text?.trim();
       if (rawText) {
@@ -862,8 +909,16 @@ Return a strictly valid JSON object matching the JSON schema.`;
           parsed.days = parsed.days.slice(0, dayCount);
         }
 
-        // Ensure days and brewery limits per day (strictly max 3)
+        // First deduplicate breweries across and within days
         const allUsedBreweryNames = new Set<string>();
+        parsed.days.forEach(day => {
+          day.breweries = (day.breweries || []).filter(b => {
+            const key = (b?.name || '').toLowerCase().trim();
+            if (!key || allUsedBreweryNames.has(key)) return false;
+            allUsedBreweryNames.add(key);
+            return true;
+          });
+        });
 
         parsed.days.forEach((day, dIdx) => {
           day.dayNumber = dIdx + 1;
@@ -874,6 +929,25 @@ Return a strictly valid JSON object matching the JSON schema.`;
           const isLastDay = dIdx === parsed.days.length - 1;
           if (!wantsStay || dayCount === 1 || isLastDay) {
             day.stay = undefined;
+          }
+
+          // Complete trail if Gemini returned fewer than 2 breweries and candidates are available
+          const targetDayCount = Math.min(3, Math.max(2, verifiedCandidates.length));
+          while (day.breweries.length < targetDayCount && verifiedCandidates.length > day.breweries.length) {
+            const matchingLeft = styleMatchingCandidates.filter(c => !allUsedBreweryNames.has(c.name.toLowerCase().trim()));
+            const otherLeft = otherRankedCandidates.filter(c => !allUsedBreweryNames.has(c.name.toLowerCase().trim()));
+            const nextCandidate = matchingLeft[0] || otherLeft[0] || verifiedCandidates.filter(c => !allUsedBreweryNames.has(c.name.toLowerCase().trim()))[0];
+            if (!nextCandidate) break;
+
+            const converted = convertRealBreweryToStop(nextCandidate, day.dayNumber, day.breweries.length);
+            const isAlt = !isMatchingStyle(nextCandidate);
+            converted.hasPreferredStyle = !isAlt;
+            converted.isAlternativeStyleStop = isAlt;
+            if (isAlt && requestedStyles.length > 0) {
+              converted.styleNotice = `Added to complete your trail: While this acclaimed brewery specializes in other craft styles rather than your selected ${requestedStyles.join(', ')}, it was selected for its exceptional certified 5-platform ratings and outstanding craft reputation.`;
+            }
+            day.breweries.push(converted);
+            allUsedBreweryNames.add(nextCandidate.name.toLowerCase().trim());
           }
 
           day.breweries.forEach((b, bIdx) => {
@@ -907,6 +981,20 @@ Return a strictly valid JSON object matching the JSON schema.`;
             }
 
             allUsedBreweryNames.add(b.name.toLowerCase());
+
+            // Enforce Beer Type check on each brewery stop
+            if (requestedStyles.length > 0) {
+              const isMatch = (b.beerHighlights || []).some(bh =>
+                requestedStyles.some(st => checkBeerMatchesStyle(bh, st))
+              );
+              b.hasPreferredStyle = isMatch;
+              if (!isMatch) {
+                b.isAlternativeStyleStop = true;
+                b.styleNotice = b.styleNotice || `Added to complete your trail: While this acclaimed brewery specializes in other craft styles rather than your selected ${requestedStyles.join(', ')}, it was selected for its exceptional certified 5-platform ratings and outstanding craft reputation.`;
+              } else {
+                b.isAlternativeStyleStop = false;
+              }
+            }
 
             const googleScore = Number(b.ratings?.google?.score || 4.7);
             const untappdScore = Number(b.ratings?.untappd?.score || 4.2);
@@ -1216,72 +1304,99 @@ function generateSmartFallbackRoute(
     }
   }
 
-  // Rank candidate breweries using 5-platform composite rating and beer style preferences
-  if (candidateBreweries.length > 1) {
-    if (destinationCityInfo.isCity) {
-      const firstBrewery = candidateBreweries[0];
-      const rest = candidateBreweries.slice(1).sort((a, b) => {
-        const aMatches = (a.beerHighlights || []).some(bh =>
-          params.beerStyles.some(style => checkStyleMatch(`${bh.name} ${bh.style} ${bh.description}`, style))
-        );
-        const bMatches = (b.beerHighlights || []).some(bh =>
-          params.beerStyles.some(style => checkStyleMatch(`${bh.name} ${bh.style} ${bh.description}`, style))
-        );
-        if (aMatches && !bMatches) return -1;
-        if (!aMatches && bMatches) return 1;
+  // STRICT BEER TYPE SELECTION:
+  // Enforce the user's Beer Type choices when finding breweries.
+  // Only and only if none or insufficient matching breweries are found to complete the trail,
+  // add top-ranked, well-reviewed breweries proposing other beer types, with an explicit note.
+  const targetTotalBreweries = Math.min(dayCount * 3, Math.max(dayCount * 2, Math.min(candidateBreweries.length, 3)));
 
-        const scoreA = calculate5PlatformComposite(a);
-        const scoreB = calculate5PlatformComposite(b);
-        return scoreB - scoreA;
+  const matchesPreferredStyles = (b: RealBreweryRecord): boolean => {
+    if (!styles || styles.length === 0) return true;
+    return (b.beerHighlights || []).some(bh =>
+      styles.some(st => checkBeerMatchesStyle(bh, st))
+    );
+  };
+
+  const matchingCandidates = candidateBreweries.filter(matchesPreferredStyles);
+  const otherCandidates = candidateBreweries
+    .filter(b => !matchesPreferredStyles(b))
+    .sort((a, b) => calculate5PlatformComposite(b) - calculate5PlatformComposite(a));
+
+  const chosenTrailRecords: RealBreweryRecord[] = [];
+  const alternativeRecordNames = new Set<string>();
+
+  // If there are enough matching breweries in candidate pool to complete the full trail:
+  if (matchingCandidates.length >= targetTotalBreweries) {
+    // Strictly and exclusively use breweries with preferred beer styles!
+    let sortedMatching = [...matchingCandidates];
+    if (destinationCityInfo.isCity && destinationCityInfo.coords) {
+      sortedMatching.sort((a, b) => {
+        const distA = calculateHaversineKm(destinationCityInfo.coords!, { lat: a.lat, lng: a.lng });
+        const distB = calculateHaversineKm(destinationCityInfo.coords!, { lat: b.lat, lng: b.lng });
+        return distA - distB;
       });
-      candidateBreweries = [firstBrewery, ...rest];
     } else {
-      candidateBreweries = [...candidateBreweries].sort((a, b) => {
-        const aMatches = (a.beerHighlights || []).some(bh =>
-          params.beerStyles.some(style => checkStyleMatch(`${bh.name} ${bh.style} ${bh.description}`, style))
-        );
-        const bMatches = (b.beerHighlights || []).some(bh =>
-          params.beerStyles.some(style => checkStyleMatch(`${bh.name} ${bh.style} ${bh.description}`, style))
-        );
-        if (aMatches && !bMatches) return -1;
-        if (!aMatches && bMatches) return 1;
+      sortedMatching.sort((a, b) => calculate5PlatformComposite(b) - calculate5PlatformComposite(a));
+    }
 
-        const scoreA = calculate5PlatformComposite(a);
-        const scoreB = calculate5PlatformComposite(b);
-        return scoreB - scoreA;
+    const regenOffset = (params.regenerationCount || 0) * 2;
+    for (let i = 0; i < targetTotalBreweries; i++) {
+      const rec = sortedMatching[(i + regenOffset) % sortedMatching.length];
+      if (!chosenTrailRecords.some(existing => existing.name === rec.name)) {
+        chosenTrailRecords.push(rec);
+      }
+    }
+    for (const rec of sortedMatching) {
+      if (chosenTrailRecords.length >= targetTotalBreweries) break;
+      if (!chosenTrailRecords.some(existing => existing.name === rec.name)) {
+        chosenTrailRecords.push(rec);
+      }
+    }
+  } else {
+    // Insufficient matching breweries found to complete the entire trail:
+    // 1. Add all available matching breweries first
+    let sortedMatching = [...matchingCandidates];
+    if (destinationCityInfo.isCity && destinationCityInfo.coords) {
+      sortedMatching.sort((a, b) => {
+        const distA = calculateHaversineKm(destinationCityInfo.coords!, { lat: a.lat, lng: a.lng });
+        const distB = calculateHaversineKm(destinationCityInfo.coords!, { lat: b.lat, lng: b.lng });
+        return distA - distB;
       });
+    }
+    chosenTrailRecords.push(...sortedMatching);
+
+    // 2. Only and only because none/insufficient are found to complete the trail,
+    // add top-ranked alternative breweries with stellar reviews to complete the trail
+    for (const alt of otherCandidates) {
+      if (chosenTrailRecords.length >= targetTotalBreweries) break;
+      if (!chosenTrailRecords.some(existing => existing.name === alt.name)) {
+        chosenTrailRecords.push(alt);
+        alternativeRecordNames.add(alt.name.toLowerCase().trim());
+      }
     }
   }
 
   // Calculate real driving transit from Starting Location to Day 1 Stop 1
   const originCoords = resolveCoordinates(startLoc);
-  const firstCand = candidateBreweries[0] || matchedRegion.breweries[0];
+  const firstCand = chosenTrailRecords[0] || candidateBreweries[0] || matchedRegion.breweries[0];
   const departureEst = calculateDrivingTransit(originCoords, { lat: firstCand.lat, lng: firstCand.lng });
   const departureDriveTimeMin = departureEst.driveTimeMin;
   const departureDistanceMiles = departureEst.distanceMiles;
   let returnHomeDriveTimeMin = departureDriveTimeMin;
   let returnHomeDistanceMiles = departureDistanceMiles;
 
-  const regenOffset = (params.regenerationCount || 0) * 2;
-
   const days: DayItinerary[] = Array.from({ length: dayCount }, (_, dayIdx) => {
     const dayNum = dayIdx + 1;
     const isFirstDay = dayNum === 1;
     const isLastDay = dayNum === dayCount;
 
-    // Pick 2-3 real breweries per day from the candidate list
-    // For city trips on Day 1, always anchor to startIndex = 0 so Stop 1 is strictly within 10km!
-    const startIndex = (destinationCityInfo.isCity && dayIdx === 0)
-      ? 0
-      : (dayIdx * 3 + regenOffset) % candidateBreweries.length;
-    const dayBreweryRecords: RealBreweryRecord[] = [];
-    const breweriesPerDay = Math.min(3, Math.max(2, candidateBreweries.length - dayBreweryRecords.length));
-
-    for (let i = 0; i < breweriesPerDay; i++) {
-      const bRecord = candidateBreweries[(startIndex + i) % candidateBreweries.length];
-      if (!dayBreweryRecords.some(existing => existing.name === bRecord.name)) {
-        dayBreweryRecords.push(bRecord);
-      }
+    // Distribute chosen records across dayCount days
+    const breweriesPerDay = Math.ceil(chosenTrailRecords.length / dayCount);
+    const startIdx = dayIdx * breweriesPerDay;
+    const endIdx = dayIdx === dayCount - 1 ? chosenTrailRecords.length : Math.min(startIdx + breweriesPerDay, chosenTrailRecords.length);
+    let dayBreweryRecords = chosenTrailRecords.slice(startIdx, endIdx);
+    if (dayBreweryRecords.length === 0 && chosenTrailRecords.length > 0) {
+      dayBreweryRecords = [chosenTrailRecords[dayIdx % chosenTrailRecords.length]];
     }
 
     // Convert to BreweryStop objects with real addresses, ratings, and beers
@@ -1291,6 +1406,8 @@ function generateSmartFallbackRoute(
       const compAverage = Number(((bRecord.googleScore + bRecord.untappdScore + bRecord.rateBeerScore + bRecord.tripAdvisorScore + baScore) / 5).toFixed(2));
       const driveTime = bIdx === 0 ? 0 : 12 + bIdx * 3; // within 25 mins proximity
       const driveDist = bIdx === 0 ? 0 : 4.5 + bIdx * 1.5;
+
+      const isAlternative = alternativeRecordNames.has(bRecord.name.toLowerCase().trim());
 
       const stopWithoutValidation: BreweryStop = {
         id: `brewery-real-${dayNum}-${bIdx + 1}-${bRecord.name.toLowerCase().replace(/[^a-z0-9]/g, '-')}`,
@@ -1332,9 +1449,14 @@ function generateSmartFallbackRoute(
       };
 
       const styleCheck = validateBreweryStyleMatch(stopWithoutValidation, params.beerStyles || []);
-      stopWithoutValidation.hasPreferredStyle = styleCheck.hasPreferredStyle;
-      stopWithoutValidation.matchedStyles = styleCheck.matchedStyles;
-      stopWithoutValidation.styleNotice = styleCheck.styleNotice;
+      stopWithoutValidation.hasPreferredStyle = !isAlternative && styleCheck.hasPreferredStyle;
+      stopWithoutValidation.isAlternativeStyleStop = isAlternative || (!stopWithoutValidation.hasPreferredStyle && (params.beerStyles || []).length > 0);
+      stopWithoutValidation.matchedStyles = isAlternative ? [] : styleCheck.matchedStyles;
+      if (stopWithoutValidation.isAlternativeStyleStop) {
+        stopWithoutValidation.styleNotice = `Added to complete your trail: While this acclaimed brewery specializes in other craft styles rather than your selected ${(params.beerStyles || []).join(', ')}, it was selected for its exceptional certified 5-platform ratings (Untappd ${bRecord.untappdScore.toFixed(2)} ★, Google ${bRecord.googleScore.toFixed(1)} ★) and outstanding craft reputation.`;
+      } else {
+        stopWithoutValidation.styleNotice = styleCheck.styleNotice;
+      }
 
       return stopWithoutValidation;
     });
