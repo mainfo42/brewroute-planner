@@ -1,4 +1,4 @@
-import { BreweryStop } from '../types';
+import { BreweryStop, JournalistReview, ReviewRatings } from '../types';
 import { calculateHaversineKm } from '../utils/geoDistance';
 import { VERIFIED_CANADIAN_REGIONS } from './verifiedCanadianBreweries';
 
@@ -11,16 +11,21 @@ export interface RealBreweryRecord {
   country: 'USA' | 'Canada' | 'Belgium' | 'New Zealand' | string;
   lat: number;
   lng: number;
-  googleScore: number;
-  googleCount: string;
-  untappdScore: number;
-  untappdCount: string;
-  rateBeerScore: number;
-  tripAdvisorScore: number;
-  tripAdvisorCount: string;
+  googleScore?: number;
+  googleCount?: string;
+  untappdScore?: number;
+  untappdCount?: string;
+  rateBeerScore?: number;
+  tripAdvisorScore?: number;
+  tripAdvisorCount?: string;
   beerAdvocateScore?: number;
   beerAdvocateCount?: string;
   beerAdvocateUrl?: string;
+  yelpScore?: number;
+  yelpCount?: string;
+  isRecentOpening?: boolean;
+  openingYear?: number;
+  journalistReviews?: JournalistReview[];
   beerHighlights: {
     name: string;
     style: string;
@@ -41,9 +46,140 @@ export function getBeerAdvocateScore(b: RealBreweryRecord): { score: number; cou
   return { score, count, url };
 }
 
+export interface MultiPlatformRatingResult {
+  compositeAverage: number;
+  platformsCount: number;
+  platformsFound: string[];
+  isQualified: boolean;
+  qualificationReason: 'multi_platform' | 'recent_opening_journalist_benchmark' | 'unqualified_insufficient_platforms';
+  isRecentOpening: boolean;
+  hasJournalistCritique: boolean;
+  journalistBenchmarkRating?: number;
+  journalistReviews?: JournalistReview[];
+  detailsText: string;
+}
+
+/**
+ * Multi-Platform Rating Engine & Benchmark Rule:
+ * 1. If presence on platforms is found (e.g. Google Reviews and TripAdvisor), the total average is
+ *    the total sum of ratings divided by the number of platforms where it resides.
+ * 2. Minimum presence requirement: must have presence on a combination of at least 2 platforms.
+ * 3. EXCEPTION / BENCHMARK: If it's a recent opening, positive journalist reviews/critiques can be used
+ *    as a benchmark to qualify the brewery and establish its composite benchmark rating.
+ */
+export function calculateMultiPlatformComposite(
+  b: RealBreweryRecord | BreweryStop | any
+): MultiPlatformRatingResult {
+  const platformsFound: string[] = [];
+  const scores: number[] = [];
+
+  const googleScore = b.googleScore ?? b.ratings?.google?.score;
+  if (typeof googleScore === 'number' && googleScore > 0) {
+    platformsFound.push('Google Reviews');
+    scores.push(googleScore);
+  }
+
+  const untappdScore = b.untappdScore ?? b.ratings?.untappd?.score;
+  if (typeof untappdScore === 'number' && untappdScore > 0) {
+    platformsFound.push('Untappd');
+    scores.push(untappdScore);
+  }
+
+  const tripAdvisorScore = b.tripAdvisorScore ?? b.ratings?.tripAdvisor?.score;
+  if (typeof tripAdvisorScore === 'number' && tripAdvisorScore > 0) {
+    platformsFound.push('TripAdvisor');
+    scores.push(tripAdvisorScore);
+  }
+
+  const rateBeerScore = b.rateBeerScore ?? b.ratings?.rateBeer?.score;
+  if (typeof rateBeerScore === 'number' && rateBeerScore > 0) {
+    platformsFound.push('RateBeer');
+    scores.push(rateBeerScore);
+  }
+
+  const baObj = b.beerAdvocateScore !== undefined ? { score: b.beerAdvocateScore } : b.ratings?.beerAdvocate;
+  const baScore = baObj?.score;
+  if (typeof baScore === 'number' && baScore > 0) {
+    platformsFound.push('BeerAdvocate');
+    scores.push(baScore);
+  }
+
+  const yelpScore = b.yelpScore ?? b.ratings?.yelp?.score;
+  if (typeof yelpScore === 'number' && yelpScore > 0) {
+    platformsFound.push('Yelp');
+    scores.push(yelpScore);
+  }
+
+  const isRecentOpening = Boolean(b.isRecentOpening || b.ratings?.isRecentOpening);
+  const journalistReviews: JournalistReview[] = b.journalistReviews || b.ratings?.journalistReviews || [];
+  const hasJournalistCritique = journalistReviews.length > 0;
+
+  // RULE 1: Minimum presence on a combination of 2 platforms
+  // Total average = total of platforms found divided by number of platforms found
+  if (scores.length >= 2) {
+    const sum = scores.reduce((acc, s) => acc + s, 0);
+    const avg = Number((sum / scores.length).toFixed(2));
+    return {
+      compositeAverage: avg,
+      platformsCount: scores.length,
+      platformsFound,
+      isQualified: true,
+      qualificationReason: 'multi_platform',
+      isRecentOpening,
+      hasJournalistCritique,
+      journalistReviews: hasJournalistCritique ? journalistReviews : undefined,
+      detailsText: `${avg.toFixed(2)} ★ (${scores.length}-Platform Avg: ${platformsFound.join(' + ')})`,
+    };
+  }
+
+  // RULE 2: Recent opening with Journalist review critique benchmark
+  if (isRecentOpening && hasJournalistCritique) {
+    const validCritiqueRatings = journalistReviews
+      .map(r => r.rating)
+      .filter((r): r is number => typeof r === 'number' && r > 0);
+    const criticRating = validCritiqueRatings.length > 0
+      ? validCritiqueRatings.reduce((a, b) => a + b, 0) / validCritiqueRatings.length
+      : 4.75;
+
+    const benchmarkAvg = scores.length > 0
+      ? Number(((scores[0] + criticRating) / 2).toFixed(2))
+      : Number(criticRating.toFixed(2));
+
+    const criticSource = journalistReviews[0].source || 'Journalist Review';
+    return {
+      compositeAverage: benchmarkAvg,
+      platformsCount: scores.length,
+      platformsFound,
+      isQualified: true,
+      qualificationReason: 'recent_opening_journalist_benchmark',
+      isRecentOpening: true,
+      hasJournalistCritique: true,
+      journalistBenchmarkRating: criticRating,
+      journalistReviews,
+      detailsText: `${benchmarkAvg.toFixed(2)} ★ (Recent Opening • ${criticSource} Critique Benchmark)`,
+    };
+  }
+
+  // Fails minimum presence rule (less than 2 platforms and no recent opening journalist benchmark)
+  const fallbackSum = scores.length > 0 ? scores[0] : 4.0;
+  return {
+    compositeAverage: Number(fallbackSum.toFixed(2)),
+    platformsCount: scores.length,
+    platformsFound,
+    isQualified: false,
+    qualificationReason: 'unqualified_insufficient_platforms',
+    isRecentOpening,
+    hasJournalistCritique: false,
+    detailsText: `Unqualified: found on only ${scores.length} platform(s), minimum requirement is 2 platforms or recent opening with journalist critique.`,
+  };
+}
+
+export function isBreweryPresenceQualified(b: RealBreweryRecord | BreweryStop | any): boolean {
+  return calculateMultiPlatformComposite(b).isQualified;
+}
+
 export function calculate5PlatformComposite(b: RealBreweryRecord): number {
-  const ba = getBeerAdvocateScore(b).score;
-  return Number(((b.googleScore + b.untappdScore + b.rateBeerScore + b.tripAdvisorScore + ba) / 5).toFixed(2));
+  return calculateMultiPlatformComposite(b).compositeAverage;
 }
 
 export function convertRealBreweryToStop(
@@ -51,10 +187,43 @@ export function convertRealBreweryToStop(
   dayNum: number = 1,
   bIdx: number = 0
 ): BreweryStop {
+  const ratingAnalysis = calculateMultiPlatformComposite(bRecord);
   const ba = getBeerAdvocateScore(bRecord);
-  const compAverage = calculate5PlatformComposite(bRecord);
   const driveTime = bIdx === 0 ? 0 : 12 + bIdx * 3;
   const driveDist = bIdx === 0 ? 0 : 4.5 + bIdx * 1.5;
+
+  const ratingsObj: ReviewRatings = {
+    compositeAverage: ratingAnalysis.compositeAverage,
+    platformsCount: ratingAnalysis.platformsCount,
+    platformsList: ratingAnalysis.platformsFound,
+    isRecentOpening: bRecord.isRecentOpening,
+    openingYear: bRecord.openingYear,
+    hasJournalistCritiqueBenchmark: ratingAnalysis.hasJournalistCritique,
+    journalistReviews: bRecord.journalistReviews,
+    qualificationRule: ratingAnalysis.qualificationReason === 'recent_opening_journalist_benchmark'
+      ? 'recent_opening_journalist_benchmark'
+      : 'multi_platform',
+    qualificationDetails: ratingAnalysis.detailsText,
+  };
+
+  if (bRecord.googleScore) {
+    ratingsObj.google = { score: bRecord.googleScore, count: bRecord.googleCount || 'Verified Reviews' };
+  }
+  if (bRecord.untappdScore) {
+    ratingsObj.untappd = { score: bRecord.untappdScore, count: bRecord.untappdCount || 'Check-ins' };
+  }
+  if (bRecord.rateBeerScore) {
+    ratingsObj.rateBeer = { score: bRecord.rateBeerScore, count: 'Top Rated' };
+  }
+  if (bRecord.tripAdvisorScore) {
+    ratingsObj.tripAdvisor = { score: bRecord.tripAdvisorScore, count: bRecord.tripAdvisorCount || 'Reviews' };
+  }
+  if (bRecord.beerAdvocateScore || bRecord.untappdScore) {
+    ratingsObj.beerAdvocate = { score: ba.score, count: ba.count };
+  }
+  if (bRecord.yelpScore) {
+    ratingsObj.yelp = { score: bRecord.yelpScore, count: bRecord.yelpCount || 'Reviews' };
+  }
 
   return {
     id: `brewery-real-${dayNum}-${bIdx + 1}-${bRecord.name.toLowerCase().replace(/[^a-z0-9]/g, '-')}`,
@@ -67,14 +236,7 @@ export function convertRealBreweryToStop(
     lng: bRecord.lng,
     driveTimeFromPrevMin: driveTime,
     driveDistanceFromPrevMiles: driveDist,
-    ratings: {
-      google: { score: bRecord.googleScore, count: bRecord.googleCount },
-      untappd: { score: bRecord.untappdScore, count: bRecord.untappdCount },
-      rateBeer: { score: bRecord.rateBeerScore, count: 'Top Rated' },
-      tripAdvisor: { score: bRecord.tripAdvisorScore, count: bRecord.tripAdvisorCount },
-      beerAdvocate: { score: ba.score, count: ba.count },
-      compositeAverage: compAverage,
-    },
+    ratings: ratingsObj,
     beerHighlights: bRecord.beerHighlights,
     foodHighlights: bRecord.foodHighlights,
     atmosphere: bRecord.atmosphere,
@@ -85,12 +247,14 @@ export function convertRealBreweryToStop(
     untappdUrl: `https://untappd.com/search?q=${encodeURIComponent(bRecord.name + ' ' + bRecord.city)}`,
     rateBeerUrl: `https://www.ratebeer.com/search?q=${encodeURIComponent(bRecord.name + ' ' + bRecord.city)}`,
     beerAdvocateUrl: ba.url,
+    isRecentOpening: bRecord.isRecentOpening,
+    journalistReviews: bRecord.journalistReviews,
     styleVerificationSources: {
       websiteVerified: true,
-      untappdVerified: true,
-      rateBeerVerified: true,
-      beerAdvocateVerified: true,
-      details: 'Certified live on-tap offerings verified across official brewery taplist, Untappd, RateBeer, and BeerAdvocate.',
+      untappdVerified: Boolean(bRecord.untappdScore),
+      rateBeerVerified: Boolean(bRecord.rateBeerScore),
+      beerAdvocateVerified: Boolean(bRecord.beerAdvocateScore),
+      details: ratingAnalysis.detailsText,
     },
     googleMapsUrl: `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(`${bRecord.name}, ${bRecord.address}`)}&travelmode=driving`,
   };
@@ -4848,6 +5012,8 @@ export function findVerifiedBreweriesNearLocation(
   for (const r of VERIFIED_REAL_REGIONS) {
     for (const b of r.breweries) {
       if (seen.has(b.name.toLowerCase())) continue;
+      // Enforce multi-platform presence rule: minimum 2 platforms OR recent opening with journalist critique
+      if (!isBreweryPresenceQualified(b)) continue;
       const dist = calculateHaversineKm(coords, { lat: b.lat, lng: b.lng });
       if (dist <= maxRadiusKm) {
         seen.add(b.name.toLowerCase());

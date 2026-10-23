@@ -172,11 +172,27 @@ export const RouteMap: React.FC<RouteMapProps> = ({
 
         const marker = L.marker(point, { icon: customIcon }).addTo(markersLayer);
 
-        const baTag = brewery.ratings.beerAdvocate ? `<span style="background:#FEF3C7;color:#92400E;padding:2px 8px;border-radius:9999px;">BA ${brewery.ratings.beerAdvocate.score.toFixed(2)} ★</span>` : '';
+        const avgTag = brewery.ratings.compositeAverage
+          ? `<span style="background:#122610;color:#DDF1D2;padding:2px 8px;border-radius:9999px;">★ ${brewery.ratings.compositeAverage.toFixed(2)} (${brewery.ratings.hasJournalistCritiqueBenchmark ? 'Journalist Benchmark' : `${brewery.ratings.platformsCount || 2}-Platform Avg`})</span>`
+          : '';
+        const googleTag = brewery.ratings.google?.score
+          ? `<span style="background:#EBF2EC;color:#0D2818;padding:2px 8px;border-radius:9999px;">Google ${brewery.ratings.google.score.toFixed(1)} ★</span>`
+          : '';
+        const tripAdvisorTag = brewery.ratings.tripAdvisor?.score
+          ? `<span style="background:#F0FDF4;color:#166534;padding:2px 8px;border-radius:9999px;">TripAdvisor ${brewery.ratings.tripAdvisor.score.toFixed(1)} ★</span>`
+          : '';
+        const untappdTag = brewery.ratings.untappd?.score
+          ? `<span style="background:#D1E7D6;color:#0D2818;padding:2px 8px;border-radius:9999px;">Untappd ${brewery.ratings.untappd.score.toFixed(2)} ★</span>`
+          : '';
+        const baTag = brewery.ratings.beerAdvocate?.score
+          ? `<span style="background:#FEF3C7;color:#92400E;padding:2px 8px;border-radius:9999px;">BA ${brewery.ratings.beerAdvocate.score.toFixed(2)} ★</span>`
+          : '';
         const ratingSummary = `
           <div style="display:flex;flex-wrap:wrap;gap:4px;margin:6px 0;font-size:10px;font-weight:600;">
-            <span style="background:#D1E7D6;color:#0D2818;padding:2px 8px;border-radius:9999px;">Untappd ${brewery.ratings.untappd.score.toFixed(2)} ★</span>
-            <span style="background:#EBF2EC;color:#0D2818;padding:2px 8px;border-radius:9999px;">Google ${brewery.ratings.google.score.toFixed(1)} ★</span>
+            ${avgTag}
+            ${googleTag}
+            ${tripAdvisorTag}
+            ${untappdTag}
             ${baTag}
           </div>
         `;

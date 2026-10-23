@@ -80,9 +80,17 @@ export const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose, route
       summary += `📅 DAY ${day.dayNumber}: ${day.dayTitle}\n`;
       day.breweries.forEach((b, idx) => {
         summary += `  ${idx + 1}. ${b.name} (${b.city}, ${b.state || ''})\n`;
-        const baExport = b.ratings.beerAdvocate ? ` | BeerAdvocate: ${b.ratings.beerAdvocate.score.toFixed(2)} ★` : '';
-        const compExport = b.ratings.compositeAverage ? ` | 5-Platform Avg: ${b.ratings.compositeAverage.toFixed(2)} ★` : '';
-        summary += `     • Ratings: Untappd: ${b.ratings.untappd.score.toFixed(2)} ★ | Google: ${b.ratings.google.score.toFixed(1)} ★${baExport}${compExport}\n`;
+        const ratingParts: string[] = [];
+        if (b.ratings.compositeAverage) {
+          const lbl = b.ratings.hasJournalistCritiqueBenchmark ? 'Journalist Benchmark' : `${b.ratings.platformsCount || 2}-Platform Avg`;
+          ratingParts.push(`Composite: ${b.ratings.compositeAverage.toFixed(2)} ★ (${lbl})`);
+        }
+        if (b.ratings.google?.score) ratingParts.push(`Google: ${b.ratings.google.score.toFixed(1)} ★`);
+        if (b.ratings.tripAdvisor?.score) ratingParts.push(`TripAdvisor: ${b.ratings.tripAdvisor.score.toFixed(1)} ★`);
+        if (b.ratings.untappd?.score) ratingParts.push(`Untappd: ${b.ratings.untappd.score.toFixed(2)} ★`);
+        if (b.ratings.beerAdvocate?.score) ratingParts.push(`BeerAdvocate: ${b.ratings.beerAdvocate.score.toFixed(2)} ★`);
+        if (b.ratings.rateBeer?.score) ratingParts.push(`RateBeer: ${b.ratings.rateBeer.score.toFixed(1)} ★`);
+        summary += `     • Ratings: ${ratingParts.join(' | ')}\n`;
         summary += `     • Renowned For: ${b.beerHighlights.map((bh) => bh.name).join(', ')}\n`;
         summary += `     • Food: ${b.foodHighlights}\n`;
       });

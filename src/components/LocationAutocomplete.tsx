@@ -7,7 +7,7 @@ import {
 
 interface LocationAutocompleteProps {
   id: string;
-  label: string;
+  label: React.ReactNode;
   value: string;
   onChange: (value: string) => void;
   onSelectSuggestion?: (suggestion: LocationSuggestion) => void;
@@ -106,10 +106,10 @@ export const LocationAutocomplete: React.FC<LocationAutocompleteProps> = ({
         }`}
       >
         {/* Floating / Stacked Label */}
-        <div className={`flex items-center justify-between text-[11px] font-bold ${darkMode ? 'text-[#C6E2BD]' : 'text-[#3B5734]'}`}>
-          <label htmlFor={id} className="cursor-text flex items-center gap-1">
-            <span>{label}</span>
-            {required && <span className="text-[#58A72F] font-bold">*</span>}
+        <div className={`flex items-center justify-between text-sm font-extrabold ${darkMode ? 'text-[#E8F3E5]' : 'text-[#122610]'}`}>
+          <label htmlFor={id} className="cursor-text flex items-center gap-1.5 flex-wrap">
+            {typeof label === 'string' ? <span>{label}</span> : label}
+            {required && <span className="text-[#58A72F] font-bold text-sm">*</span>}
           </label>
           {helperText && (
             <span className={`text-[10px] font-normal hidden sm:inline ${darkMode ? 'text-[#8EA886]' : 'text-[#6D9364]'}`}>

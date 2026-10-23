@@ -231,11 +231,17 @@ export const RouteForm: React.FC<RouteFormProps> = ({
               </div>
             </div>
 
+            {/* Guidance outside of fields on top */}
+            <div className="flex items-center gap-1.5 text-xs text-[#9CB394] mb-2 px-0.5 font-medium">
+              <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#58A72F]" />
+              <span>Enter a <strong>Region or City</strong> for both locations (e.g. city, province, or state)</span>
+            </div>
+
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
               {/* Starting Location */}
               <LocationAutocomplete
                 id="start-location-input"
-                label="Starting Location (Home / Origin)"
+                label="Starting Location"
                 required
                 value={startLocation}
                 onChange={(val) => {
@@ -249,14 +255,13 @@ export const RouteForm: React.FC<RouteFormProps> = ({
                 onUseCurrentLocation={handleUseCurrentLocation}
                 placeholder="e.g. Burlington VT, Boston, Denver..."
                 iconType="navigation"
-                helperText="Includes round-trip travel"
                 darkMode={true}
               />
 
               {/* Area to Visit */}
               <LocationAutocomplete
                 id="destination-area-input"
-                label="Area to Visit (Region or City)"
+                label="Area to Visit"
                 required
                 value={destinationArea}
                 onChange={(val) => {
@@ -269,7 +274,6 @@ export const RouteForm: React.FC<RouteFormProps> = ({
                 }}
                 placeholder="e.g. Vermont, Asheville, San Diego..."
                 iconType="mapPin"
-                helperText="≤ 25 min drive between stops"
                 darkMode={true}
               />
             </div>
@@ -480,14 +484,31 @@ export const RouteForm: React.FC<RouteFormProps> = ({
                   <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-white tracking-tight font-display uppercase leading-tight">
                     Preferred Beer Styles
                   </h2>
-                  <p className="text-xs sm:text-sm text-[#9CB394] font-medium mt-0.5">Choose the styles you want to taste on the trail</p>
+                  <p className="text-xs sm:text-sm text-[#9CB394] font-medium mt-0.5">
+                    {selectedBeerStyles.length > 2
+                      ? `When >2 styles are selected, breweries only need to match 2 or more (min 2 matches)`
+                      : selectedBeerStyles.length === 2
+                      ? `When 2 styles are selected, breweries will match both styles`
+                      : selectedBeerStyles.length === 1
+                      ? `Breweries will match your selected style`
+                      : `Choose styles you love (select >2 and breweries match at least 2)`}
+                  </p>
                 </div>
               </div>
 
               {selectedBeerStyles.length > 0 ? (
-                <span className="text-xs sm:text-sm font-black px-3.5 py-1.5 rounded-full bg-[#1E3B18] text-[#DDF1D2] border border-[#58A72F]/50 font-brand tracking-wider shadow-2xs shrink-0">
-                  {selectedBeerStyles.length} SELECTED
-                </span>
+                <div className="flex flex-col items-end gap-0.5 shrink-0">
+                  <span className="text-xs sm:text-sm font-black px-3.5 py-1.5 rounded-full bg-[#1E3B18] text-[#DDF1D2] border border-[#58A72F]/50 font-brand tracking-wider shadow-2xs">
+                    {selectedBeerStyles.length} SELECTED
+                  </span>
+                  <span className="text-[10px] text-[#A3D98E] font-semibold hidden sm:inline">
+                    {selectedBeerStyles.length > 2
+                      ? 'Min. 2 style matches required'
+                      : selectedBeerStyles.length === 2
+                      ? 'Matches both styles'
+                      : 'Matches 1 style'}
+                  </span>
+                </div>
               ) : (
                 <span className="text-xs font-bold px-3 py-1 rounded-full bg-[#1E1E1E] text-[#888888] border border-[#333333] shrink-0">
                   None

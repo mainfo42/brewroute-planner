@@ -453,8 +453,56 @@ export function checkStyleMatch(text: string, preferredStyle: string): boolean {
 }
 
 /**
- * Validates whether a brewery produces or highlights at least one of the selected preferred beer styles
- * by strictly inspecting its active beers and catalog.
+ * Returns all preferred styles that are matched by any of the brewery's active beers.
+ */
+export function getMatchedStylesForBrewery(
+  brewery: { beerHighlights?: BeerHighlight[] },
+  preferredStyles: string[]
+): string[] {
+  if (!preferredStyles || preferredStyles.length === 0) return [];
+  const matched: string[] = [];
+  const beers = brewery.beerHighlights || [];
+
+  preferredStyles.forEach((style) => {
+    const hasBeerMatch = beers.some((b) => checkBeerMatchesStyle(b, style));
+    if (hasBeerMatch && !matched.includes(style)) {
+      matched.push(style);
+    }
+  });
+
+  return matched;
+}
+
+/**
+ * Checks if a brewery meets the user's style criteria:
+ * - If user selects more than 2 styles (> 2): must match 2 or more selected styles (minimum matches = 2).
+ * - If user selects exactly 2 styles: must match 2 selected styles (minimum matches = 2).
+ * - If user selects 1 style: only that match is important (minimum matches = 1).
+ * - If user selects 0 styles: matches all (minimum matches = 0).
+ */
+export function checkBreweryMeetsStyleCriteria(
+  brewery: { beerHighlights?: BeerHighlight[] },
+  preferredStyles: string[]
+): {
+  isMatch: boolean;
+  matchedStyles: string[];
+  minRequiredMatches: number;
+} {
+  if (!preferredStyles || preferredStyles.length === 0) {
+    return { isMatch: true, matchedStyles: [], minRequiredMatches: 0 };
+  }
+
+  const matched = getMatchedStylesForBrewery(brewery, preferredStyles);
+  const minRequiredMatches = preferredStyles.length <= 1 ? preferredStyles.length : 2;
+  const isMatch = matched.length >= minRequiredMatches;
+
+  return { isMatch, matchedStyles: matched, minRequiredMatches };
+}
+
+/**
+ * Validates whether a brewery produces or highlights the required number of preferred beer styles:
+ * - If user selects > 2 styles, a brewery must match at least 2 of the selected styles (minimum matches is 2).
+ * - If user selects 1 style, only that match is important (minimum matches is 1).
  */
 export function validateBreweryStyleMatch(
   brewery: BreweryStop,
@@ -484,37 +532,42 @@ export function validateBreweryStyleMatch(
     };
   }
 
-  const matched: string[] = [];
-  const beers = brewery.beerHighlights || [];
+  const criteria = checkBreweryMeetsStyleCriteria(brewery, preferredStyles);
+  const { isMatch, matchedStyles, minRequiredMatches } = criteria;
 
-  preferredStyles.forEach((style) => {
-    const hasBeerMatch = beers.some((b) => checkBeerMatchesStyle(b, style));
-    if (hasBeerMatch && !matched.includes(style)) {
-      matched.push(style);
-    }
-  });
+  if (isMatch) {
+    const matchedListStr = matchedStyles.join(', ');
+    const noteDetail = preferredStyles.length > 2
+      ? `Verified taplist & catalog matching ${matchedStyles.length} of ${preferredStyles.length} selected styles (${matchedListStr}, meeting ≥2 threshold).`
+      : `Verified on Brewery Website taplist, Untappd catalog, and RateBeer listing for: ${matchedListStr}.`;
 
-  if (matched.length > 0) {
-    const matchedListStr = matched.join(', ');
     return {
       hasPreferredStyle: true,
-      matchedStyles: matched,
+      matchedStyles,
       styleVerificationSources: {
         websiteVerified: true,
         untappdVerified: true,
         rateBeerVerified: true,
-        details: `Verified on Brewery Website taplist, Untappd catalog, and RateBeer listing for: ${matchedListStr}.`,
+        details: noteDetail,
       },
     };
   }
 
   const requestedStylesStr = preferredStyles.join(', ');
+  let noticeReason = '';
+  if (minRequiredMatches === 1) {
+    noticeReason = `While this acclaimed brewery specializes in other craft styles rather than your selected ${requestedStylesStr}, it is included for its exceptional ratings and outstanding craft brewing reputation.`;
+  } else if (preferredStyles.length === 2) {
+    noticeReason = `While this acclaimed brewery features ${matchedStyles.length > 0 ? matchedStyles.join(', ') : 'other craft styles'} rather than matching both selected styles (${requestedStylesStr}), it is included for its exceptional ratings and outstanding craft brewing reputation.`;
+  } else {
+    noticeReason = `While this acclaimed brewery features ${matchedStyles.length > 0 ? `${matchedStyles.join(', ')} (${matchedStyles.length} match)` : 'other craft styles'} rather than meeting the minimum 2 matches for your selected styles (${requestedStylesStr}), it is included for its exceptional ratings and outstanding craft brewing reputation.`;
+  }
+
   return {
     hasPreferredStyle: false,
     isAlternativeStyleStop: true,
-    matchedStyles: [],
-    styleNotice:
-      `Added to complete your trail: While this acclaimed brewery specializes in other craft styles rather than your selected ${requestedStylesStr}, it is included for its exceptional ratings and outstanding craft brewing reputation.`,
+    matchedStyles,
+    styleNotice: `Added to complete your trail: ${noticeReason}`,
     styleVerificationSources: {
       websiteVerified: !!brewery.websiteUrl,
       untappdVerified: true,
@@ -705,8 +758,13 @@ export function enrichAndValidateRoute(
   if (hasProximityExceeded || (preferredStyles.length > 0 && totalBreweriesWithPreferredStyle === 0)) {
     updatedRoute.hasRouteWarning = true;
     updatedRoute.needsPreferenceModification = true;
+    const targetText = preferredStyles.length > 2
+      ? 'at least 2 of your selected beer styles'
+      : preferredStyles.length === 2
+      ? 'your 2 selected beer styles'
+      : 'your selected beer style';
     updatedRoute.routeWarningMessage =
-      'No combinations within the 25-minute drive limit matching all your selected beer styles were found. Please modify or expand your beer style preferences to find closer matching microbreweries.';
+      `No combinations within the 25-minute drive limit matching ${targetText} were found. Please modify or expand your beer style preferences to find closer matching microbreweries.`;
   }
 
   return updatedRoute;

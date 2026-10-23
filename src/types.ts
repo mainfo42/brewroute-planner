@@ -19,13 +19,32 @@ export interface RouteParameters {
   startLocationCoord?: { lat: number; lng: number };
 }
 
+export interface JournalistReview {
+  source: string; // e.g. "La Presse", "Good Beer Hunting", "Bières et Plaisirs", "The Gazette"
+  criticName?: string;
+  quote: string;
+  rating?: number; // e.g. 4.8 / 5.0
+  publishedDate?: string;
+  year?: number;
+  url?: string;
+}
+
 export interface ReviewRatings {
-  google: { score: number; count?: string; reviewCount?: string };
-  untappd: { score: number; count?: string };
-  rateBeer: { score: number; count?: string };
-  tripAdvisor: { score: number; count?: string };
+  google?: { score: number; count?: string; reviewCount?: string };
+  untappd?: { score: number; count?: string };
+  rateBeer?: { score: number; count?: string };
+  tripAdvisor?: { score: number; count?: string };
   beerAdvocate?: { score: number; count?: string };
-  compositeAverage?: number; // Mathematical average across the 5 platforms
+  yelp?: { score: number; count?: string };
+  compositeAverage?: number; // Mathematical average across platforms where presence is found (total sum / platformsCount)
+  platformsCount?: number; // Number of platforms where brewery resides
+  platformsList?: string[]; // Names of platforms found e.g. ['Google Reviews', 'TripAdvisor']
+  isRecentOpening?: boolean; // True if newly opened / recently established craft brewery
+  openingYear?: number;
+  hasJournalistCritiqueBenchmark?: boolean;
+  journalistReviews?: JournalistReview[];
+  qualificationRule?: 'multi_platform' | 'recent_opening_journalist_benchmark';
+  qualificationDetails?: string;
 }
 
 export interface BeerHighlight {
@@ -78,6 +97,8 @@ export interface BreweryStop {
   distanceFromCityCenterKm?: number;
   withinCityRadius?: boolean;
   firstBreweryRadiusKm?: number;
+  isRecentOpening?: boolean;
+  journalistReviews?: JournalistReview[];
 }
 
 export interface StayRecommendation {

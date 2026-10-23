@@ -12,10 +12,19 @@ import {
   isVerifiedRealBrewery,
   findVerifiedBreweriesNearLocation,
   calculate5PlatformComposite,
+  calculateMultiPlatformComposite,
+  isBreweryPresenceQualified,
   getBeerAdvocateScore,
   convertRealBreweryToStop,
 } from '../src/data/verifiedRealBreweries';
-import { enrichAndValidateRoute, validateBreweryStyleMatch, checkStyleMatch, checkBeerMatchesStyle } from '../src/utils/styleMatcher';
+import {
+  enrichAndValidateRoute,
+  validateBreweryStyleMatch,
+  checkStyleMatch,
+  checkBeerMatchesStyle,
+  checkBreweryMeetsStyleCriteria,
+  getMatchedStylesForBrewery,
+} from '../src/utils/styleMatcher';
 import { CURATED_BEER_NEWS, getDynamicCuratedBeerNews, getTwoDayCronEpoch } from '../src/data/beerNewsData';
 import {
   loadBeerNewsDatabase,
@@ -598,15 +607,16 @@ apiRouter.post('/generate-route', async (req, res) => {
     return res.json(emptyRoute);
   }
 
-  // Strictly enforce user's Beer Type choices
+  // Strictly enforce user's Beer Type choices:
+  // - If user selects > 2 styles: brewery only needs to match 2 or more selected styles (minimum matches = 2).
+  // - If user selects 1 style: only that match is important (minimum matches = 1).
+  // - If user selects 2 styles: minimum matches is 2.
   const requestedStyles = params.beerStyles || [];
   const minBreweriesNeeded = Math.min(dayCount * 3, Math.max(dayCount * 2, 2));
+  const minRequiredMatches = requestedStyles.length <= 1 ? requestedStyles.length : 2;
 
   const isMatchingStyle = (b: RealBreweryRecord): boolean => {
-    if (requestedStyles.length === 0) return true;
-    return (b.beerHighlights || []).some(bh =>
-      requestedStyles.some(st => checkBeerMatchesStyle(bh, st))
-    );
+    return checkBreweryMeetsStyleCriteria(b, requestedStyles).isMatch;
   };
 
   const styleMatchingCandidates = verifiedCandidates.filter(isMatchingStyle);
@@ -616,6 +626,14 @@ apiRouter.post('/generate-route', async (req, res) => {
 
   const hasEnoughMatching = styleMatchingCandidates.length >= minBreweriesNeeded;
 
+  const styleRuleSummary = requestedStyles.length > 2
+    ? `User selected ${requestedStyles.length} styles [${requestedStyles.join(', ')}]. A brewery result only needs to match 2 or more of these styles (minimum matches = 2).`
+    : requestedStyles.length === 2
+    ? `User selected 2 styles [${requestedStyles.join(', ')}]. Breweries must match both styles (minimum matches = 2).`
+    : requestedStyles.length === 1
+    ? `User selected 1 style [${requestedStyles.join(', ')}]. That match is required (minimum matches = 1).`
+    : 'No style constraint specified.';
+
   let destinationSpecificGrounding = '';
   if (verifiedCandidates.length === 0) {
     destinationSpecificGrounding = `CRITICAL REAL-WORLD ENTITY VERIFICATION DIRECTIVE:
@@ -623,21 +641,27 @@ Every brewery MUST be an actual, currently operating, physical craft brewery loc
   } else if (hasEnoughMatching) {
     destinationSpecificGrounding = `AUTHENTIC VERIFIED PHYSICAL CRAFT BREWERIES IN THIS DESTINATION (${params.destinationArea}):
 CRITICAL BEER TYPE ENFORCEMENT DIRECTIVE:
-The user specifically requested preferred Beer Types: [${requestedStyles.join(', ')}].
-Sufficient verified operating breweries brewing these exact requested styles exist in ${params.destinationArea} (${styleMatchingCandidates.length} matching breweries found).
-You MUST choose ONLY and EXCLUSIVELY breweries that brew and feature the user's requested beer styles:
-${styleMatchingCandidates.map(b => `- "${b.name}" located at "${b.address}", ${b.city}, ${b.state}. Ratings: Google ${b.googleScore}, Untappd ${b.untappdScore}, RateBeer ${b.rateBeerScore}, TripAdvisor ${b.tripAdvisorScore}, BeerAdvocate ${b.beerAdvocateScore || 4.5}. Flagships: ${(b.beerHighlights || []).map(bh => `${bh.name} (${bh.style})`).join(', ')}`).join('\n')}
-CRITICAL: You are strictly forbidden from including any breweries outside this matching registry. Every stop in the itinerary must feature their on-tap beers matching [${requestedStyles.join(', ')}].`;
+${styleRuleSummary}
+Sufficient verified operating breweries meeting this matching threshold exist in ${params.destinationArea} (${styleMatchingCandidates.length} matching breweries found).
+You MUST choose ONLY and EXCLUSIVELY breweries that brew and feature the required matching styles:
+${styleMatchingCandidates.map(b => {
+  const matched = getMatchedStylesForBrewery(b, requestedStyles);
+  return `- "${b.name}" located at "${b.address}", ${b.city}, ${b.state}. Ratings: Google ${b.googleScore}, Untappd ${b.untappdScore}, RateBeer ${b.rateBeerScore}, TripAdvisor ${b.tripAdvisorScore}, BeerAdvocate ${b.beerAdvocateScore || 4.5}. Matches: [${matched.join(', ')}]. Flagships: ${(b.beerHighlights || []).map(bh => `${bh.name} (${bh.style})`).join(', ')}`;
+}).join('\n')}
+CRITICAL: You are strictly forbidden from including any breweries outside this matching registry. Every stop in the itinerary must feature their on-tap beers matching the selected styles.`;
   } else {
     destinationSpecificGrounding = `AUTHENTIC VERIFIED PHYSICAL CRAFT BREWERIES IN THIS DESTINATION (${params.destinationArea}):
 CRITICAL BEER TYPE ENFORCEMENT & TRAIL COMPLETION DIRECTIVE:
-The user requested preferred Beer Types: [${requestedStyles.join(', ')}].
-Only ${styleMatchingCandidates.length} matching brewery/breweries were found in this area:
-${styleMatchingCandidates.map(b => `- "${b.name}" (BREWS REQUESTED STYLES: ${(b.beerHighlights || []).map(bh => `${bh.name} [${bh.style}]`).join(', ')})`).join('\n')}
+${styleRuleSummary}
+Only ${styleMatchingCandidates.length} matching brewery/breweries were found meeting the threshold in this area:
+${styleMatchingCandidates.map(b => {
+  const matched = getMatchedStylesForBrewery(b, requestedStyles);
+  return `- "${b.name}" (BREWS MATCHING STYLES: [${matched.join(', ')}], Flagships: ${(b.beerHighlights || []).map(bh => `${bh.name} [${bh.style}]`).join(', ')})`;
+}).join('\n')}
 TRAIL COMPLETION RULE:
 Only and only because none/insufficient breweries were found to complete the entire trail (${minBreweriesNeeded} needed), you MUST include all matching breweries above first, and you may fill the remaining trail stop(s) ONLY with these top-ranked, highly reviewed alternative breweries:
 ${otherRankedCandidates.slice(0, minBreweriesNeeded - styleMatchingCandidates.length).map(b => `- "${b.name}" located at "${b.address}", ${b.city}, ${b.state}. Ratings: Google ${b.googleScore}, Untappd ${b.untappdScore}, RateBeer ${b.rateBeerScore}. Flagships: ${(b.beerHighlights || []).map(bh => `${bh.name} (${bh.style})`).join(', ')}`).join('\n')}
-For each alternative brewery added, you MUST set "isAlternativeStyleStop": true, and set "styleNotice": "Added to complete your trail: While this acclaimed brewery specializes in other craft styles rather than your selected ${requestedStyles.join(', ')}, it was selected for its exceptional certified 5-platform ratings and outstanding craft reputation."`;
+For each alternative brewery added, you MUST set "isAlternativeStyleStop": true, and set "styleNotice": "Added to complete your trail: While this acclaimed brewery specializes in other craft styles rather than meeting the ${requestedStyles.length > 2 ? 'minimum 2 matches' : 'target match'} for your selected ${requestedStyles.join(', ')}, it was selected for its exceptional certified 5-platform ratings and outstanding craft reputation."`;
   }
 
   const stayRequirement = wantsStay
@@ -694,21 +718,20 @@ ${cityRadiusInstruction}
      (Starting Location -> Brewery 1) + (all intermediate drives between breweries & stays) + (Final stop -> Return Home to Starting Location).
    - "totalDistanceMiles" MUST be the complete round trip mileage including departure and return home.
 3. 25-MINUTE PROXIMITY RULE: Each brewery visited on the same day MUST NOT be more than 25 minutes driving distance from each other (driveTimeFromPrevMin <= 25).
-4. LIVE ON-TAP BEER STYLE VALIDATION:
-   - When the user specifies preferred beer styles: [${params.beerStyles.join(', ')}]:
-     a) Look up and feature their real on-tap beers and catalog that match the requested styles.
-     b) If user selected "NEIPA", include their hazy / New England IPAs. If user selected "Pilsner", include crisp Pilsners. Do NOT confuse Pilsners with IPAs, or Stouts with Porters.
-     c) In "beerHighlights", ALWAYS feature 2 to 4 beers that specifically include the beers matching the user's selected styles.
-5. HIGHEST COMPOSITE AVERAGE REVIEW RATING ACROSS 5 CERTIFIED PLATFORMS:
-   - Mathematical composite average across ALL 5 certified platforms:
-     1) Google Reviews
-     2) Untappd
-     3) RateBeer
-     4) TripAdvisor
-     5) Beer Advocate (https://www.beeradvocate.com/)
-   - Target compositeAverage >= 4.4 / 5.0 across all 5 platforms.
-   - You MUST include "beerAdvocate" in the "ratings" object with "score" (number e.g. 4.45) and "count" (string e.g. "1,200+ reviews").
-   - You MUST include "beerAdvocateUrl" under each brewery (e.g. "https://www.beeradvocate.com/search/?q=...").
+4. LIVE ON-TAP BEER STYLE VALIDATION & MATCHING THRESHOLD:
+   - User selected preferred beer styles: [${params.beerStyles.join(', ')}] (${params.beerStyles.length} style(s)).
+   - CRITICAL MATCHING THRESHOLD:
+     * If user selected 1 style: each brewery stop MUST match that specific style (minimum 1 match required).
+     * If user selected 2 or more styles: each brewery stop only needs to match 2 or more of the selected styles (minimum matches is 2).
+     * Do NOT confuse non-matching styles (e.g. Pilsners with IPAs, or Stouts with Porters).
+     * In "beerHighlights", ALWAYS feature 2 to 4 beers that specifically include the beers matching the user's selected styles.
+     * Populate "matchedStyles" with all selected styles the brewery actually offers.
+5. MULTI-PLATFORM RATING ENGINE & BENCHMARK RULE:
+   - Calculate total average across platforms where presence is found: total sum divided by number of platforms found (e.g. if Google Reviews and TripAdvisor found, total avg = (Google + TripAdvisor) / 2).
+   - Minimum presence requirement: must have presence on a combination of at least 2 platforms (e.g. Google + TripAdvisor, Google + Untappd, etc.).
+   - EXCEPTION / BENCHMARK: If it is a recent opening, positive journalist reviews/critiques (e.g. from La Presse, Bières et Plaisirs, Good Beer Hunting) serve as a benchmark to qualify the brewery and establish its score benchmark.
+   - For mature breweries with ratings across all 5 certified platforms, compositeAverage is sum across all 5 platforms / 5.
+   - Target compositeAverage >= 4.4 / 5.0 across platforms where presence is found.
 6. STAY RECOMMENDATIONS: ${stayRequirement}
 7. RESPONSIBLE TASTING: Include 3-4 responsible beer tasting and safe transit tips.
 8. COORDINATES: Provide realistic latitude/longitude for the start location and each stop.
@@ -971,11 +994,18 @@ Return a strictly valid JSON object matching the JSON schema.`;
             if (!nextCandidate) break;
 
             const converted = convertRealBreweryToStop(nextCandidate, day.dayNumber, day.breweries.length);
-            const isAlt = !isMatchingStyle(nextCandidate);
-            converted.hasPreferredStyle = !isAlt;
+            const criteria = checkBreweryMeetsStyleCriteria(nextCandidate, requestedStyles);
+            const isAlt = !criteria.isMatch;
+            converted.hasPreferredStyle = criteria.isMatch;
             converted.isAlternativeStyleStop = isAlt;
+            converted.matchedStyles = criteria.matchedStyles;
             if (isAlt && requestedStyles.length > 0) {
-              converted.styleNotice = `Added to complete your trail: While this acclaimed brewery specializes in other craft styles rather than your selected ${requestedStyles.join(', ')}, it was selected for its exceptional certified 5-platform ratings and outstanding craft reputation.`;
+              const reqText = requestedStyles.length > 2
+                ? `at least 2 of your selected styles (${requestedStyles.join(', ')})`
+                : requestedStyles.length === 2
+                ? `both selected styles (${requestedStyles.join(', ')})`
+                : `your selected style (${requestedStyles[0]})`;
+              converted.styleNotice = `Added to complete your trail: While this acclaimed brewery specializes in other craft styles rather than matching ${reqText}, it was selected for its exceptional certified 5-platform ratings and outstanding craft reputation.`;
             }
             day.breweries.push(converted);
             allUsedBreweryNames.add(nextCandidate.name.toLowerCase().trim());
@@ -994,15 +1024,10 @@ Return a strictly valid JSON object matching the JSON schema.`;
               if (!b.beerHighlights || b.beerHighlights.length === 0) {
                 b.beerHighlights = verified.beerHighlights;
               }
-              const ba = getBeerAdvocateScore(verified);
-              b.ratings = {
-                google: { score: verified.googleScore, count: verified.googleCount },
-                untappd: { score: verified.untappdScore, count: verified.untappdCount },
-                rateBeer: { score: verified.rateBeerScore, count: 'Top Rated' },
-                tripAdvisor: { score: verified.tripAdvisorScore, count: verified.tripAdvisorCount },
-                beerAdvocate: { score: ba.score, count: ba.count },
-                compositeAverage: calculate5PlatformComposite(verified),
-              };
+              const converted = convertRealBreweryToStop(verified, day.dayNumber, bIdx);
+              b.ratings = converted.ratings;
+              b.isRecentOpening = verified.isRecentOpening;
+              b.journalistReviews = verified.journalistReviews;
             } else if (verifiedCandidates.length > 0) {
               // Substitute with authentic verified brewery from candidate pool to prevent hallucination
               const available = verifiedCandidates.filter(c => !allUsedBreweryNames.has(c.name.toLowerCase()));
@@ -1015,38 +1040,37 @@ Return a strictly valid JSON object matching the JSON schema.`;
 
             // Enforce Beer Type check on each brewery stop
             if (requestedStyles.length > 0) {
-              const isMatch = (b.beerHighlights || []).some(bh =>
-                requestedStyles.some(st => checkBeerMatchesStyle(bh, st))
-              );
-              b.hasPreferredStyle = isMatch;
-              if (!isMatch) {
+              const criteria = checkBreweryMeetsStyleCriteria(b, requestedStyles);
+              b.hasPreferredStyle = criteria.isMatch;
+              b.matchedStyles = criteria.matchedStyles;
+              if (!criteria.isMatch) {
                 b.isAlternativeStyleStop = true;
-                b.styleNotice = b.styleNotice || `Added to complete your trail: While this acclaimed brewery specializes in other craft styles rather than your selected ${requestedStyles.join(', ')}, it was selected for its exceptional certified 5-platform ratings and outstanding craft reputation.`;
+                const reqText = requestedStyles.length > 2
+                  ? `at least 2 of your selected styles (${requestedStyles.join(', ')})`
+                  : requestedStyles.length === 2
+                  ? `both selected styles (${requestedStyles.join(', ')})`
+                  : `your selected style (${requestedStyles[0]})`;
+                b.styleNotice = b.styleNotice || `Added to complete your trail: While this acclaimed brewery specializes in other craft styles rather than matching ${reqText}, it was selected for its exceptional certified ratings and outstanding craft reputation.`;
               } else {
                 b.isAlternativeStyleStop = false;
               }
             }
 
-            const googleScore = Number(b.ratings?.google?.score || 4.7);
-            const untappdScore = Number(b.ratings?.untappd?.score || 4.2);
-            const rateBeerScore = Number(b.ratings?.rateBeer?.score || 4.3);
-            const tripAdvisorScore = Number(b.ratings?.tripAdvisor?.score || 4.6);
-            const beerAdvocateScore = Number(b.ratings?.beerAdvocate?.score || 4.35);
-            
-            const compAverage = Number(((googleScore + untappdScore + rateBeerScore + tripAdvisorScore + beerAdvocateScore) / 5).toFixed(2));
+            // Calculate precise multi-platform composite average across available platforms
+            const ratingAnalysis = calculateMultiPlatformComposite(b);
             if (!b.ratings) {
-              b.ratings = {
-                google: { score: 4.7, count: '1,200+ reviews' },
-                untappd: { score: 4.25, count: '35k check-ins' },
-                rateBeer: { score: 4.3, count: 'Top 98%' },
-                tripAdvisor: { score: 4.6, count: '450+ reviews' },
-                beerAdvocate: { score: 4.35, count: '1,100+ ratings' },
-              };
+              b.ratings = { compositeAverage: ratingAnalysis.compositeAverage };
             }
-            if (!b.ratings.beerAdvocate) {
-              b.ratings.beerAdvocate = { score: beerAdvocateScore, count: '1,100+ ratings' };
-            }
-            b.ratings.compositeAverage = compAverage;
+            b.ratings.compositeAverage = ratingAnalysis.compositeAverage;
+            b.ratings.platformsCount = ratingAnalysis.platformsCount;
+            b.ratings.platformsList = ratingAnalysis.platformsFound;
+            b.ratings.isRecentOpening = b.isRecentOpening || verified?.isRecentOpening;
+            b.ratings.hasJournalistCritiqueBenchmark = ratingAnalysis.hasJournalistCritique;
+            b.ratings.journalistReviews = b.journalistReviews || verified?.journalistReviews;
+            b.ratings.qualificationRule = ratingAnalysis.qualificationReason === 'recent_opening_journalist_benchmark'
+              ? 'recent_opening_journalist_benchmark'
+              : 'multi_platform';
+            b.ratings.qualificationDetails = ratingAnalysis.detailsText;
 
             // Ensure brewery individual Google Maps navigation link
             const targetDest = b.address ? `${b.name}, ${b.address}` : `${b.name}, ${b.city}`;
@@ -1336,16 +1360,16 @@ function generateSmartFallbackRoute(
   }
 
   // STRICT BEER TYPE SELECTION:
-  // Enforce the user's Beer Type choices when finding breweries.
+  // Enforce the user's Beer Type choices when finding breweries:
+  // - If user selects > 2 styles: brewery only needs to match 2 or more selected styles (minimum matches = 2).
+  // - If user selects 1 style: only that match is important (minimum matches = 1).
+  // - If user selects 2 styles: minimum matches is 2.
   // Only and only if none or insufficient matching breweries are found to complete the trail,
   // add top-ranked, well-reviewed breweries proposing other beer types, with an explicit note.
   const targetTotalBreweries = Math.min(dayCount * 3, Math.max(dayCount * 2, Math.min(candidateBreweries.length, 3)));
 
   const matchesPreferredStyles = (b: RealBreweryRecord): boolean => {
-    if (!styles || styles.length === 0) return true;
-    return (b.beerHighlights || []).some(bh =>
-      styles.some(st => checkBeerMatchesStyle(bh, st))
-    );
+    return checkBreweryMeetsStyleCriteria(b, styles).isMatch;
   };
 
   const matchingCandidates = candidateBreweries.filter(matchesPreferredStyles);
@@ -1430,61 +1454,18 @@ function generateSmartFallbackRoute(
       dayBreweryRecords = [chosenTrailRecords[dayIdx % chosenTrailRecords.length]];
     }
 
-    // Convert to BreweryStop objects with real addresses, ratings, and beers
+    // Convert to BreweryStop objects with real addresses, multi-platform ratings, and beers
     const breweries: BreweryStop[] = dayBreweryRecords.map((bRecord, bIdx) => {
-      const baScore = bRecord.beerAdvocateScore || (bRecord.untappdScore ? Number((Math.min(4.95, bRecord.untappdScore + 0.04)).toFixed(2)) : 4.35);
-      const baCount = bRecord.beerAdvocateCount || '1,150+ ratings';
-      const compAverage = Number(((bRecord.googleScore + bRecord.untappdScore + bRecord.rateBeerScore + bRecord.tripAdvisorScore + baScore) / 5).toFixed(2));
-      const driveTime = bIdx === 0 ? 0 : 12 + bIdx * 3; // within 25 mins proximity
-      const driveDist = bIdx === 0 ? 0 : 4.5 + bIdx * 1.5;
-
       const isAlternative = alternativeRecordNames.has(bRecord.name.toLowerCase().trim());
-
-      const stopWithoutValidation: BreweryStop = {
-        id: `brewery-real-${dayNum}-${bIdx + 1}-${bRecord.name.toLowerCase().replace(/[^a-z0-9]/g, '-')}`,
-        name: bRecord.name,
-        tagline: bRecord.tagline,
-        address: bRecord.address,
-        city: bRecord.city,
-        state: bRecord.state,
-        lat: bRecord.lat,
-        lng: bRecord.lng,
-        driveTimeFromPrevMin: driveTime,
-        driveDistanceFromPrevMiles: driveDist,
-        ratings: {
-          google: { score: bRecord.googleScore, count: bRecord.googleCount },
-          untappd: { score: bRecord.untappdScore, count: bRecord.untappdCount },
-          rateBeer: { score: bRecord.rateBeerScore, count: 'Top Rated' },
-          tripAdvisor: { score: bRecord.tripAdvisorScore, count: bRecord.tripAdvisorCount },
-          beerAdvocate: { score: baScore, count: baCount },
-          compositeAverage: compAverage,
-        },
-        beerHighlights: bRecord.beerHighlights,
-        foodHighlights: bRecord.foodHighlights,
-        atmosphere: bRecord.atmosphere,
-        suggestedDurationMin: bRecord.suggestedDurationMin,
-        bestTimeToVisit: bRecord.bestTimeToVisit,
-        websiteUrl: bRecord.websiteUrl,
-        taplistUrl: bRecord.websiteUrl,
-        untappdUrl: `https://untappd.com/search?q=${encodeURIComponent(bRecord.name + ' ' + bRecord.city)}`,
-        rateBeerUrl: `https://www.ratebeer.com/search?q=${encodeURIComponent(bRecord.name + ' ' + bRecord.city)}`,
-        beerAdvocateUrl: bRecord.beerAdvocateUrl || `https://www.beeradvocate.com/search/?q=${encodeURIComponent(bRecord.name + ' ' + bRecord.city)}`,
-        styleVerificationSources: {
-          websiteVerified: true,
-          untappdVerified: true,
-          rateBeerVerified: true,
-          beerAdvocateVerified: true,
-          details: 'Certified live on-tap offerings verified across official brewery taplist, Untappd, RateBeer, and BeerAdvocate.',
-        },
-        googleMapsUrl: `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(`${bRecord.name}, ${bRecord.address}`)}&travelmode=driving`,
-      };
+      const stopWithoutValidation: BreweryStop = convertRealBreweryToStop(bRecord, dayNum, bIdx);
 
       const styleCheck = validateBreweryStyleMatch(stopWithoutValidation, params.beerStyles || []);
       stopWithoutValidation.hasPreferredStyle = !isAlternative && styleCheck.hasPreferredStyle;
       stopWithoutValidation.isAlternativeStyleStop = isAlternative || (!stopWithoutValidation.hasPreferredStyle && (params.beerStyles || []).length > 0);
       stopWithoutValidation.matchedStyles = isAlternative ? [] : styleCheck.matchedStyles;
       if (stopWithoutValidation.isAlternativeStyleStop) {
-        stopWithoutValidation.styleNotice = `Added to complete your trail: While this acclaimed brewery specializes in other craft styles rather than your selected ${(params.beerStyles || []).join(', ')}, it was selected for its exceptional certified 5-platform ratings (Untappd ${bRecord.untappdScore.toFixed(2)} ★, Google ${bRecord.googleScore.toFixed(1)} ★) and outstanding craft reputation.`;
+        const ratingStr = bRecord.untappdScore ? `Untappd ${bRecord.untappdScore.toFixed(2)} ★` : (bRecord.googleScore ? `Google ${bRecord.googleScore.toFixed(1)} ★` : 'Top Rated');
+        stopWithoutValidation.styleNotice = `Added to complete your trail: While this acclaimed brewery specializes in other craft styles rather than your selected ${(params.beerStyles || []).join(', ')}, it was selected for its exceptional certified ratings (${ratingStr}) and outstanding craft reputation.`;
       } else {
         stopWithoutValidation.styleNotice = styleCheck.styleNotice;
       }
