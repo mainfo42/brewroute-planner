@@ -209,6 +209,31 @@ export default function App() {
     }
   }, [successToast]);
 
+  // Background prefetch of the 2-day CRON Beer News database on site load
+  useEffect(() => {
+    fetch(`/api/beer-news?t=${Date.now()}`)
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data && Array.isArray(data.articles) && data.articles.length > 0) {
+          try {
+            localStorage.setItem(
+              'brewhop_beer_news_db_v2',
+              JSON.stringify({
+                twoDayEpoch: Math.floor(Date.now() / (2 * 24 * 60 * 60 * 1000)),
+                updatedAt: data.updatedAt || new Date().toISOString(),
+                articles: data.articles,
+              })
+            );
+          } catch {
+            // ignore storage errors
+          }
+        }
+      })
+      .catch(() => {
+        // Silent background warmup
+      });
+  }, []);
+
   const handleGenerateRoute = async (params: RouteParameters) => {
     setIsLoading(true);
     setErrorMessage(null);

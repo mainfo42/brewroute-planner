@@ -341,20 +341,91 @@ The venue boasts a 30-tap draft hall pouring Atlantic oyster stouts, crisp decoc
     sourceName: 'East Coast Craft Quarterly',
     highlightFact: 'Houses Halifax’s first coastal coolship utilizing maritime evening sea breezes for spontaneous inoculation.',
   },
+  {
+    id: 'news-awards-canadian-brewing-awards-2026',
+    title: 'Canadian Brewing Awards Crown Independent Craft Champions Across Quebec & Ontario',
+    category: 'Awards & Contests',
+    breweryOrOrg: 'Canadian Brewing Awards & Independent Brewers of Canada',
+    location: 'Montreal, QC & Toronto, ON, Canada',
+    publishDate: 'September 05, 2026',
+    isoDate: '2026-09-05',
+    readTimeMin: 4,
+    summary:
+      'Independent microbreweries from Quebec and Ontario swept the top technical medal categories at the Canadian Brewing Awards, led by oak-aged grisettes, dry-hopped Keller pilsners, and hazy Double IPAs.',
+    content: `The Canadian Brewing Awards concluded its blind sensory championship this week, celebrating the finest independent craft breweries across all ten provinces and territories. Certified BJCP judges evaluated nearly 2,000 commercial entries across 61 style categories.
+
+Microbreweries from Quebec and Ontario demonstrated extraordinary technical mastery. Montreal's Messorem Bracitorium and Sutton's Auval / À l'Abri de la Tempête alumni earned top accolades in hop-forward and mixed-fermentation divisions, while Ontario leaders Bellwoods Brewery, Third Moon, and Counterpart Brewing captured gold medallions for barrel-conditioned imperial stouts and hazy pale ales.
+
+Judges highlighted a nationwide surge in heritage grain mashing and precision cold-fermented lagers, noting that Canadian independent brewers are increasingly partnering with regional maltsters in Quebec, Ontario, and Alberta to craft distinct local terroir profiles.`,
+    tags: ['#CanadianBrewingAwards'],
+    sourceName: 'Canadian Craft Beer Journal',
+    highlightFact: 'Nearly 2,000 distinct Canadian craft beers were judged strictly blind across 61 BJCP-sanctioned style categories.',
+  },
+  {
+    id: 'news-launch-alchemist-focal-cellar',
+    title: 'The Alchemist Unveils Limited Hand-Pulled Cask Series & Estate Hop Trial in Stowe, Vermont',
+    category: 'New Launch',
+    breweryOrOrg: 'The Alchemist Brewery',
+    location: 'Stowe & Waterbury, Vermont, USA',
+    publishDate: 'September 04, 2026',
+    isoDate: '2026-09-04',
+    readTimeMin: 3,
+    summary:
+      'Vermont legend John Kimmich introduces an unpasteurized, naturally conditioned English-style hand-pulled cask IPA series at the Stowe beer garden featuring experimental Green Mountain hops.',
+    content: `The Alchemist, globally renowned for pioneering the unfiltered New England Double IPA with Heady Topper and Focal Banger, has expanded its traditional cellar-conditioning program in Stowe, Vermont. Co-founder and head brewer John Kimmich announced a rotating series of naturally conditioned real ales served exclusively via traditional English beer engines.
+
+Each firkin is dry-hopped directly in the cask using whole-leaf experimental varieties cultivated in northern Vermont alongside classic Simcoe and Amarillo plugs. Fining occurs naturally at cellar temperature (52°F) without forced carbonation, yielding a pillowy, creamy mouthfeel and heightened aromatic volatility.
+
+Visitors to the Stowe taproom and beer garden can experience the series alongside fresh four-pack releases, offering traveling hop enthusiasts a rare side-by-side sensory comparison between cold-canned Double IPAs and cellar-matured real ale.`,
+    tags: ['#VermontBeer'],
+    sourceName: 'Vermont Brewers Guild Dispatch',
+    highlightFact: 'Served at traditional 52°F cellar temperature through hand-pulled swan-neck beer engines with zero CO2 pressure.',
+  },
+  {
+    id: 'news-hops-peacharine-nz-harvest',
+    title: 'Peacharine™ & Nectaron® Lead Southern Hemisphere Hop Allocation Surge for North American Brewers',
+    category: 'Hops & Breeding',
+    breweryOrOrg: 'NZ Hops Cooperative & Freestyle Hops',
+    location: 'Motueka, New Zealand',
+    publishDate: 'September 02, 2026',
+    isoDate: '2026-09-02',
+    readTimeMin: 4,
+    summary:
+      'Air-freighted Southern Hemisphere hop lots of Peacharine™ and Nectaron® have landed in North American and European cold rooms, bringing intense white flesh nectarine and tropical citrus oil levels.',
+    content: `Freshly kilned and nitrogen-flushed bales from New Zealand's Motueka and Upper Moutere valleys have officially arrived at craft breweries across North America and Europe. Leading the seasonal allocation demand are two standout Southern Hemisphere cultivars: Nectaron® and the rapidly rising star Peacharine™.
+
+Grown in high-sunshine alluvial soils at the top of New Zealand's South Island, Peacharine™ delivers delicate yet saturating aromatics of white nectarine skin, sweet Meyer lemon, and passionfruit blossom. Brewers utilizing the variety in sub-170°F whirlpool additions report exceptional survival of volatile monoterpene alcohols.
+
+Craft taprooms in New York, Vermont, Ontario, and California have already scheduled collaborative Southern Hemisphere Hop Weeks to showcase single-hop pilsners and oat-cream IPAs brewed with the fresh air-freighted pellets.`,
+    tags: ['#NZHops'],
+    sourceName: 'Southern Hop Growers Wire',
+    highlightFact: 'Vacuum-sealed hop foils are cold-chain air-freighted at -4°C from Nelson to North American brewhouses in under 72 hours.',
+  },
 ];
 
+export const TWO_DAYS_MS = 2 * 24 * 60 * 60 * 1000; // 48 hours (Every 2 days)
+
 /**
- * Returns curated beer news with dynamically calculated real-time dates (Today, Yesterday, etc.)
- * so the feed is perpetually fresh and up-to-date even when offline or before the 24h AI sync completes.
+ * Computes the deterministic 2-day CRON epoch index so news automatically
+ * rotates and refreshes on a strict 48-hour (2-day) cycle.
  */
-export function getDynamicCuratedBeerNews(offset = 0): BeerNewsArticle[] {
+export function getTwoDayCronEpoch(timestampMs: number = Date.now()): number {
+  return Math.floor(timestampMs / TWO_DAYS_MS);
+}
+
+/**
+ * Returns curated beer news with dynamically calculated real-time dates
+ * anchored to the 2-day CRON cycle so the feed is perpetually fresh and up-to-date.
+ */
+export function getDynamicCuratedBeerNews(offset?: number): BeerNewsArticle[] {
   const now = new Date();
   const pool = [...CURATED_BEER_NEWS];
-  const safeOffset = Math.abs(offset) % pool.length;
+  const effectiveOffset = offset !== undefined ? offset : getTwoDayCronEpoch(now.getTime());
+  const safeOffset = Math.abs(effectiveOffset) % pool.length;
   const rotated = safeOffset > 0 ? [...pool.slice(safeOffset), ...pool.slice(0, safeOffset)] : pool;
 
+  // Anchor publication dates to the current 2-day cycle window so dates stay realistic and fresh
   return rotated.map((article, idx) => {
-    // Top 2 items are today, next 2 are yesterday, next 2 are 2 days ago, etc.
     const daysAgo = Math.floor(idx / 2);
     const dateObj = new Date(now.getTime() - daysAgo * 24 * 60 * 60 * 1000);
     const publishDate = dateObj.toLocaleDateString('en-US', {

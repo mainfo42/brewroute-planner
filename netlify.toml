@@ -9,6 +9,10 @@
 [functions]
   node_bundler = "esbuild"
 
+# Automated Every-2-Days (48-Hour) Beer News Database Refresh CRON Job
+[functions."beer-news-cron"]
+  schedule = "0 0 */2 * *"
+
 # API Proxy to Netlify Serverless Function
 [[redirects]]
   from = "/api/*"

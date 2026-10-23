@@ -2,7 +2,7 @@ import express from 'express';
 import path from 'path';
 import fs from 'fs';
 import { createServer as createViteServer } from 'vite';
-import app from './server/app';
+import app, { startBeerNewsTwoDayCron } from './server/app';
 
 const PORT = 3000;
 
@@ -58,6 +58,7 @@ async function startServer() {
 
     app.listen(PORT, '0.0.0.0', () => {
       console.log(`BrewHop server running on http://0.0.0.0:${PORT}`);
+      startBeerNewsTwoDayCron();
     });
   } catch (error) {
     console.error('Error starting server:', error);

@@ -17,8 +17,10 @@ import {
   Zap,
 } from 'lucide-react';
 import { BeerNewsArticle, BeerNewsCategory } from '../types';
-import { CURATED_BEER_NEWS, getDynamicCuratedBeerNews } from '../data/beerNewsData';
+import { CURATED_BEER_NEWS, getDynamicCuratedBeerNews, getTwoDayCronEpoch } from '../data/beerNewsData';
 import { AdSenseBanner } from './AdSenseBanner';
+
+const LOCAL_NEWS_CACHE_KEY = 'brewhop_beer_news_db_v2';
 
 interface BeerNewsPageProps {
   onStartPlanning: () => void;
@@ -26,7 +28,25 @@ interface BeerNewsPageProps {
 }
 
 export const BeerNewsPage: React.FC<BeerNewsPageProps> = ({ onStartPlanning, isActive = true }) => {
-  const [articles, setArticles] = useState<BeerNewsArticle[]>(() => getDynamicCuratedBeerNews());
+  const [articles, setArticles] = useState<BeerNewsArticle[]>(() => {
+    try {
+      const raw = localStorage.getItem(LOCAL_NEWS_CACHE_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (
+          parsed &&
+          parsed.twoDayEpoch === getTwoDayCronEpoch() &&
+          Array.isArray(parsed.articles) &&
+          parsed.articles.length > 0
+        ) {
+          return parsed.articles;
+        }
+      }
+    } catch {
+      // Ignore storage errors
+    }
+    return getDynamicCuratedBeerNews();
+  });
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [feedSource, setFeedSource] = useState<'live' | 'cache' | 'curated'>('curated');
@@ -34,18 +54,17 @@ export const BeerNewsPage: React.FC<BeerNewsPageProps> = ({ onStartPlanning, isA
   const [activeArticleModal, setActiveArticleModal] = useState<BeerNewsArticle | null>(null);
   const [refreshNotification, setRefreshNotification] = useState<string | null>(null);
 
-  // Fetch news whenever user lands on the page or when component mounts
+  // Automatically fetch latest news from the 2-day CRON database whenever user lands on the page
   useEffect(() => {
     if (isActive) {
       const now = Date.now();
-      // Fetch immediately if never fetched or if data is older than 5 minutes
       if (!lastFetchTimestamp || now - lastFetchTimestamp > 5 * 60 * 1000) {
         fetchNews(false);
       }
     }
   }, [isActive]);
 
-  // Tab visibility listener: automatically refresh if user returns to tab after a while
+  // Background polling & visibility listener so 2-day CRON updates appear automatically without manual refresh
   useEffect(() => {
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible' && isActive) {
@@ -56,14 +75,29 @@ export const BeerNewsPage: React.FC<BeerNewsPageProps> = ({ onStartPlanning, isA
       }
     };
 
+    const pollInterval = window.setInterval(() => {
+      if (isActive && document.visibilityState === 'visible') {
+        fetchNews(false);
+      }
+    }, 15 * 60 * 1000);
+
     document.addEventListener('visibilitychange', handleVisibilityChange);
-    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.clearInterval(pollInterval);
+    };
   }, [isActive, lastFetchTimestamp]);
 
   const fetchNews = async (forceRefresh = false) => {
     setIsLoading(true);
     try {
-      const url = `/api/beer-news${forceRefresh ? '?refresh=true' : ''}&t=${Date.now()}`;
+      const queryParams = new URLSearchParams();
+      if (forceRefresh) {
+        queryParams.set('refresh', 'true');
+      }
+      queryParams.set('t', String(Date.now()));
+      const url = `/api/beer-news?${queryParams.toString()}`;
+
       const res = await fetch(url);
       if (res.ok) {
         const data = await res.json();
@@ -71,6 +105,18 @@ export const BeerNewsPage: React.FC<BeerNewsPageProps> = ({ onStartPlanning, isA
           setArticles(data.articles);
           setFeedSource(data.source || 'live');
           setLastFetchTimestamp(Date.now());
+          try {
+            localStorage.setItem(
+              LOCAL_NEWS_CACHE_KEY,
+              JSON.stringify({
+                twoDayEpoch: getTwoDayCronEpoch(),
+                updatedAt: data.updatedAt || new Date().toISOString(),
+                articles: data.articles,
+              })
+            );
+          } catch {
+            // Ignore storage errors
+          }
           if (forceRefresh) {
             setRefreshNotification(`News updated! Refreshed ${data.articles.length} dispatches.`);
             setTimeout(() => setRefreshNotification(null), 4000);
@@ -78,7 +124,7 @@ export const BeerNewsPage: React.FC<BeerNewsPageProps> = ({ onStartPlanning, isA
         }
       }
     } catch (err) {
-      console.warn('Using dynamic fallback news data:', err);
+      console.warn('Using dynamic 2-day fallback news data:', err);
       setArticles(getDynamicCuratedBeerNews());
     } finally {
       setIsLoading(false);
