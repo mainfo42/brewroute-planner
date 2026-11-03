@@ -261,61 +261,92 @@ Each item must have:
 }
 
 /**
- * Initializes the automated Every-2-Days (48-Hour) background CRON job
+ * Initializes the automated Every-2-Days (48-Hour) background CRON engine
  * to automatically fetch the latest Beer News and refresh the database serving the section.
+ * Uses an active 60-second ticker to ensure that even across server reboots, sleep states,
+ * or epoch transitions, the 48-hour refresh executes reliably on schedule.
  */
 export function startBeerNewsTwoDayCron() {
-  if (cronTimer) return; // Prevent duplicate timers
-  console.log(`[Beer News 2-Day Cron] Initializing automated 48-hour (${BEER_NEWS_CRON_SCHEDULE}) database refresh scheduler...`);
+  if (watchdogTimer) return; // Prevent duplicate schedulers
+  console.log(`[Beer News 2-Day Cron] Initializing automated 48-hour (${BEER_NEWS_CRON_SCHEDULE}) background refresh engine...`);
 
-  // Ensure the database exists and check if 2-day epoch has expired
-  const existingDb = loadBeerNewsDatabase();
-  if (isBeerNewsDatabaseExpired(existingDb)) {
-    setTimeout(() => {
-      repopulateBeerNews(false).catch((err) => {
-        console.warn('[Beer News 2-Day Cron] Initial database sync note:', err);
-      });
-    }, 2000).unref();
-  } else {
-    console.log(
-      `[Beer News 2-Day Cron] Loaded existing database (${existingDb.articles.length} articles, last updated: ${existingDb.lastUpdatedIso}, next scheduled: ${existingDb.nextScheduledUpdateIso}).`
-    );
-  }
-
-  // Recurring 2-day (48-hour) CRON execution
-  cronTimer = setInterval(async () => {
-    console.log(`[Beer News 2-Day Cron] Executing scheduled 48-hour database refresh at ${new Date().toISOString()}...`);
+  const initialCheck = () => {
     try {
-      await repopulateBeerNews(true);
-      console.log(`[Beer News 2-Day Cron] Scheduled 48-hour database refresh completed successfully.`);
-    } catch (cronErr) {
-      console.error('[Beer News 2-Day Cron] Error during scheduled 48-hour database refresh:', cronErr);
-    }
-  }, BEER_NEWS_CRON_INTERVAL_MS);
-  cronTimer.unref();
-
-  // Hourly watchdog check: ensures that if server slept or crossed a 2-day epoch boundary, the database refreshes immediately
-  watchdogTimer = setInterval(async () => {
-    const currentDb = loadBeerNewsDatabase();
-    if (isBeerNewsDatabaseExpired(currentDb)) {
-      console.log(`[Beer News 2-Day Cron] Watchdog detected 2-day expiration boundary; refreshing Beer News database...`);
-      try {
-        await repopulateBeerNews(false);
-      } catch (err) {
-        console.error('[Beer News 2-Day Cron] Watchdog refresh error:', err);
+      const existingDb = loadBeerNewsDatabase();
+      const now = Date.now();
+      const expired = isBeerNewsDatabaseExpired(existingDb, now);
+      if (expired) {
+        console.log(`[Beer News 2-Day Cron] Database expired or not yet initialized. Executing automated refresh...`);
+        repopulateBeerNews(false).catch((err) => {
+          console.warn('[Beer News 2-Day Cron] Initial refresh warning:', err);
+        });
+      } else {
+        const remainingHours = Math.max(0, (existingDb.nextScheduledUpdateAt - now) / (1000 * 60 * 60)).toFixed(1);
+        console.log(
+          `[Beer News 2-Day Cron] Database active (${existingDb.articles.length} articles). Last refreshed: ${existingDb.lastUpdatedIso}. Next automated run in ~${remainingHours}h (${existingDb.nextScheduledUpdateIso}).`
+        );
       }
+    } catch (err) {
+      console.warn('[Beer News 2-Day Cron] Startup check error:', err);
     }
-  }, 60 * 60 * 1000);
-  watchdogTimer.unref();
+  };
+
+  // Immediate check on startup
+  initialCheck();
+
+  // Active 60-second CRON ticker: checks whether the 48-hour boundary has elapsed every minute
+  watchdogTimer = setInterval(async () => {
+    try {
+      const currentDb = loadBeerNewsDatabase();
+      const now = Date.now();
+      if (isBeerNewsDatabaseExpired(currentDb, now)) {
+        console.log(`[Beer News 2-Day Cron] 48-hour expiration reached at ${new Date(now).toISOString()}. Executing automated database refresh...`);
+        await repopulateBeerNews(true);
+        console.log(`[Beer News 2-Day Cron] Automated 48-hour database refresh completed.`);
+      }
+    } catch (tickErr) {
+      console.error('[Beer News 2-Day Cron] Error during scheduled ticker refresh:', tickErr);
+    }
+  }, 60 * 1000);
 }
 
 // Keep alias for backwards compatibility
 export const startBeerNews24hCron = startBeerNewsTwoDayCron;
 
 /**
+ * GET /api/beer-news/status
+ * CRON Diagnostic and status monitor endpoint
+ */
+apiRouter.get('/beer-news/status', (req, res) => {
+  const db = loadBeerNewsDatabase();
+  const now = Date.now();
+  const remainingMs = Math.max(0, db.nextScheduledUpdateAt - now);
+  const remainingHours = Math.floor(remainingMs / (60 * 60 * 1000));
+  const remainingMins = Math.floor((remainingMs % (60 * 60 * 1000)) / (60 * 1000));
+
+  res.json({
+    isActive: true,
+    cronSchedule: BEER_NEWS_CRON_SCHEDULE,
+    cronCadence: 'Every 2 Days (48 Hours)',
+    cronIntervalHours: BEER_NEWS_CRON_INTERVAL_HOURS,
+    isExpired: isBeerNewsDatabaseExpired(db, now),
+    lastUpdatedAt: db.lastUpdatedAt,
+    lastUpdatedIso: db.lastUpdatedIso,
+    nextScheduledAt: db.nextScheduledUpdateAt,
+    nextScheduledIso: db.nextScheduledUpdateIso,
+    remainingMs,
+    remainingFormatted: `${remainingHours}h ${remainingMins}m`,
+    articleCount: db.articles.length,
+    refreshCount: db.refreshCount,
+    source: db.source,
+    timestamp: new Date().toISOString(),
+  });
+});
+
+/**
  * GET /api/beer-news
  * Serves the latest beer news from the Beer News database when users land on the page.
- * Automatically triggers a database refresh if 2 days (48h) have elapsed or if force refresh is requested.
+ * Automatically triggers an automated database refresh if 2 days (48h) have elapsed or if force refresh is requested.
  */
 apiRouter.get('/beer-news', async (req, res) => {
   const forceRefresh = req.query.refresh === 'true' || req.query.force === 'true';
@@ -334,6 +365,17 @@ apiRouter.get('/beer-news', async (req, res) => {
       nextCronRunAt: db.nextScheduledUpdateIso,
       cronSchedule: BEER_NEWS_CRON_SCHEDULE,
       cronIntervalHours: BEER_NEWS_CRON_INTERVAL_HOURS,
+      cronStatus: {
+        isActive: true,
+        intervalHours: BEER_NEWS_CRON_INTERVAL_HOURS,
+        lastUpdatedAt: db.lastUpdatedAt,
+        lastUpdatedIso: db.lastUpdatedIso,
+        nextScheduledAt: db.nextScheduledUpdateAt,
+        nextScheduledIso: db.nextScheduledUpdateIso,
+        remainingMs: Math.max(0, db.nextScheduledUpdateAt - now),
+        refreshCount: db.refreshCount,
+        mode: 'automated_48h_cron',
+      },
       articles,
     });
   }
@@ -353,6 +395,17 @@ apiRouter.get('/beer-news', async (req, res) => {
     nextCronRunAt: db.nextScheduledUpdateIso,
     cronSchedule: BEER_NEWS_CRON_SCHEDULE,
     cronIntervalHours: BEER_NEWS_CRON_INTERVAL_HOURS,
+    cronStatus: {
+      isActive: true,
+      intervalHours: BEER_NEWS_CRON_INTERVAL_HOURS,
+      lastUpdatedAt: db.lastUpdatedAt,
+      lastUpdatedIso: db.lastUpdatedIso,
+      nextScheduledAt: db.nextScheduledUpdateAt,
+      nextScheduledIso: db.nextScheduledUpdateIso,
+      remainingMs: Math.max(0, db.nextScheduledUpdateAt - now),
+      refreshCount: db.refreshCount,
+      mode: 'automated_48h_cron',
+    },
     articles: db.articles,
   });
 });

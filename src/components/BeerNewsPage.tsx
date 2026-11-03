@@ -53,6 +53,40 @@ export const BeerNewsPage: React.FC<BeerNewsPageProps> = ({ onStartPlanning, isA
   const [lastFetchTimestamp, setLastFetchTimestamp] = useState<number>(0);
   const [activeArticleModal, setActiveArticleModal] = useState<BeerNewsArticle | null>(null);
   const [refreshNotification, setRefreshNotification] = useState<string | null>(null);
+  const [cronMeta, setCronMeta] = useState<{
+    isActive: boolean;
+    intervalHours: number;
+    lastUpdatedIso: string;
+    nextCronRunAtIso: string;
+    refreshCount: number;
+  }>(() => {
+    try {
+      const raw = localStorage.getItem(LOCAL_NEWS_CACHE_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (parsed?.updatedAt) {
+          const nextMs = new Date(parsed.updatedAt).getTime() + 48 * 60 * 60 * 1000;
+          return {
+            isActive: true,
+            intervalHours: 48,
+            lastUpdatedIso: parsed.updatedAt,
+            nextCronRunAtIso: parsed.nextCronRunAt || new Date(nextMs).toISOString(),
+            refreshCount: parsed.refreshCount || 0,
+          };
+        }
+      }
+    } catch {
+      // Ignore
+    }
+    const now = Date.now();
+    return {
+      isActive: true,
+      intervalHours: 48,
+      lastUpdatedIso: new Date(now).toISOString(),
+      nextCronRunAtIso: new Date(now + 48 * 60 * 60 * 1000).toISOString(),
+      refreshCount: 0,
+    };
+  });
 
   // Automatically fetch latest news from the 2-day CRON database whenever user lands on the page
   useEffect(() => {
@@ -69,7 +103,7 @@ export const BeerNewsPage: React.FC<BeerNewsPageProps> = ({ onStartPlanning, isA
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible' && isActive) {
         const now = Date.now();
-        if (now - lastFetchTimestamp > 10 * 60 * 1000) {
+        if (now - lastFetchTimestamp > 5 * 60 * 1000) {
           fetchNews(false);
         }
       }
@@ -79,7 +113,7 @@ export const BeerNewsPage: React.FC<BeerNewsPageProps> = ({ onStartPlanning, isA
       if (isActive && document.visibilityState === 'visible') {
         fetchNews(false);
       }
-    }, 15 * 60 * 1000);
+    }, 5 * 60 * 1000);
 
     document.addEventListener('visibilitychange', handleVisibilityChange);
     return () => {
@@ -87,6 +121,40 @@ export const BeerNewsPage: React.FC<BeerNewsPageProps> = ({ onStartPlanning, isA
       window.clearInterval(pollInterval);
     };
   }, [isActive, lastFetchTimestamp]);
+
+  const formatDateTime = (isoString?: string) => {
+    if (!isoString) return 'Just now';
+    try {
+      const d = new Date(isoString);
+      if (isNaN(d.getTime())) return 'Recently';
+      return d.toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        hour: 'numeric',
+        minute: '2-digit',
+      });
+    } catch {
+      return 'Recently';
+    }
+  };
+
+  const formatRelativeTime = (isoString?: string) => {
+    if (!isoString) return 'in ~48 hours';
+    try {
+      const target = new Date(isoString).getTime();
+      const diff = target - Date.now();
+      if (diff <= 0) return 'scheduled now';
+      const hours = Math.floor(diff / (1000 * 60 * 60));
+      const days = Math.floor(hours / 24);
+      if (days >= 1) {
+        const remHours = hours % 24;
+        return `in ${days}d ${remHours}h`;
+      }
+      return `in ${hours}h`;
+    } catch {
+      return 'in ~48 hours';
+    }
+  };
 
   const fetchNews = async (forceRefresh = false) => {
     setIsLoading(true);
@@ -105,12 +173,22 @@ export const BeerNewsPage: React.FC<BeerNewsPageProps> = ({ onStartPlanning, isA
           setArticles(data.articles);
           setFeedSource(data.source || 'live');
           setLastFetchTimestamp(Date.now());
+          const lastUpdated = data.updatedAt || new Date().toISOString();
+          const nextCron = data.nextCronRunAt || new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString();
+          setCronMeta({
+            isActive: true,
+            intervalHours: data.cronIntervalHours || 48,
+            lastUpdatedIso: lastUpdated,
+            nextCronRunAtIso: nextCron,
+            refreshCount: data.cronStatus?.refreshCount ?? 0,
+          });
           try {
             localStorage.setItem(
               LOCAL_NEWS_CACHE_KEY,
               JSON.stringify({
                 twoDayEpoch: getTwoDayCronEpoch(),
-                updatedAt: data.updatedAt || new Date().toISOString(),
+                updatedAt: lastUpdated,
+                nextCronRunAt: nextCron,
                 articles: data.articles,
               })
             );
@@ -196,8 +274,8 @@ export const BeerNewsPage: React.FC<BeerNewsPageProps> = ({ onStartPlanning, isA
   return (
     <div id="beer-news-page" className="w-full text-white bg-black py-8 sm:py-14 px-4 sm:px-6 lg:px-8 animate-in fade-in duration-200">
       <div className="max-w-6xl mx-auto space-y-10">
-        {/* Header section */}
-        <div className="flex flex-col md:flex-row items-start md:items-end justify-between gap-6 border-b border-[#1E331B] pb-8">
+        {/* Header section with live 48-Hour CRON status */}
+        <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 border-b border-[#1E331B] pb-8">
           <div className="space-y-3 max-w-2xl">
             <h1 className="text-3xl sm:text-5xl font-black tracking-tight text-white font-display uppercase leading-tight">
               Worldwide Beer Updates
@@ -209,17 +287,54 @@ export const BeerNewsPage: React.FC<BeerNewsPageProps> = ({ onStartPlanning, isA
             </p>
           </div>
 
-          {/* Refresh button */}
-          <div className="flex items-center shrink-0">
+          {/* CRON Engine Live Status Card & On-Demand Refresh */}
+          <div className="w-full lg:w-auto flex flex-col sm:flex-row items-stretch sm:items-center gap-3 shrink-0">
+            {/* Live 48-Hour CRON Active Badge Card */}
+            <div 
+              id="cron-status-badge-card"
+              className="px-4 py-3 rounded-2xl bg-[#142312] border border-[#2B4E26] shadow-md flex flex-col gap-1.5 min-w-[270px]"
+            >
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2">
+                  <span className="relative flex h-2.5 w-2.5">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#66DE37] opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#66DE37]"></span>
+                  </span>
+                  <span className="text-[11px] font-black uppercase tracking-wider text-[#66DE37] font-brand">
+                    48H Auto-Refresh CRON: Active
+                  </span>
+                </div>
+                <span className="text-[10px] text-[#A2D093] bg-[#1E3B18] px-2 py-0.5 rounded-full font-bold">
+                  Every 2 Days
+                </span>
+              </div>
+
+              <div className="text-[11px] text-[#C2DEC0] space-y-0.5">
+                <div className="flex items-center justify-between gap-3">
+                  <span className="text-[#88A680]">Last Auto-Sync:</span>
+                  <span className="font-semibold text-white">
+                    {formatDateTime(cronMeta.lastUpdatedIso)}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between gap-3">
+                  <span className="text-[#88A680]">Next Scheduled:</span>
+                  <span className="font-semibold text-[#FBBF24]">
+                    {formatRelativeTime(cronMeta.nextCronRunAtIso)}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Manual On-Demand Refresh Button */}
             <button
               type="button"
               id="refresh-news-btn"
               onClick={() => fetchNews(true)}
               disabled={isLoading}
-              className="px-4 py-2.5 rounded-xl bg-[#1B2F18] hover:bg-[#254221] text-[#DDF1D2] text-xs font-bold font-brand tracking-wider flex items-center gap-2 transition-all cursor-pointer border border-[#376332] active:scale-95 disabled:opacity-50 shadow-md"
-              title="Refresh news"
+              className="px-4 py-3.5 rounded-2xl bg-[#1B2F18] hover:bg-[#254221] text-[#DDF1D2] text-xs font-bold font-brand tracking-wider flex items-center justify-center gap-2 transition-all cursor-pointer border border-[#376332] active:scale-95 disabled:opacity-50 shadow-md h-full min-h-[52px]"
+              title="Manual on-demand refresh (CRON also runs automatically every 2 days)"
             >
-              <RotateCw className={`w-3.5 h-3.5 text-[#F59E0B] ${isLoading ? 'animate-spin' : ''}`} />
+              <RotateCw className={`w-4 h-4 text-[#F59E0B] ${isLoading ? 'animate-spin' : ''}`} />
               <span>{isLoading ? 'REFRESHING...' : 'REFRESH NEWS'}</span>
             </button>
           </div>

@@ -91,10 +91,12 @@ export const BrandLogo: React.FC<BrandLogoProps> = ({
       <div className="flex flex-col justify-center">
         {/* Main Brand Wordmark: Vintage Craft Brewery Script */}
         <span
-          className={`font-crafty ${titleSizes} ${titleColor} transition-colors duration-200 leading-none drop-shadow-xs tracking-normal`}
+          className={`font-crafty ${titleSizes} ${titleColor} transition-colors duration-200 leading-none drop-shadow-xs tracking-normal select-none`}
           style={{
             fontFamily: "'Pacifico', 'Yellowtail', cursive, sans-serif",
             letterSpacing: '0.01em',
+            WebkitFontSmoothing: 'antialiased',
+            MozOsxFontSmoothing: 'grayscale',
           }}
         >
           BrewHop

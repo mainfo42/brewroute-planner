@@ -1,4 +1,22 @@
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:ital,wght@0,600;0,700;0,800;0,900;1,700;1,800&family=Pacifico&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,600&family=Yellowtail&display=swap');
 @import "tailwindcss";
+
+/* Ensure local font assets are always resolved first across all devices, mobile Web Apps & PWAs */
+@font-face {
+  font-family: 'Pacifico';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/pacifico.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Yellowtail';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/yellowtail.ttf') format('truetype');
+}
 
 @layer base {
   :root {
