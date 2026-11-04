@@ -38,4 +38,4 @@ const cronHandler = async (event: any) => {
   }
 };
 
-export const handler = schedule(BEER_NEWS_CRON_SCHEDULE, cronHandler);
+export const handler = schedule('0 0 */2 * *', cronHandler);
