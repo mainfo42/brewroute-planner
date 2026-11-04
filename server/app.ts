@@ -345,18 +345,24 @@ apiRouter.get('/beer-news/status', (req, res) => {
 
 /**
  * GET /api/beer-news
- * Serves the latest beer news from the Beer News database when users land on the page.
- * Automatically triggers an automated database refresh if 2 days (48h) have elapsed or if force refresh is requested.
+ * Serves the latest beer news from the Beer News database.
+ * Automatically refreshes the news whenever a user lands on the page, when a new day arrives,
+ * when the 2-day CRON boundary elapses, or upon explicit manual refresh.
  */
 apiRouter.get('/beer-news', async (req, res) => {
   const forceRefresh = req.query.refresh === 'true' || req.query.force === 'true';
+  const isLanding = req.query.landing === 'true';
   const now = Date.now();
 
   let db = loadBeerNewsDatabase();
   const expired = isBeerNewsDatabaseExpired(db, now);
+  const isNewDay =
+    !db.lastUpdatedAt ||
+    new Date(now).toISOString().split('T')[0] !== new Date(db.lastUpdatedAt).toISOString().split('T')[0];
+  const shouldRefresh = forceRefresh || expired || isNewDay || (isLanding && now - db.lastUpdatedAt > 2 * 60 * 1000);
 
-  if (forceRefresh) {
-    const articles = await repopulateBeerNews(true);
+  if (shouldRefresh) {
+    const articles = await repopulateBeerNews(forceRefresh || expired || isNewDay);
     db = loadBeerNewsDatabase();
     return res.json({
       source: db.source,
@@ -365,47 +371,17 @@ apiRouter.get('/beer-news', async (req, res) => {
       nextCronRunAt: db.nextScheduledUpdateIso,
       cronSchedule: BEER_NEWS_CRON_SCHEDULE,
       cronIntervalHours: BEER_NEWS_CRON_INTERVAL_HOURS,
-      cronStatus: {
-        isActive: true,
-        intervalHours: BEER_NEWS_CRON_INTERVAL_HOURS,
-        lastUpdatedAt: db.lastUpdatedAt,
-        lastUpdatedIso: db.lastUpdatedIso,
-        nextScheduledAt: db.nextScheduledUpdateAt,
-        nextScheduledIso: db.nextScheduledUpdateIso,
-        remainingMs: Math.max(0, db.nextScheduledUpdateAt - now),
-        refreshCount: db.refreshCount,
-        mode: 'automated_48h_cron',
-      },
       articles,
     });
   }
 
-  if (expired) {
-    // Rotate dynamic 2-day epoch immediately and trigger live refresh in background
-    const rotationOffset = getTwoDayCronEpoch(now) + db.refreshCount;
-    const rotatedArticles = getDynamicCuratedBeerNews(rotationOffset);
-    db = saveBeerNewsDatabase(rotatedArticles, 'curated', db.refreshCount, now);
-    repopulateBeerNews(false).catch(() => {});
-  }
-
   return res.json({
     source: db.source,
-    refreshed: expired,
+    refreshed: false,
     updatedAt: db.lastUpdatedIso,
     nextCronRunAt: db.nextScheduledUpdateIso,
     cronSchedule: BEER_NEWS_CRON_SCHEDULE,
     cronIntervalHours: BEER_NEWS_CRON_INTERVAL_HOURS,
-    cronStatus: {
-      isActive: true,
-      intervalHours: BEER_NEWS_CRON_INTERVAL_HOURS,
-      lastUpdatedAt: db.lastUpdatedAt,
-      lastUpdatedIso: db.lastUpdatedIso,
-      nextScheduledAt: db.nextScheduledUpdateAt,
-      nextScheduledIso: db.nextScheduledUpdateIso,
-      remainingMs: Math.max(0, db.nextScheduledUpdateAt - now),
-      refreshCount: db.refreshCount,
-      mode: 'automated_48h_cron',
-    },
     articles: db.articles,
   });
 });
