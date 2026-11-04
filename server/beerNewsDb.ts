@@ -30,26 +30,36 @@ let memoryDb: BeerNewsDatabaseRecord | null = null;
 
 /**
  * Loads the persisted Beer News database from disk (or initializes it if not yet created).
+ * Checks both TMP_DB_PATH (Netlify serverless writable) and PRIMARY_DB_PATH,
+ * picking whichever has the newest lastUpdatedAt timestamp.
  */
 export function loadBeerNewsDatabase(): BeerNewsDatabaseRecord {
   if (memoryDb) {
     return memoryDb;
   }
 
-  const candidatePaths = [PRIMARY_DB_PATH, TMP_DB_PATH];
+  let newestRecord: BeerNewsDatabaseRecord | null = null;
+  const candidatePaths = [TMP_DB_PATH, PRIMARY_DB_PATH];
+
   for (const filePath of candidatePaths) {
     try {
       if (fs.existsSync(filePath)) {
         const raw = fs.readFileSync(filePath, 'utf8');
         const parsed = JSON.parse(raw) as BeerNewsDatabaseRecord;
         if (parsed && Array.isArray(parsed.articles) && parsed.articles.length > 0) {
-          memoryDb = parsed;
-          return parsed;
+          if (!newestRecord || (parsed.lastUpdatedAt || 0) > (newestRecord.lastUpdatedAt || 0)) {
+            newestRecord = parsed;
+          }
         }
       }
     } catch (err) {
       // Continue to next candidate path
     }
+  }
+
+  if (newestRecord) {
+    memoryDb = newestRecord;
+    return newestRecord;
   }
 
   // Seed initial 2-day epoch database record immediately so startup and reads never block
@@ -84,19 +94,21 @@ export function saveBeerNewsDatabase(
 
   memoryDb = record;
 
-  // Write to primary server/data/beerNewsDatabase.json
+  // Always write to /tmp for Netlify Functions serverless environment
+  try {
+    fs.writeFileSync(TMP_DB_PATH, JSON.stringify(record, null, 2), 'utf8');
+  } catch (tmpErr) {
+    // Ignore tmp write errors if any
+  }
+
+  // Also write to primary server/data/beerNewsDatabase.json if directory is writable
   try {
     if (!fs.existsSync(PRIMARY_DB_DIR)) {
       fs.mkdirSync(PRIMARY_DB_DIR, { recursive: true });
     }
     fs.writeFileSync(PRIMARY_DB_PATH, JSON.stringify(record, null, 2), 'utf8');
   } catch (primaryErr) {
-    // Fallback to os.tmpdir() in read-only serverless containers
-    try {
-      fs.writeFileSync(TMP_DB_PATH, JSON.stringify(record, null, 2), 'utf8');
-    } catch (tmpErr) {
-      // In-memory cache still holds the latest record
-    }
+    // Expected on read-only serverless container systems like Netlify Functions
   }
 
   return record;

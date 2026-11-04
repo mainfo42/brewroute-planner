@@ -1,3 +1,4 @@
+import { schedule } from '@netlify/functions';
 import { repopulateBeerNews } from '../../server/app';
 import { loadBeerNewsDatabase, BEER_NEWS_CRON_SCHEDULE, BEER_NEWS_CRON_INTERVAL_HOURS } from '../../server/beerNewsDb';
 
@@ -5,11 +6,12 @@ import { loadBeerNewsDatabase, BEER_NEWS_CRON_SCHEDULE, BEER_NEWS_CRON_INTERVAL_
  * Netlify Scheduled CRON Function (Runs automatically every 2 days / 48 hours)
  * Automatically fetches the latest Beer News and refreshes the Beer News database.
  */
-export const handler = async () => {
+const cronHandler = async (event: any) => {
   try {
-    console.log(`[Netlify Scheduled Cron] Executing 2-day (${BEER_NEWS_CRON_SCHEDULE}) Beer News database refresh...`);
+    console.log(`[Netlify Scheduled Cron] Executing 48-hour (${BEER_NEWS_CRON_SCHEDULE}) Beer News database refresh...`);
     const articles = await repopulateBeerNews(true);
     const db = loadBeerNewsDatabase();
+    console.log(`[Netlify Scheduled Cron] Successfully refreshed ${articles.length} news articles.`);
 
     return {
       statusCode: 200,
@@ -35,3 +37,5 @@ export const handler = async () => {
     };
   }
 };
+
+export const handler = schedule(BEER_NEWS_CRON_SCHEDULE, cronHandler);

@@ -359,10 +359,10 @@ apiRouter.get('/beer-news', async (req, res) => {
   const isNewDay =
     !db.lastUpdatedAt ||
     new Date(now).toISOString().split('T')[0] !== new Date(db.lastUpdatedAt).toISOString().split('T')[0];
-  const shouldRefresh = forceRefresh || expired || isNewDay || (isLanding && now - db.lastUpdatedAt > 2 * 60 * 1000);
+  const shouldRefresh = forceRefresh || expired || isNewDay || isLanding;
 
   if (shouldRefresh) {
-    const articles = await repopulateBeerNews(forceRefresh || expired || isNewDay);
+    const articles = await repopulateBeerNews(true);
     db = loadBeerNewsDatabase();
     return res.json({
       source: db.source,
@@ -1633,7 +1633,10 @@ function generateSmartFallbackRoute(
   return enrichRouteWithCityRadius(builtRoute, destinationCityInfo, startLoc);
 }
 
-// Mount router under both '/api' and root '/' for maximum compatibility with Netlify Functions and local Express
+// Mount router under multiple base paths for universal compatibility with Netlify Functions, serverless proxies, and local Express
+app.use('/.netlify/functions/api', apiRouter);
+app.use('/.netlify/functions/server', apiRouter);
+app.use('/.netlify/functions/beer-news-cron', apiRouter);
 app.use('/api', apiRouter);
 app.use('/', apiRouter);
 

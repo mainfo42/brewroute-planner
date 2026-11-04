@@ -33,11 +33,14 @@ export const BeerNewsPage: React.FC<BeerNewsPageProps> = ({ onStartPlanning, isA
       const raw = localStorage.getItem(LOCAL_NEWS_CACHE_KEY);
       if (raw) {
         const parsed = JSON.parse(raw);
+        const todayIso = new Date().toISOString().split('T')[0];
         if (
           parsed &&
           parsed.twoDayEpoch === getTwoDayCronEpoch() &&
           Array.isArray(parsed.articles) &&
-          parsed.articles.length > 0
+          parsed.articles.length > 0 &&
+          parsed.articles[0]?.isoDate &&
+          parsed.articles[0]?.isoDate >= todayIso
         ) {
           return parsed.articles;
         }
@@ -58,7 +61,7 @@ export const BeerNewsPage: React.FC<BeerNewsPageProps> = ({ onStartPlanning, isA
   useEffect(() => {
     if (isActive) {
       // Always refresh when user lands on the news page
-      fetchNews(false, true);
+      fetchNews(true, true);
     }
   }, [isActive]);
 
